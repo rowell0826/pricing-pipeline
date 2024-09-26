@@ -95,7 +95,7 @@ export default function SignInForm() {
 			// Create or update user document in Firestore
 			await createUserDocumentFromAuth(user.uid, userDetails);
 
-			console.log("User signed in with Google:", user);
+			console.log("User signed in with Google");
 
 			router.push("/");
 		} catch (error) {
