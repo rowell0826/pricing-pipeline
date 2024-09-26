@@ -64,63 +64,49 @@ export default function SideBar() {
 			<div className="w-full flex justify-end items-center absolute p-2">
 				<Switch />
 			</div>
-			{isOpen === true ? (
-				<nav className="h-full w-[20%] flex flex-col justify-evenly items-center bg-background">
-					<div className="relative w-full flex justify-end items-end -mt-[80px]">
-						<div className="w-10 h-10 bg-gray-400 p-2 rounded-md flex justify-center items-center">
+			<nav
+				className={`h-full flex flex-col justify-evenly items-center bg-background sidebar ${
+					isOpen ? "w-[20%]" : "w-[5%]"
+				} transition-all duration-300 ease-in-out overflow-hidden`}
+			>
+				<div
+					className={`relative w-full flex justify-end items-end ${
+						isOpen ? "-mt-[80px]" : "-mt-[100px]"
+					}`}
+				>
+					<div className="w-10 h-10 bg-gray-400 p-2 rounded-md flex justify-center items-center">
+						{isOpen ? (
 							<IoIosArrowBack onClick={sideBarToggle} />
-						</div>
-					</div>
-					<div>
-						<h1>Hi, {userName}</h1>
-						<p className="text-center">{role}</p>
-					</div>
-					<ul className="flex flex-col gap-4">
-						<li className="p-4 flex justify-center items-center gap-2">
-							<span className="inline-block">
-								<FcOpenedFolder />
-							</span>{" "}
-							View Files
-						</li>
-						<li className="p-4 flex justify-center items-center gap-2">
-							<span className="inline-block">
-								<BsListTask color="white" />
-							</span>{" "}
-							Create Task
-						</li>
-					</ul>
-					<p className="mb-10 flex justify-center items-center" onClick={handleSignOut}>
-						Sign Out
-					</p>
-				</nav>
-			) : (
-				<nav className="h-full w-[5%] flex flex-col justify-evenly items-center bg-background">
-					<div className="relative w-full flex justify-end items-end -mt-[100px]">
-						<div className="w-10 h-10 bg-gray-400 p-2 rounded-md flex justify-center items-center">
+						) : (
 							<IoIosArrowForward onClick={sideBarToggle} />
-						</div>
+						)}
 					</div>
-					<div>
-						<h1 className="hidden">Hi, {userName}</h1>
-						<p className="hidden">{role}</p>
-					</div>
-					<ul className="flex flex-col gap-4">
-						<li className="p-4 flex justify-center items-center">
-							<span className="inline-block">
-								<FcOpenedFolder />
-							</span>
-						</li>
-						<li className="p-4 flex justify-center items-center">
-							<span className="inline-block">
-								<BsListTask color="white" />
-							</span>
-						</li>
-					</ul>
-					<div className="mb-10 flex justify-center items-center" onClick={handleSignOut}>
-						<PiSignOutBold />
-					</div>
-				</nav>
-			)}
+				</div>
+
+				<div>
+					<h1 className={`${isOpen ? "" : "hidden"}`}>Hi, {userName}</h1>
+					<p className={`${isOpen ? "" : "hidden"} text-center`}>{role}</p>
+				</div>
+
+				<ul className="flex flex-col gap-4">
+					<li className="p-4 flex justify-center items-center gap-2">
+						<span className="inline-block">
+							<FcOpenedFolder />
+						</span>
+						{isOpen && "View Files"}
+					</li>
+					<li className="p-4 flex justify-center items-center gap-2">
+						<span className="inline-block">
+							<BsListTask color="white" />
+						</span>
+						{isOpen && "Create Task"}
+					</li>
+				</ul>
+				<p className="mb-10 flex justify-center items-center" onClick={handleSignOut}>
+					<PiSignOutBold />
+					{isOpen && "Sign Out"}
+				</p>
+			</nav>
 		</>
 	);
 }
