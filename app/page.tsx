@@ -8,16 +8,16 @@ export default function Home() {
 			<main className="w-full flex justify-center mt-20">
 				<div className="flex flex-col md:flex-row justify-evenly items-center border-4 w-full h-[300px]">
 					<div className="border-2 border-zinc-800 w-[200px] h-[300px] text-center">
-						Cards
+						Client Input
 					</div>
 					<div className="border-2 border-zinc-800 w-[200px] h-[300px] text-center">
-						Cards
+						Data Analyst & Data QA
 					</div>
 					<div className="border-2 border-zinc-800 w-[200px] h-[300px] text-center">
-						Cards
+						Data Scientist & Prompt Engineer
 					</div>
 					<div className="border-2 border-zinc-800 w-[200px] h-[300px] text-center">
-						Cards
+						Done
 					</div>
 				</div>
 			</main>
