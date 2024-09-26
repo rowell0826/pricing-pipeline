@@ -83,5 +83,22 @@ export const signInAuthUserWithEmailAndPassword = async (email: string, password
 // Below are authentication functionalities used for the project mostly account sign-in and account sign-up
 export const signInWithGooglePopup = () => signInWithPopup(auth, googleProvider);
 
+// Get user details
+export const getUserDetails = async (userId: string) => {
+	try {
+		const userDocRef = doc(db, "users", userId);
+		const userSnapshot = await getDoc(userDocRef);
+		if (userSnapshot.exists()) {
+			return userSnapshot.data(); // Contains user details like role
+		} else {
+			console.log("No user document found");
+			return null;
+		}
+	} catch (error) {
+		console.error("Error fetching user details:", error);
+		return null;
+	}
+};
+
 // Sign-out user
 export const signOutUser = async (): Promise<void> => await signOut(auth);
