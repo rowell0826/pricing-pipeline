@@ -52,13 +52,13 @@ export default function SideBar() {
 
 	return (
 		<>
-			<div className="w-full flex justify-end items-center absolute">
+			<div className="w-full flex justify-end items-center absolute p-2">
 				<Switch />
 			</div>
 			<nav className="h-full w-[25%] flex flex-col justify-between items-center border-2 border-zinc-800 bg-[--primary]">
 				<div className="mt-10">
 					<h1>Hi, {userName}</h1>
-					<p>{role}</p>
+					<p className="text-center">{role}</p>
 				</div>
 				<ul className="flex flex-col gap-4">
 					<li className="p-4">View Files</li>
