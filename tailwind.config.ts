@@ -10,7 +10,7 @@ const config: Config = {
 	theme: {
 		extend: {
 			colors: {
-				background: "rgba(var(--background))",
+				background: "hsl(var(--background))",
 				foreground: "var(--font)",
 				card: {
 					DEFAULT: "hsl(var(--card))",
@@ -52,8 +52,7 @@ const config: Config = {
 				},
 			},
 			backgroundImage: {
-				"radial-dark":
-					"radial-gradient(circle at top right, rgba(255, 255, 255, 0.2), rgba(var(--background), 1))",
+				radial: "radial-gradient(circle at top right, rgba(255, 255, 255, 0.2), rgba(15,15,185, 1))",
 			},
 			borderRadius: {
 				lg: "var(--radius)",

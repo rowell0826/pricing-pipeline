@@ -14,7 +14,7 @@ body {
 
 @layer base {
 	:root {
-		--background: 255, 255, 255 100%;
+		--background: 235, 50%, 50%;
 		--foreground: 240 10% 3.9%;
 		--card: 0 0% 100%;
 		--card-foreground: 240 10% 3.9%;
@@ -39,11 +39,10 @@ body {
 		--chart-4: 43 74% 66%;
 		--chart-5: 27 87% 67%;
 		--radius: 0.5rem;
-		--primary: #4756a5;
-		--font: #b2a7a7;
+		--font: #f2f6fb;
 	}
 	.dark {
-		--background: 240 10% 3.9%;
+		--background: 235, 40%, 40%;
 		--foreground: 0 0% 98%;
 		--card: 240 10% 3.9%;
 		--card-foreground: 0 0% 98%;
@@ -67,7 +66,7 @@ body {
 		--chart-3: 30 80% 55%;
 		--chart-4: 280 65% 60%;
 		--chart-5: 340 75% 55%;
-		--font: #ded1d1;
+		--font: #9ba8b7;
 	}
 }
 
@@ -76,6 +75,6 @@ body {
 		@apply border-border;
 	}
 	body {
-		@apply bg-background dark:bg-radial-dark text-foreground;
+		@apply w-full bg-radial text-foreground;
 	}
 }
