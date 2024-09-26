@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/utils/firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { FcOpenedFolder } from "react-icons/fc";
+import { BsListTask } from "react-icons/bs";
 
 export default function SideBar() {
 	const router = useRouter();
@@ -61,8 +63,18 @@ export default function SideBar() {
 					<p className="text-center">{role}</p>
 				</div>
 				<ul className="flex flex-col gap-4">
-					<li className="p-4">View Files</li>
-					<li className="p-4">Create Task</li>
+					<li className="p-4">
+						<span className="inline-block">
+							<FcOpenedFolder />
+						</span>{" "}
+						View Files
+					</li>
+					<li className="p-4">
+						<span className="inline-block">
+							<BsListTask color="white" />
+						</span>{" "}
+						Create Task
+					</li>
 				</ul>
 				<p className="mb-10" onClick={handleSignOut}>
 					Sign Out
