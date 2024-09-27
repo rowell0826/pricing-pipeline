@@ -53,7 +53,7 @@ const Modal: React.FC<ModalProps> = ({
 					</label>
 					{file && <p>Selected File: {file.name}</p>}
 				</DialogDescription>
-				<div className="flex justify-end">
+				<div className="flex justify-end gap-4">
 					<Button onClick={handleAddTask}>Add Task</Button>
 					<Button onClick={() => onOpenChange(false)}>Cancel</Button>
 				</div>

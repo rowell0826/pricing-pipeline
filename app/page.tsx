@@ -1,8 +1,6 @@
 "use client";
 import SideBar from "@/components/sidebar/SideBar";
-import { db } from "@/lib/utils/firebase/firebase";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function Home() {
 	const [tasks, setTasks] = useState<string[]>([]); // State to store tasks
@@ -12,24 +10,8 @@ export default function Home() {
 		setTasks((prevTasks) => [...prevTasks, taskTitle]);
 	};
 
-	// Fetch tasks from Firestore on component mount
-	useEffect(() => {
-		const fetchTasks = async () => {
-			try {
-				const q = query(collection(db, "tasks"), orderBy("createdAt", "desc"));
-				const querySnapshot = await getDocs(q);
-				const fetchedTasks: string[] = querySnapshot.docs.map((doc) => doc.data().title);
-				setTasks(fetchedTasks);
-			} catch (error) {
-				console.error("Error fetching tasks: ", error);
-			}
-		};
-
-		fetchTasks();
-	}, []);
-
 	return (
-		<div className="flex w-full h-screen text-foreground">
+		<div className="flex w-full h-screen">
 			<SideBar onAddTask={addTaskToClientInput} />
 
 			<main className="w-full flex justify-center mt-20">
@@ -37,7 +19,6 @@ export default function Home() {
 					<div className="border-2 border-zinc-800 w-[200px] h-[300px] text-center">
 						<h3>Client Input</h3>
 						<ul>
-							{/* Render the list of tasks */}
 							{tasks.map((task, index) => (
 								<li key={index}>{task}</li>
 							))}
