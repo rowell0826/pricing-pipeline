@@ -9,6 +9,7 @@ import {
 	signOut,
 } from "firebase/auth";
 import { doc, Firestore, getDoc, getFirestore, setDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytesResumable, UploadTaskSnapshot } from "firebase/storage";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -35,6 +36,20 @@ export const auth = getAuth();
 
 // Set-up firestore database
 export const db: Firestore = getFirestore(app);
+
+// Set-up firestore storage --> This is where we will store the folders and files.
+export const storage = getStorage();
+
+// Set-up storage reference for client --> This is the folder for the raw files uploaded by the client
+export const clientRawFileRef = ref(storage, "raw");
+
+// Set-up storage reference for data manager and data QA
+export const dataMgrAndQaRef = ref(storage, "data_mgr_and_qa");
+
+// Set-up storage reference for data science and prompt engineer
+export const dataScienceAndPromptEngrRef = ref(storage, "data_science");
+
+// -------------------------------- User's Authentication Set-up -------------------------------------
 
 // Create db for newly registered users
 export const createUserDocumentFromAuth = async (userId: string, userDetails: UserDetails) => {
@@ -102,3 +117,46 @@ export const getUserDetails = async (userId: string) => {
 
 // Sign-out user
 export const signOutUser = async (): Promise<void> => await signOut(auth);
+
+// ---------------------------------- Firestore Storage ---------------------------------
+
+// Client file uploads
+export const clientFileUpload = async (file: File): Promise<UploadTaskSnapshot | null> => {
+	if (!file) {
+		console.error("No file provided for upload.");
+		return null;
+	}
+
+	try {
+		// Create an upload task to monitor the upload progress
+		const uploadTask = uploadBytesResumable(clientRawFileRef, file);
+
+		// Return the upload snapshot once the upload completes
+		const snapshot = await new Promise<UploadTaskSnapshot>((resolve, reject) => {
+			uploadTask.on(
+				"state_changed",
+				(snapshot) => {
+					// You can monitor the upload progress here if needed
+					const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+					console.log(`Upload is ${progress}% done`);
+				},
+				(error) => {
+					console.error("Error uploading file:", error);
+					reject(error);
+				},
+				() => {
+					// Resolve the upload task snapshot when done
+					resolve(uploadTask.snapshot);
+				}
+			);
+		});
+
+		console.log("File uploaded successfully:", snapshot);
+
+		return snapshot;
+	} catch (error) {
+		console.error("Error uploading file:", error);
+
+		return null;
+	}
+};

@@ -1,5 +1,5 @@
 "use client";
-import { getUserDetails, signOutUser } from "@/lib/utils/firebase/firebase";
+import { db, getUserDetails, signOutUser } from "@/lib/utils/firebase/firebase";
 import { Switch } from "../ui/switch";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import { FcOpenedFolder } from "react-icons/fc";
 import { BsListTask } from "react-icons/bs";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { PiSignOutBold } from "react-icons/pi";
+import { addDoc, collection } from "firebase/firestore";
 
 export default function SideBar() {
 	const router = useRouter();
@@ -59,6 +60,27 @@ export default function SideBar() {
 		setIsOpen(!isOpen);
 	};
 
+	const handleAddTask = async () => {
+		try {
+			const taskTitle = prompt("Enter the task title:");
+			const dueDate = prompt("Enter dueDate");
+
+			if (taskTitle) {
+				await addDoc(collection(db, "tasks"), {
+					title: taskTitle,
+					createdAt: new Date(),
+					createdBy: userName,
+					dueDate: dueDate,
+					fileUpload: [""],
+				});
+				alert("Task added successfully!");
+			}
+		} catch (error) {
+			console.error("Error adding task: ", error);
+			alert("Failed to add task.");
+		}
+	};
+
 	return (
 		<>
 			<div className="w-full flex justify-end items-center absolute p-2">
@@ -95,7 +117,10 @@ export default function SideBar() {
 						</span>
 						{isOpen && "View Files"}
 					</li>
-					<li className="p-4 flex justify-center items-center gap-2">
+					<li
+						className="p-4 flex justify-center items-center gap-2"
+						onClick={handleAddTask}
+					>
 						<span className="inline-block">
 							<BsListTask color="white" />
 						</span>
@@ -103,7 +128,9 @@ export default function SideBar() {
 					</li>
 				</ul>
 				<p className="mb-10 flex justify-center items-center" onClick={handleSignOut}>
-					<PiSignOutBold />
+					<span className="inline-block">
+						<PiSignOutBold />
+					</span>
 					{isOpen && "Sign Out"}
 				</p>
 			</nav>
