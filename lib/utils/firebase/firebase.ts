@@ -128,6 +128,9 @@ export const clientFileUpload = async (file: File): Promise<UploadTaskSnapshot |
 	}
 
 	try {
+		// Create a reference for the file in Firebase Storage (adjust the path as needed)
+		const clientRawFileRef = ref(storage, `raw/${file.name}`);
+
 		// Create an upload task to monitor the upload progress
 		const uploadTask = uploadBytesResumable(clientRawFileRef, file);
 
@@ -136,7 +139,7 @@ export const clientFileUpload = async (file: File): Promise<UploadTaskSnapshot |
 			uploadTask.on(
 				"state_changed",
 				(snapshot) => {
-					// You can monitor the upload progress here if needed
+					// Monitor the upload progress
 					const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 					console.log(`Upload is ${progress}% done`);
 				},

@@ -1,5 +1,5 @@
 "use client";
-import { db, getUserDetails, signOutUser } from "@/lib/utils/firebase/firebase";
+import { clientFileUpload, db, getUserDetails, signOutUser } from "@/lib/utils/firebase/firebase";
 import { Switch } from "../ui/switch";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,13 +10,21 @@ import { BsListTask } from "react-icons/bs";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { PiSignOutBold } from "react-icons/pi";
 import { addDoc, collection } from "firebase/firestore";
+import { SideBarProps } from "@/lib/types/sideBarProps";
+import { getDownloadURL } from "firebase/storage";
+import Modal from "../modal/Modal";
+import { DialogTrigger } from "../ui/dialog";
 
-export default function SideBar() {
+export default function SideBar({ onAddTask }: SideBarProps) {
 	const router = useRouter();
 	const [userName, setUserName] = useState<string | null>(null);
 	const [role, setRole] = useState<string | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [isOpen, setIsOpen] = useState<boolean>(true);
+	const [openModal, setOpenModal] = useState<boolean>(false);
+	const [file, setFile] = useState<File | null>(null);
+	const [dueDateInput, setDueDateInput] = useState<string>("");
+	const [taskTitle, setTaskTitle] = useState<string>("");
 
 	// Fetch user data and role
 	useEffect(() => {
@@ -60,24 +68,58 @@ export default function SideBar() {
 		setIsOpen(!isOpen);
 	};
 
-	const handleAddTask = async () => {
-		try {
-			const taskTitle = prompt("Enter the task title:");
-			const dueDate = prompt("Enter dueDate");
+	const modalHandler = () => {
+		setOpenModal(!openModal);
+	};
 
-			if (taskTitle) {
+	const handleAddTask = async () => {
+		if (!file) {
+			alert("Please upload a file before adding a task.");
+			return; // Early return if no file is selected
+		}
+
+		const snapshot = await clientFileUpload(file);
+
+		if (snapshot) {
+			const downloadUrl = await getDownloadURL(snapshot.ref);
+			console.log("File available at:", downloadUrl);
+
+			if (taskTitle && dueDateInput) {
+				const [month, day, year] = dueDateInput.split("/");
+				if (
+					!month ||
+					!day ||
+					!year ||
+					month.length !== 2 ||
+					day.length !== 2 ||
+					year.length !== 4
+				) {
+					alert("Invalid due date format. Please enter a valid date (MM/DD/YYYY).");
+					return;
+				}
+
+				const dueDate = new Date(`${year}-${month}-${day}`);
+				if (isNaN(dueDate.getTime())) {
+					alert("Invalid due date format. Please enter a valid date (MM/DD/YYYY).");
+					return;
+				}
+
 				await addDoc(collection(db, "tasks"), {
 					title: taskTitle,
 					createdAt: new Date(),
 					createdBy: userName,
-					dueDate: dueDate,
-					fileUpload: [""],
+					dueDate,
+					fileUpload: [downloadUrl], // Store the download URL if the file is uploaded
 				});
+
 				alert("Task added successfully!");
+				onAddTask(taskTitle);
+				setOpenModal(!openModal); // Close modal
+				// Reset fields
+				setTaskTitle("");
+				setDueDateInput("");
+				setFile(null);
 			}
-		} catch (error) {
-			console.error("Error adding task: ", error);
-			alert("Failed to add task.");
 		}
 	};
 
@@ -117,15 +159,17 @@ export default function SideBar() {
 						</span>
 						{isOpen && "View Files"}
 					</li>
-					<li
-						className="p-4 flex justify-center items-center gap-2"
-						onClick={handleAddTask}
-					>
-						<span className="inline-block">
-							<BsListTask color="white" />
-						</span>
-						{isOpen && "Create Task"}
-					</li>
+					<DialogTrigger asChild>
+						<li
+							className="p-4 flex justify-center items-center gap-2"
+							onClick={modalHandler}
+						>
+							<span className="inline-block">
+								<BsListTask color="white" />
+							</span>
+							{isOpen && "Create Task"}
+						</li>
+					</DialogTrigger>
 				</ul>
 				<p className="mb-10 flex justify-center items-center" onClick={handleSignOut}>
 					<span className="inline-block">
@@ -134,6 +178,18 @@ export default function SideBar() {
 					{isOpen && "Sign Out"}
 				</p>
 			</nav>
+
+			<Modal
+				open={openModal}
+				onOpenChange={setOpenModal}
+				taskTitle={taskTitle}
+				setTaskTitle={setTaskTitle}
+				dueDateInput={dueDateInput}
+				setDueDateInput={setDueDateInput}
+				file={file}
+				setFile={setFile}
+				handleAddTask={handleAddTask}
+			/>
 		</>
 	);
 }
