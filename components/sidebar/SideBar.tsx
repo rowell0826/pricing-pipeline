@@ -13,7 +13,6 @@ import { addDoc, collection } from "firebase/firestore";
 import { SideBarProps } from "@/lib/types/sideBarProps";
 import { getDownloadURL } from "firebase/storage";
 import Modal from "../modal/Modal";
-import { DialogTrigger } from "../ui/dialog";
 
 export default function SideBar({ onAddTask }: SideBarProps) {
 	const router = useRouter();
@@ -115,7 +114,6 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				alert("Task added successfully!");
 				onAddTask(taskTitle);
 				setOpenModal(!openModal); // Close modal
-				// Reset fields
 				setTaskTitle("");
 				setDueDateInput("");
 				setFile(null);
@@ -129,7 +127,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				<Switch />
 			</div>
 			<nav
-				className={`h-full flex flex-col justify-evenly items-center bg-background sidebar ${
+				className={`h-full flex flex-col justify-evenly items-center bg-background ${
 					isOpen ? "w-[20%]" : "w-[5%]"
 				} transition-all duration-300 ease-in-out overflow-hidden`}
 			>
@@ -148,30 +146,33 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				</div>
 
 				<div>
-					<h1 className={`${isOpen ? "" : "hidden"}`}>Hi, {userName}</h1>
-					<p className={`${isOpen ? "" : "hidden"} text-center`}>{role}</p>
+					<h1 className={`${isOpen ? "" : "hidden"} text-foreground`}>Hi, {userName}</h1>
+					<p className={`${isOpen ? "" : "hidden"} text-center text-foreground`}>
+						{role}
+					</p>
 				</div>
 
 				<ul className="flex flex-col gap-4">
-					<li className="p-4 flex justify-center items-center gap-2">
+					<li className="p-4 flex justify-center items-center gap-2 text-foreground">
 						<span className="inline-block">
 							<FcOpenedFolder />
 						</span>
 						{isOpen && "View Files"}
 					</li>
-					<DialogTrigger asChild>
-						<li
-							className="p-4 flex justify-center items-center gap-2"
-							onClick={modalHandler}
-						>
-							<span className="inline-block">
-								<BsListTask color="white" />
-							</span>
-							{isOpen && "Create Task"}
-						</li>
-					</DialogTrigger>
+					<li
+						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-foreground"
+						onClick={modalHandler}
+					>
+						<span className="inline-block">
+							<BsListTask color="white" />
+						</span>
+						{isOpen && "Create Task"}
+					</li>
 				</ul>
-				<p className="mb-10 flex justify-center items-center" onClick={handleSignOut}>
+				<p
+					className="mb-10 flex justify-center items-center cursor-pointer text-foreground"
+					onClick={handleSignOut}
+				>
 					<span className="inline-block">
 						<PiSignOutBold />
 					</span>

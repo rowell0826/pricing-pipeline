@@ -154,7 +154,7 @@ export const clientFileUpload = async (file: File): Promise<UploadTaskSnapshot |
 			);
 		});
 
-		console.log("File uploaded successfully:", snapshot);
+		console.log("File uploaded successfully.");
 
 		return snapshot;
 	} catch (error) {

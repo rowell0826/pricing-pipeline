@@ -23,27 +23,33 @@ const Modal: React.FC<ModalProps> = ({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogOverlay />
 			<DialogContent>
-				<DialogTitle>Create a New Task</DialogTitle>
-				<DialogDescription>
-					<label>
-						Task Title:
+				<DialogTitle className="text-foreground">Create a New Task</DialogTitle>
+				<DialogDescription className="flex flex-col justify-center items-start gap-2">
+					<label className="text-foreground">
+						Task Title:{"  "}
 						<input
 							type="text"
 							value={taskTitle}
 							onChange={(e) => setTaskTitle(e.target.value)}
+							className="mt-1 border rounded px-2 py-1 !text-black"
 						/>
 					</label>
-					<label>
-						Due Date (MM/DD/YYYY):
+					<label className="text-foreground">
+						Due Date (MM/DD/YYYY):{"  "}
 						<input
 							type="text"
 							value={dueDateInput}
 							onChange={(e) => setDueDateInput(e.target.value)}
+							className="mt-1 border rounded px-2 py-1 !text-black"
 						/>
 					</label>
-					<label>
-						Upload File:
-						<input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+					<label className="text-foreground">
+						Upload File:{"  "}
+						<input
+							type="file"
+							onChange={(e) => setFile(e.target.files?.[0] || null)}
+							className="mt-1 border rounded px-2 py-1 !text-black"
+						/>
 					</label>
 					{file && <p>Selected File: {file.name}</p>}
 				</DialogDescription>

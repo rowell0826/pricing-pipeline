@@ -7,5 +7,5 @@ export interface ModalProps {
 	setDueDateInput: (date: string) => void;
 	file: File | null;
 	setFile: (file: File | null) => void;
-	handleAddTask: () => Promise<void>; // Adjust based on your actual function type
+	handleAddTask: () => Promise<void>;
 }
