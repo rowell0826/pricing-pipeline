@@ -28,23 +28,23 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 	const [role, setRole] = useState<string | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [isOpen, setIsOpen] = useState<boolean>(true);
-	const [openModal, setOpenModal] = useState<boolean>(false);
+	const [openCreateTaskModal, setOpenCreateTaskModal] = useState<boolean>(false);
 	const [file, setFile] = useState<File | null>(null);
 	const [dueDateInput, setDueDateInput] = useState<string>("");
 	const [taskTitle, setTaskTitle] = useState<string>("");
-	const [files, setFiles] = useState<string[]>([]);
+	const [fileList, setFileList] = useState<string[]>([]);
 	const [openFileModal, setOpenFileModal] = useState<boolean>(false);
 
 	// Function to fetch and list files
 	const fetchFiles = async () => {
-		const fileRefs = await listFiles();
+		const fileRefs = await listFiles("/raw");
 		const fileUrls = await Promise.all(
 			fileRefs.map(async (fileRef) => {
 				const url = await getDownloadURL(fileRef);
 				return url;
 			})
 		);
-		setFiles(fileUrls);
+		setFileList(fileUrls);
 	};
 
 	// Fetch user data and role
@@ -90,7 +90,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 	};
 
 	const modalHandler = () => {
-		setOpenModal(!openModal);
+		setOpenCreateTaskModal(!openCreateTaskModal);
 	};
 
 	const handleAddTask = async () => {
@@ -135,7 +135,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 
 				alert("Task added successfully!");
 				onAddTask(taskTitle);
-				setOpenModal(!openModal); // Close modal
+				setOpenCreateTaskModal(!openCreateTaskModal); // Close modal
 				setTaskTitle("");
 				setDueDateInput("");
 				setFile(null);
@@ -210,11 +210,15 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				</p>
 			</nav>
 
-			<FileListModal open={openFileModal} onOpenChange={setOpenFileModal}/>
+			<FileListModal
+				open={openFileModal}
+				onOpenChange={setOpenFileModal}
+				fileList={fileList}
+			/>
 
 			<Modal
-				open={openModal}
-				onOpenChange={setOpenModal}
+				open={openCreateTaskModal}
+				onOpenChange={setOpenCreateTaskModal}
 				taskTitle={taskTitle}
 				setTaskTitle={setTaskTitle}
 				dueDateInput={dueDateInput}

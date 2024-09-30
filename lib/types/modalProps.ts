@@ -13,4 +13,5 @@ export interface ModalProps {
 export interface FileListModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+	fileList: string[]
 }
