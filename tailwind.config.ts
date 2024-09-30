@@ -59,6 +59,13 @@ const config: Config = {
 				md: "calc(var(--radius) - 2px)",
 				sm: "calc(var(--radius) - 4px)",
 			},
+			scrollbar: {
+				width: "12px",
+				colors: {
+					thumb: "#888",
+					track: "#f1f1f1",
+				},
+			},
 		},
 	},
 	// eslint-disable-next-line @typescript-eslint/no-require-imports

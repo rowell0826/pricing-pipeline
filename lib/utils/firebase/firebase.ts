@@ -9,7 +9,7 @@ import {
 	signOut,
 } from "firebase/auth";
 import { doc, Firestore, getDoc, getFirestore, setDoc } from "firebase/firestore";
-import { getStorage, ref, uploadBytesResumable, UploadTaskSnapshot } from "firebase/storage";
+import { getStorage, listAll, ref, uploadBytesResumable, UploadTaskSnapshot } from "firebase/storage";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -162,4 +162,16 @@ export const clientFileUpload = async (file: File): Promise<UploadTaskSnapshot |
 
 		return null;
 	}
+};
+
+// Function to list all files in a folder (or root)
+export const listFiles = async (folder: string = "") => {
+    const folderRef = ref(storage, folder);
+    try {
+        const result = await listAll(folderRef);
+        return result.items; // Returns a list of file references
+    } catch (error) {
+        console.error("Error fetching files: ", error);
+        return [];
+    }
 };

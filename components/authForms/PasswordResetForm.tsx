@@ -45,6 +45,7 @@ export default function PasswordResetForm() {
 				setMessage(`Password reset email sent to ${email}`);
 			}
 		} catch (error) {
+			console.log(error);
 			setError("Failed to send password reset email. Please try again.");
 		}
 	};

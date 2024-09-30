@@ -13,7 +13,6 @@ import {
 } from "@/lib/utils/firebase/firebase";
 import { updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 const formSchema = z
 	.object({
@@ -76,6 +75,7 @@ export default function SignUpForm() {
 
 	const handleSubmit = async (data: z.infer<typeof formSchema>) => {
 		const { displayName, emailAddress, password } = data;
+		const role = "";
 
 		try {
 			// Create user with Firebase Auth

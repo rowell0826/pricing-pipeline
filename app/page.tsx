@@ -1,4 +1,5 @@
 "use client";
+import TaskModal from "@/components/modal/TaskModal";
 import SideBar from "@/components/sidebar/SideBar";
 import CardComponent from "@/components/subcomponents/Card";
 import { auth, db } from "@/lib/utils/firebase/firebase";
@@ -74,11 +75,11 @@ export default function Home() {
 			<main className="w-full flex justify-center mt-20">
 				<div className="flex flex-col md:flex-row justify-evenly items-center border-4 w-full h-full">
 					<div
-						className="border-2 border-zinc-800 w-[400px] h-[300px] text-center"
+						className="border-2 border-zinc-800 w-[400px] h-[300px] text-center flex flex-col justify-center items-center rounded-md"
 						onClick={sortFilter}
 					>
 						<h3>Client Input</h3>
-						<ul>
+						<ul className="overflow-y-scroll min-w-[300px] w-[350px] flex flex-col gap-2 justify-start items-center rounded-md custom-scrollbar scrollbar-hidden">
 							{tasks.map((task, index) => (
 								<CardComponent key={index} task={task} />
 							))}
@@ -95,6 +96,8 @@ export default function Home() {
 					</div>
 				</div>
 			</main>
+
+			<TaskModal />
 		</div>
 	);
 }

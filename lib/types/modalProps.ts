@@ -9,3 +9,8 @@ export interface ModalProps {
 	setFile: (file: File | null) => void;
 	handleAddTask: () => Promise<void>;
 }
+
+export interface FileListModalProps {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+}

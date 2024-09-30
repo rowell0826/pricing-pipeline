@@ -1,5 +1,11 @@
 "use client";
-import { clientFileUpload, db, getUserDetails, signOutUser } from "@/lib/utils/firebase/firebase";
+import {
+	clientFileUpload,
+	db,
+	getUserDetails,
+	listFiles,
+	signOutUser,
+} from "@/lib/utils/firebase/firebase";
 import { Switch } from "../ui/switch";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,6 +20,7 @@ import { SideBarProps } from "@/lib/types/sideBarProps";
 import { getDownloadURL } from "firebase/storage";
 import Modal from "../modal/Modal";
 import React from "react";
+import FileListModal from "../modal/FileListModal";
 
 export default function SideBar({ onAddTask }: SideBarProps) {
 	const router = useRouter();
@@ -25,6 +32,20 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 	const [file, setFile] = useState<File | null>(null);
 	const [dueDateInput, setDueDateInput] = useState<string>("");
 	const [taskTitle, setTaskTitle] = useState<string>("");
+	const [files, setFiles] = useState<string[]>([]);
+	const [openFileModal, setOpenFileModal] = useState<boolean>(false);
+
+	// Function to fetch and list files
+	const fetchFiles = async () => {
+		const fileRefs = await listFiles();
+		const fileUrls = await Promise.all(
+			fileRefs.map(async (fileRef) => {
+				const url = await getDownloadURL(fileRef);
+				return url;
+			})
+		);
+		setFiles(fileUrls);
+	};
 
 	// Fetch user data and role
 	useEffect(() => {
@@ -122,6 +143,11 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 		}
 	};
 
+	const handleViewFiles = () => {
+		setOpenFileModal(true);
+		fetchFiles();
+	};
+
 	return (
 		<>
 			<div className="w-full flex justify-end items-center absolute p-2">
@@ -154,7 +180,10 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				</div>
 
 				<ul className="flex flex-col gap-4">
-					<li className="p-4 flex justify-center items-center gap-2 text-foreground">
+					<li
+						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-foreground"
+						onClick={handleViewFiles}
+					>
 						<span className="inline-block">
 							<FcOpenedFolder />
 						</span>
@@ -180,6 +209,8 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 					{isOpen && "Sign Out"}
 				</p>
 			</nav>
+
+			<FileListModal open={openFileModal} onOpenChange={setOpenFileModal}/>
 
 			<Modal
 				open={openModal}
