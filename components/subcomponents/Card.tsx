@@ -4,23 +4,25 @@ import { FaFile } from "react-icons/fa";
 import { Button } from "../ui/button";
 import { Timestamp } from "firebase/firestore";
 
-const CardComponent: React.FC<{ task: Task }> = ({ task }) => {
-	const { title, createdAt, createdBy, dueDate, downloads } = task;
+const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }> = ({
+	task,
+	onRemove,
+}) => {
+	const { id, title, createdAt, createdBy, dueDate, downloads } = task;
 
 	const formatDate = (date: Date | null | Timestamp) => {
 		if (!date) return "Unknown Date";
 
 		// Check if the date is a Firestore Timestamp
 		if (date instanceof Timestamp) {
-			return date.toDate().toLocaleDateString(); // Convert to Date and format
+			return date.toDate().toLocaleDateString();
 		}
 
-		// If it's already a Date object
 		if (date instanceof Date) {
 			return date.toLocaleDateString();
 		}
 
-		return "Unknown Date"; // Fallback
+		return "Unknown Date";
 	};
 
 	/* const getFilenameFromUrl = (url: string) => {
@@ -33,7 +35,7 @@ const CardComponent: React.FC<{ task: Task }> = ({ task }) => {
 	}; */
 
 	return (
-		<Card className="w-full h-[250px]">
+		<Card key={id} className="w-full h-[250px]">
 			<CardHeader>
 				<CardTitle>{title}</CardTitle>
 				<CardDescription>{createdBy}</CardDescription>
@@ -59,7 +61,7 @@ const CardComponent: React.FC<{ task: Task }> = ({ task }) => {
 				</ul>
 				<div className="w-full flex justify-end items-center gap-4 pt-2">
 					<Button>Edit</Button>
-					<Button>Remove</Button>
+					<Button onClick={() => onRemove(id)}>Remove</Button>
 				</div>
 			</CardContent>
 		</Card>

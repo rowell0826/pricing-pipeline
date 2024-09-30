@@ -2,20 +2,13 @@
 import TaskModal from "@/components/modal/TaskModal";
 import SideBar from "@/components/sidebar/SideBar";
 import CardComponent from "@/components/subcomponents/Card";
+import { Task } from "@/lib/types/cardProps";
 import { auth, db } from "@/lib/utils/firebase/firebase";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-	const [tasks, setTasks] = useState<
-		{
-			title: string;
-			createdBy: string;
-			createdAt: Date | null;
-			dueDate: Date | null;
-			downloads: string[];
-		}[]
-	>([]);
+	const [tasks, setTasks] = useState<Task[]>([]);
 	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
 		key: "createdAt", // Default sort by createdAt
 		order: "asc",
@@ -27,7 +20,8 @@ export default function Home() {
 
 		const createdBy = currentUser ? currentUser.displayName || currentUser.uid : "Anonymous";
 
-		const newTask = {
+		const newTask: Task = {
+			id: Date.now().toString(),
 			title: taskTitle,
 			createdBy: createdBy,
 			createdAt: new Date(),
@@ -51,8 +45,16 @@ export default function Home() {
 					const downloads = data.fileUpload;
 					const title = data.title;
 
-					return { title, createdAt, createdBy, downloads, dueDate };
+					return {
+						id: doc.id,
+						title,
+						createdAt,
+						createdBy,
+						downloads,
+						dueDate,
+					} as Task;
 				});
+
 				setTasks(fetchedTasks);
 			} catch (error) {
 				console.log(error);
@@ -70,6 +72,17 @@ export default function Home() {
 		});
 	};
 
+	const removeTask = async (taskID: string) => {
+		const taskDocRef = doc(db, "tasks", taskID);
+
+		try {
+			await deleteDoc(taskDocRef); // Remove from Firestore
+			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID)); // Update local state
+		} catch (error) {
+			console.error("Error removing task: ", error);
+		}
+	};
+
 	return (
 		<div className="flex w-full h-screen">
 			<SideBar onAddTask={addTaskToClientInput} />
@@ -78,15 +91,23 @@ export default function Home() {
 				<div className="flex flex-col md:flex-row justify-evenly items-center border-4 w-full h-full">
 					<div className="border-2 border-zinc-800 w-[400px] h-[300px] text-center flex flex-col justify-center items-center rounded-md text-foreground">
 						<h3>Client Input</h3>
-						<div className="w-full flex justify-evenly item-center text-xs p-2">
-							<p onClick={() => sortFilter("title")}>Sort by Task</p>
-							<p onClick={() => sortFilter("createdAt")}>Sort by Date Created</p>
-							<p onClick={() => sortFilter("dueDate")}>Sort by Due Date</p>
-							<p onClick={() => sortFilter("createdBy")}>Sort by Owner</p>
+						<div className="w-full flex justify-evenly item-start text-xs p-2">
+							<p onClick={() => sortFilter("title")} className="cursor-pointer">
+								Sort by Task
+							</p>
+							<p onClick={() => sortFilter("createdAt")} className="cursor-pointer">
+								Sort by Date Created
+							</p>
+							<p onClick={() => sortFilter("dueDate")} className="cursor-pointer">
+								Sort by Due Date
+							</p>
+							<p onClick={() => sortFilter("createdBy")} className="cursor-pointer">
+								Sort by Owner
+							</p>
 						</div>
 						<ul className="overflow-y-scroll min-w-[300px] w-[350px] flex flex-col gap-2 justify-start items-center rounded-md custom-scrollbar scrollbar-hidden">
 							{tasks.map((task, index) => (
-								<CardComponent key={index} task={task} />
+								<CardComponent key={index} task={task} onRemove={removeTask} />
 							))}
 						</ul>
 					</div>
