@@ -13,6 +13,7 @@ import { addDoc, collection } from "firebase/firestore";
 import { SideBarProps } from "@/lib/types/sideBarProps";
 import { getDownloadURL } from "firebase/storage";
 import Modal from "../modal/Modal";
+import React from "react";
 
 export default function SideBar({ onAddTask }: SideBarProps) {
 	const router = useRouter();
