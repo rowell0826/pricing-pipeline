@@ -16,7 +16,10 @@ export default function Home() {
 			downloads: string[];
 		}[]
 	>([]);
-	const [sortItem, setSortItem] = useState<"asc" | "desc">("asc");
+	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
+		key: "createdAt", // Default sort by createdAt
+		order: "asc",
+	});
 
 	// Function to add a new task to the state
 	const addTaskToClientInput = (taskTitle: string) => {
@@ -27,9 +30,9 @@ export default function Home() {
 		const newTask = {
 			title: taskTitle,
 			createdBy: createdBy,
-			createdAt: new Date(), // Set the current date or a default value
-			dueDate: null, // Default value or real value if available
-			downloads: [], // Empty array or real file upload URLs
+			createdAt: new Date(),
+			dueDate: null,
+			downloads: [],
 		};
 
 		setTasks((prevTasks) => [...prevTasks, newTask]);
@@ -38,15 +41,9 @@ export default function Home() {
 	useEffect(() => {
 		const fetchTasks = async () => {
 			try {
-				const q = query(collection(db, "tasks"), orderBy("createdAt", sortItem));
+				const q = query(collection(db, "tasks"), orderBy(sortConfig.key, sortConfig.order));
 				const querySnapshot = await getDocs(q);
-				const fetchedTasks: {
-					title: string;
-					createdBy: string;
-					createdAt: Date | null;
-					dueDate: Date | null;
-					downloads: string[];
-				}[] = querySnapshot.docs.map((doc) => {
+				const fetchedTasks = querySnapshot.docs.map((doc) => {
 					const data = doc.data();
 					const createdAt = data.createdAt?.toDate();
 					const createdBy = data.createdBy;
@@ -64,14 +61,13 @@ export default function Home() {
 		};
 
 		fetchTasks();
-	}, [sortItem]);
+	}, [sortConfig.key, sortConfig.order]);
 
-	const sortFilter = () => {
-		if (sortItem === "asc") {
-			setSortItem("desc");
-		} else {
-			setSortItem("asc");
-		}
+	const sortFilter = (key: string) => {
+		setSortConfig((prevConfig) => {
+			const newOrder = prevConfig.key === key && prevConfig.order === "asc" ? "desc" : "asc";
+			return { key, order: newOrder };
+		});
 	};
 
 	return (
@@ -82,11 +78,11 @@ export default function Home() {
 				<div className="flex flex-col md:flex-row justify-evenly items-center border-4 w-full h-full">
 					<div className="border-2 border-zinc-800 w-[400px] h-[300px] text-center flex flex-col justify-center items-center rounded-md text-foreground">
 						<h3>Client Input</h3>
-						<div className="w-full flex justify-evenly item-center text-xs">
-							<p>Sort by Task</p>
-							<p onClick={sortFilter}>Sort by Date Created</p>
-							<p>Sort by Due Date</p>
-							<p>Sort by Owner</p>
+						<div className="w-full flex justify-evenly item-center text-xs p-2">
+							<p onClick={() => sortFilter("title")}>Sort by Task</p>
+							<p onClick={() => sortFilter("createdAt")}>Sort by Date Created</p>
+							<p onClick={() => sortFilter("dueDate")}>Sort by Due Date</p>
+							<p onClick={() => sortFilter("createdBy")}>Sort by Owner</p>
 						</div>
 						<ul className="overflow-y-scroll min-w-[300px] w-[350px] flex flex-col gap-2 justify-start items-center rounded-md custom-scrollbar scrollbar-hidden">
 							{tasks.map((task, index) => (
