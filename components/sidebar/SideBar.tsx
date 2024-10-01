@@ -96,7 +96,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 	const handleAddTask = async () => {
 		if (!file) {
 			alert("Please upload a file before adding a task.");
-			return; // Early return if no file is selected
+			return;
 		}
 
 		const snapshot = await clientFileUpload(file);
@@ -130,12 +130,12 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 					createdAt: new Date(),
 					createdBy: userName,
 					dueDate,
-					fileUpload: [downloadUrl], // Store the download URL if the file is uploaded
+					fileUpload: [downloadUrl],
 				});
 
 				alert("Task added successfully!");
 				onAddTask(taskTitle);
-				setOpenCreateTaskModal(!openCreateTaskModal); // Close modal
+				setOpenCreateTaskModal(!openCreateTaskModal);
 				setTaskTitle("");
 				setDueDateInput("");
 				setFile(null);

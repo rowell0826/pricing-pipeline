@@ -39,9 +39,7 @@ const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileL
 				</div>
 
 				<DialogClose asChild>
-					<Button className="mt-4 w-full bg-red-500 text-white py-2 px-4 rounded">
-						Close
-					</Button>
+					<Button className="mt-4 w-full text-white py-2 px-4 rounded">Close</Button>
 				</DialogClose>
 			</DialogContent>
 		</Dialog>
