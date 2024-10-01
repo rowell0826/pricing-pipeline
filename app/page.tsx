@@ -88,7 +88,7 @@ export default function Home() {
 			<SideBar onAddTask={addTaskToClientInput} />
 
 			<main className="w-full flex justify-center mt-20">
-				<div className="flex flex-col md:flex-row justify-evenly items-center border-4 w-full h-full">
+				<div className="flex flex-col md:flex-row justify-evenly items-start border-4 w-full h-full">
 					<div className="border-2 border-zinc-800 w-[400px] h-[300px] text-center flex flex-col justify-start items-center rounded-md text-foreground">
 						<h3 className="p-4">Client Input</h3>
 						<div className="w-full flex justify-evenly item-start text-xs p-2">

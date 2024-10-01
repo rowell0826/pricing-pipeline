@@ -7,13 +7,14 @@ import {
 	Dialog,
 	DialogClose,
 	DialogContent,
+	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
 } from "../ui/dialog";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/utils/firebase/firebase";
+import { getDownloadURL, getStorage, ref } from "firebase/storage";
 
 const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }> = ({
 	task,
@@ -48,9 +49,29 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 		return decodedFilename;
 	};
 
-	console.log("Task:", task);
-	console.log("Task downloads:", downloads);
-	console.log("Downloaded Files:", downloadedFiles);
+	const handleDownload = async (url: string) => {
+		const storage = getStorage();
+		const fileRef = ref(storage, url);
+
+		try {
+			const downloadUrl = await getDownloadURL(fileRef);
+
+			window.open(downloadUrl, "_blank");
+
+			// Create a link element to initiate the download
+			const a = document.createElement("a");
+			a.href = downloadUrl;
+			a.download = getFilenameFromUrl(downloadUrl);
+			document.body.appendChild(a);
+			a.click();
+
+			// Clean up
+			a.remove();
+		} catch (error) {
+			console.error("Error downloading file:", error);
+			alert("There was an error downloading the file.");
+		}
+	};
 
 	useEffect(() => {
 		// Subscribe to Firestore updates for this task
@@ -104,6 +125,10 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 								<DialogTitle className="text-foreground">
 									Attached Files
 								</DialogTitle>
+								<DialogDescription className="text-foreground">
+									Here are the files attached to this task. You can download them
+									below.
+								</DialogDescription>
 							</DialogHeader>
 							<div className="space-y-4">
 								{downloadedFiles.length > 0 ? (
@@ -115,15 +140,13 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 											<p className="text-foreground">
 												{getFilenameFromUrl(url)}
 											</p>
-											<Link
-												href={url}
-												download
-												className="text-foreground underline"
-												target="_blank"
-												rel="noopener noreferrer"
+
+											<p
+												className="text-foreground underline cursor-pointer"
+												onClick={() => handleDownload(url)}
 											>
 												Download
-											</Link>
+											</p>
 										</div>
 									))
 								) : (
