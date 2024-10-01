@@ -57,16 +57,6 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 			const downloadUrl = await getDownloadURL(fileRef);
 
 			window.open(downloadUrl, "_blank");
-
-			// Create a link element to initiate the download
-			const a = document.createElement("a");
-			a.href = downloadUrl;
-			a.download = getFilenameFromUrl(downloadUrl);
-			document.body.appendChild(a);
-			a.click();
-
-			// Clean up
-			a.remove();
 		} catch (error) {
 			console.error("Error downloading file:", error);
 			alert("There was an error downloading the file.");
