@@ -88,16 +88,33 @@
 		scrollbar-width: none;
 	} */
 
+	.custom-scrollbar {
+		overflow-y: scroll; /* Ensure vertical scrolling is enabled */
+	}
+
+	/* Hide scrollbar by default */
 	.custom-scrollbar::-webkit-scrollbar {
-		width: 8px;
+		width: 0;
 	}
 
 	.custom-scrollbar::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.custom-scrollbar::-webkit-scrollbar-thumb {
+		background-color: transparent;
+	}
+
+	.custom-scrollbar.scrolled::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	.custom-scrollbar.scrolled::-webkit-scrollbar-track {
 		background: #f1f1f1;
 		border-radius: 10px;
 	}
 
-	.custom-scrollbar::-webkit-scrollbar-thumb {
+	.custom-scrollbar.scrolled::-webkit-scrollbar-thumb {
 		background-color: #888;
 		border-radius: 10px;
 	}

@@ -1,5 +1,4 @@
 "use client";
-import TaskModal from "@/components/modal/TaskModal";
 import SideBar from "@/components/sidebar/SideBar";
 import CardComponent from "@/components/subcomponents/Card";
 import { Task } from "@/lib/types/cardProps";
@@ -76,8 +75,8 @@ export default function Home() {
 		const taskDocRef = doc(db, "tasks", taskID);
 
 		try {
-			await deleteDoc(taskDocRef); // Remove from Firestore
-			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID)); // Update local state
+			await deleteDoc(taskDocRef);
+			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
 		} catch (error) {
 			console.error("Error removing task: ", error);
 		}
@@ -89,7 +88,7 @@ export default function Home() {
 
 			<main className="w-full flex justify-center mt-20">
 				<div className="flex flex-col md:flex-row justify-evenly items-start w-full h-full">
-					<div className="border-2 border-zinc-800 w-[400px] h-[300px] text-center flex flex-col justify-start items-center rounded-md text-foreground">
+					<div className="border-2 border-zinc-800 w-[400px] h-[300px] md:h-[600px] text-center flex flex-col justify-start items-center rounded-md text-foreground">
 						<h3 className="p-4">Client Input</h3>
 						<div className="w-full flex justify-evenly item-start text-xs p-2">
 							<p onClick={() => sortFilter("title")} className="cursor-pointer">
@@ -122,8 +121,6 @@ export default function Home() {
 					</div>
 				</div>
 			</main>
-
-			<TaskModal />
 		</div>
 	);
 }

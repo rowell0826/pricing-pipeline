@@ -94,7 +94,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 	}, [task.id]);
 
 	return (
-		<Card key={id} className="w-full h-[250px]">
+		<Card key={id} className="w-full h-[220px]">
 			<CardHeader>
 				<CardTitle>{title}</CardTitle>
 				<CardDescription>{createdBy}</CardDescription>
