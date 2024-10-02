@@ -7,7 +7,6 @@ import {
 	signOutUser,
 } from "@/lib/utils/firebase/firebase";
 import { Switch } from "../ui/switch";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/utils/firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -23,7 +22,6 @@ import React from "react";
 import FileListModal from "../modal/FileListModal";
 
 export default function SideBar({ onAddTask }: SideBarProps) {
-	const router = useRouter();
 	const [userName, setUserName] = useState<string | null>(null);
 	const [role, setRole] = useState<string | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -80,10 +78,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 		return <p>Loading...</p>;
 	}
 
-	const handleSignOut = () => {
-		signOutUser();
-		router.push("/signin");
-	};
+	const handleSignOut = () => signOutUser();
 
 	const sideBarToggle = () => {
 		setIsOpen(!isOpen);
