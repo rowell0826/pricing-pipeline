@@ -1,4 +1,5 @@
 "use client";
+import PrivateRoute from "@/components/privateRoute/PrivateRoute";
 import SideBar from "@/components/sidebar/SideBar";
 import CardComponent from "@/components/subcomponents/Card";
 import { Task } from "@/lib/types/cardProps";
@@ -106,44 +107,44 @@ export default function Home() {
 		}
 	};
 
-	
-
 	return (
-		<div className="flex w-full h-screen">
-			<SideBar onAddTask={addTaskToClientInput} />
+		<PrivateRoute>
+			<div className="flex w-full h-screen">
+				<SideBar onAddTask={addTaskToClientInput} />
 
-			<main className="w-full flex justify-center mt-20">
-				<div className="flex flex-col md:flex-row justify-evenly items-start w-full h-full">
-					<div className="border-2 border-zinc-800 w-[400px] h-[300px] md:h-[600px] text-center flex flex-col justify-start items-center rounded-md text-foreground">
-						<h3 className="p-4">Client Input</h3>
-						<div className="w-full flex justify-evenly item-start text-xs p-2">
-							{sortCategories.map(({ input, filterBy }, idx) => (
-								<p
-									onClick={() => sortFilter(filterBy)}
-									className="cursor-pointer"
-									key={idx}
-								>
-									{input}
-								</p>
-							))}
+				<main className="w-full flex justify-center mt-20">
+					<div className="flex flex-col md:flex-row justify-evenly items-start w-full h-full">
+						<div className="border-2 border-zinc-800 w-[400px] h-[300px] md:h-[600px] text-center flex flex-col justify-start items-center rounded-md text-foreground">
+							<h3 className="p-4">Client Input</h3>
+							<div className="w-full flex justify-evenly item-start text-xs p-2">
+								{sortCategories.map(({ input, filterBy }, idx) => (
+									<p
+										onClick={() => sortFilter(filterBy)}
+										className="cursor-pointer"
+										key={idx}
+									>
+										{input}
+									</p>
+								))}
+							</div>
+							<ul className="overflow-y-scroll min-w-[300px] w-[350px] flex flex-col gap-2 justify-start items-center rounded-md custom-scrollbar scrollbar-hidden">
+								{tasks.map((task, index) => (
+									<CardComponent key={index} task={task} onRemove={removeTask} />
+								))}
+							</ul>
 						</div>
-						<ul className="overflow-y-scroll min-w-[300px] w-[350px] flex flex-col gap-2 justify-start items-center rounded-md custom-scrollbar scrollbar-hidden">
-							{tasks.map((task, index) => (
-								<CardComponent key={index} task={task} onRemove={removeTask} />
-							))}
-						</ul>
+						<div className="border-2 border-zinc-800 w-[200px] h-[300px] text-center">
+							Data Analyst & Data QA
+						</div>
+						<div className="border-2 border-zinc-800 w-[200px] h-[300px] text-center">
+							Data Scientist & Prompt Engineer
+						</div>
+						<div className="border-2 border-zinc-800 w-[200px] h-[300px] text-center">
+							Done
+						</div>
 					</div>
-					<div className="border-2 border-zinc-800 w-[200px] h-[300px] text-center">
-						Data Analyst & Data QA
-					</div>
-					<div className="border-2 border-zinc-800 w-[200px] h-[300px] text-center">
-						Data Scientist & Prompt Engineer
-					</div>
-					<div className="border-2 border-zinc-800 w-[200px] h-[300px] text-center">
-						Done
-					</div>
-				</div>
-			</main>
-		</div>
+				</main>
+			</div>
+		</PrivateRoute>
 	);
 }

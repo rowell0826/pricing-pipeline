@@ -1,3 +1,5 @@
+import { User } from "firebase/auth";
+
 export type DefaultFormFields = {
 	displayName: string;
 	email: string;
@@ -9,4 +11,10 @@ export interface UserDetails {
 	displayName: string;
 	emailAddress: string;
 	role: string;
+}
+
+export interface AuthContextProps {
+	user: User | null;
+	loading: boolean;
+	isAuthenticated: boolean;
 }
