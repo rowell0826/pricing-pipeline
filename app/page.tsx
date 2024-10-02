@@ -4,8 +4,17 @@ import SideBar from "@/components/sidebar/SideBar";
 import CardComponent from "@/components/subcomponents/Card";
 import { Task } from "@/lib/types/cardProps";
 import { auth, db } from "@/lib/utils/firebase/firebase";
+import { BiSolidSortAlt } from "react-icons/bi";
 import { collection, deleteDoc, doc, getDocs, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import {
+	DropdownMenuItem,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 interface SortList {
 	input: string;
@@ -124,26 +133,37 @@ export default function Home() {
 				<SideBar onAddTask={addTaskToClientInput} />
 
 				<main className="w-full flex justify-center mt-20">
-					<div className="flex flex-col md:flex-row justify-evenly items-start w-full h-full">
+					<div className="grid grid-cols-1 md:grid-cols-2 w-full h-full gap-2 p-4 overflow-y-scroll">
 						{cardContainer.map(({ input }, idx) => (
 							<div
-								className="border-2 border-zinc-800 w-[400px] h-[300px] md:h-[600px] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-white/10 backdrop-blur-lg shadow-lg"
+								className="border-2 border-zinc-800 w-[400px] h-[300px] md:h-[350px] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-white/10 backdrop-blur-lg shadow-lg"
 								key={idx}
 							>
 								<h3 className="p-4">{input}</h3>
-								<div className="w-full flex justify-evenly item-start text-xs p-2">
-									{sortCategories.map(({ input, filterBy }, idx) => (
-										<p
-											onClick={() => sortFilter(filterBy)}
-											className="cursor-pointer"
-											key={idx}
-										>
-											{input}
-										</p>
-									))}
+								<div className="w-full flex justify-end items-center p-2">
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<Button className="mr-2">
+												<BiSolidSortAlt />
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent>
+											<DropdownMenuGroup>
+												{sortCategories.map(({ input, filterBy }, idx) => (
+													<DropdownMenuItem
+														onClick={() => sortFilter(filterBy)}
+														className="cursor-pointer"
+														key={idx}
+													>
+														{input}
+													</DropdownMenuItem>
+												))}
+											</DropdownMenuGroup>
+										</DropdownMenuContent>
+									</DropdownMenu>
 								</div>
 								{idx === 0 && (
-									<ul className="overflow-y-scroll min-w-[300px] w-[350px] flex flex-col gap-2 justify-start items-center rounded-md custom-scrollbar scrollbar-hidden">
+									<ul className="overflow-y-scroll min-w-[300px] w-[350px] flex flex-col gap-2 justify-start items-center rounded-md custom-scrollbar scrollbar-hidden border-2 border-border">
 										{tasks.map((task, index) => (
 											<CardComponent
 												key={index}
