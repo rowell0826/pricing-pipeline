@@ -31,16 +31,16 @@ const sortCategories: SortList[] = [
 		filterBy: "title",
 	},
 	{
+		input: "Sort by Owner",
+		filterBy: "createdBy",
+	},
+	{
 		input: "Sort by Date Created",
 		filterBy: "createdAt",
 	},
 	{
 		input: "Sort by Due Date",
 		filterBy: "dueDate",
-	},
-	{
-		input: "Sort by Owner",
-		filterBy: "createdBy",
 	},
 ];
 
