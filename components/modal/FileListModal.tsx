@@ -28,7 +28,7 @@ const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileL
 								href={fileUrl}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="block text-blue-500 underline"
+								className="block text-foreground underline"
 							>
 								{getFilenameFromUrl(fileUrl)}
 							</a>
@@ -39,7 +39,7 @@ const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileL
 				</div>
 
 				<DialogClose asChild>
-					<Button className="mt-4 w-full text-white py-2 px-4 rounded">Close</Button>
+					<Button className="mt-4 w-full text-foreground py-2 px-4 rounded">Close</Button>
 				</DialogClose>
 			</DialogContent>
 		</Dialog>

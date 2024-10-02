@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Task } from "@/lib/types/cardProps";
 import { FaFile } from "react-icons/fa";
 import { Button } from "../ui/button";
+import { IoCloseSharp } from "react-icons/io5";
 import { doc, onSnapshot, Timestamp, updateDoc } from "firebase/firestore";
 import {
 	Dialog,
@@ -13,7 +14,7 @@ import {
 	DialogTrigger,
 } from "../ui/dialog";
 import { useEffect, useState } from "react";
-import { db } from "@/lib/utils/firebase/firebase";
+import { db, deleteFileFromStorage } from "@/lib/utils/firebase/firebase";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
 
 const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }> = ({
@@ -37,8 +38,12 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 		return "Unknown Date";
 	};
 
+	// State handlers
 	const [editedTitle, setEditedTitle] = useState(title);
 	const [editedDueDate, setEditedDueDate] = useState(formatDate(dueDate));
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [downloadedFiles, setDownloadedFiles] = useState<string[]>(downloads || []);
@@ -77,6 +82,25 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 		} catch (error) {
 			console.error("Error updating task:", error);
 			alert("There was an error updating the task.");
+		}
+	};
+
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files && e.target.files.length > 0) {
+			setSelectedFile(e.target.files[0]);
+		}
+	};
+
+	const handleFileDelete = async (fileUrl: string) => {
+		try {
+			await deleteFileFromStorage(fileUrl); // Call the deletion function
+
+			// Update the state to remove the deleted file from the list
+			setDownloadedFiles((prevFiles) => prevFiles.filter((file) => file !== fileUrl));
+
+			console.log(`File deleted: ${fileUrl}`);
+		} catch (error) {
+			console.error("Failed to delete file:", error);
 		}
 	};
 
@@ -125,15 +149,17 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 						</DialogTrigger>
 
 						<DialogContent>
-							<DialogHeader>
+							<DialogHeader className="text-foreground">
 								<DialogTitle>Edit Task</DialogTitle>
-								<DialogDescription>
+								<DialogDescription className="text-foreground">
 									Modify the task details below.
 								</DialogDescription>
 							</DialogHeader>
 							<div className="space-y-4">
 								<div>
-									<label className="block text-sm font-medium">Title</label>
+									<label className="block text-sm font-medium text-foreground">
+										Title
+									</label>
 									<input
 										type="text"
 										value={editedTitle}
@@ -142,12 +168,55 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 									/>
 								</div>
 								<div>
-									<label className="block text-sm font-medium">Due Date</label>
+									<label className="block text-sm font-medium text-foreground">
+										Due Date
+									</label>
 									<input
 										type="date"
 										value={editedDueDate}
 										onChange={(e) => setEditedDueDate(e.target.value)}
 										className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+									/>
+								</div>
+								<div>
+									<label className="block text-sm font-medium text-foreground">
+										Uploaded Files
+									</label>
+									{downloadedFiles.length > 0 ? (
+										<ul className="mt-2 space-y-2 bg-white px-2 py-1">
+											{downloadedFiles.map((fileUrl, index) => (
+												<li
+													key={index}
+													className="flex justify-between items-center"
+												>
+													<a
+														href={fileUrl}
+														target="_blank"
+														rel="noopener noreferrer"
+														className="text-cyan-800 hover:underline"
+													>
+														{getFilenameFromUrl(fileUrl)}
+													</a>
+													<IoCloseSharp
+														onClick={() => handleFileDelete(fileUrl)}
+													/>
+												</li>
+											))}
+										</ul>
+									) : (
+										<p className="text-sm text-gray-500">
+											No files uploaded yet.
+										</p>
+									)}
+								</div>
+								<div>
+									<label className="block text-sm font-medium text-foreground">
+										Upload File
+									</label>
+									<input
+										type="file"
+										onChange={handleFileChange}
+										className="mt-1 block w-full text-foreground"
 									/>
 								</div>
 							</div>
@@ -156,7 +225,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 									<DialogClose>Save</DialogClose>
 								</Button>
 
-								<Button variant="outline" className="ml-2">
+								<Button variant="outline" className="ml-2 text-foreground">
 									<DialogClose>Cancel</DialogClose>
 								</Button>
 							</div>

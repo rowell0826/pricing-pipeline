@@ -6,6 +6,30 @@ import { auth, db } from "@/lib/utils/firebase/firebase";
 import { collection, deleteDoc, doc, getDocs, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
+interface SortList {
+	input: string;
+	filterBy: string;
+}
+
+const sortCategories: SortList[] = [
+	{
+		input: "Sort by Task",
+		filterBy: "title",
+	},
+	{
+		input: "Sort by Date Created",
+		filterBy: "createdAt",
+	},
+	{
+		input: "Sort by Due Date",
+		filterBy: "dueDate",
+	},
+	{
+		input: "Sort by Owner",
+		filterBy: "createdBy",
+	},
+];
+
 export default function Home() {
 	const [tasks, setTasks] = useState<Task[]>([]);
 	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
@@ -82,6 +106,8 @@ export default function Home() {
 		}
 	};
 
+	
+
 	return (
 		<div className="flex w-full h-screen">
 			<SideBar onAddTask={addTaskToClientInput} />
@@ -91,18 +117,15 @@ export default function Home() {
 					<div className="border-2 border-zinc-800 w-[400px] h-[300px] md:h-[600px] text-center flex flex-col justify-start items-center rounded-md text-foreground">
 						<h3 className="p-4">Client Input</h3>
 						<div className="w-full flex justify-evenly item-start text-xs p-2">
-							<p onClick={() => sortFilter("title")} className="cursor-pointer">
-								Sort by Task
-							</p>
-							<p onClick={() => sortFilter("createdAt")} className="cursor-pointer">
-								Sort by Date Created
-							</p>
-							<p onClick={() => sortFilter("dueDate")} className="cursor-pointer">
-								Sort by Due Date
-							</p>
-							<p onClick={() => sortFilter("createdBy")} className="cursor-pointer">
-								Sort by Owner
-							</p>
+							{sortCategories.map(({ input, filterBy }, idx) => (
+								<p
+									onClick={() => sortFilter(filterBy)}
+									className="cursor-pointer"
+									key={idx}
+								>
+									{input}
+								</p>
+							))}
 						</div>
 						<ul className="overflow-y-scroll min-w-[300px] w-[350px] flex flex-col gap-2 justify-start items-center rounded-md custom-scrollbar scrollbar-hidden">
 							{tasks.map((task, index) => (

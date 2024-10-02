@@ -9,7 +9,14 @@ import {
 	signOut,
 } from "firebase/auth";
 import { doc, Firestore, getDoc, getFirestore, setDoc } from "firebase/firestore";
-import { getStorage, listAll, ref, uploadBytesResumable, UploadTaskSnapshot } from "firebase/storage";
+import {
+	deleteObject,
+	getStorage,
+	listAll,
+	ref,
+	uploadBytesResumable,
+	UploadTaskSnapshot,
+} from "firebase/storage";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -166,12 +173,31 @@ export const clientFileUpload = async (file: File): Promise<UploadTaskSnapshot |
 
 // Function to list all files in a folder (or root)
 export const listFiles = async (folder: string = "") => {
-    const folderRef = ref(storage, folder);
-    try {
-        const result = await listAll(folderRef);
-        return result.items; // Returns a list of file references
-    } catch (error) {
-        console.error("Error fetching files: ", error);
-        return [];
-    }
+	const folderRef = ref(storage, folder);
+	try {
+		const result = await listAll(folderRef);
+
+		return result.items;
+	} catch (error) {
+		console.error("Error fetching files: ", error);
+
+		return [];
+	}
+};
+
+// Delete a file from Firebase Storage
+export const deleteFileFromStorage = async (fileUrl: string): Promise<void> => {
+	try {
+		// Create a reference to the file using the file URL
+		const fileRef = ref(storage, fileUrl);
+
+		// Delete the file
+		await deleteObject(fileRef);
+
+		console.log("File deleted successfully");
+	} catch (error) {
+		console.error("Error deleting file:", error);
+
+		throw error;
+	}
 };
