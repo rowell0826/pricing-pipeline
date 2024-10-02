@@ -36,6 +36,12 @@
 		--chart-5: 27 87% 67%;
 		--radius: 0.5rem;
 		--font: #ecf4fe;
+		--barker-primary: 44, 100%, 59%; /*Yellow*/
+		--barker-secondary: 44, 100%, 69%; /*Med Yellow*/
+		--barker-neutral: 0, 0%, 100%; /*white*/
+		--barker-info: 0, 0%, 90%;
+		--barker-modal: 0, 0%, 7%; /* dark */
+		--barker-button: 0, 0%, 7%;
 	}
 	.dark {
 		--background: 235, 40%, 40%;
@@ -62,7 +68,12 @@
 		--chart-3: 30 80% 55%;
 		--chart-4: 280 65% 60%;
 		--chart-5: 340 75% 55%;
-		--font: #788492;
+		--barker-primary: 44, 100%, 59%; /*Yellow*/
+		--barker-secondary: 44, 100%, 69%; /*Med Yellow*/
+		--barker-neutral: 0, 0%, 7%; /*black*/
+		--barker-info: 0, 0%, 90%;
+		--barker-modal: 0, 0%, 90%; /*gray */
+		--barker-button: 0, 0%, 100%;
 	}
 }
 
@@ -75,18 +86,8 @@
 	}
 	body {
 		font-family: Arial, Helvetica, sans-serif;
-		@apply w-full bg-radial;
+		@apply w-full bg-background;
 	}
-
-	/* Hide scrollbars globally */
-	/* .scrollbar-hidden::-webkit-scrollbar {
-		display: none;
-	}
-
-	.scrollbar-hidden {
-		-ms-overflow-style: none;
-		scrollbar-width: none;
-	} */
 
 	.custom-scrollbar {
 		overflow-y: scroll; /* Ensure vertical scrolling is enabled */

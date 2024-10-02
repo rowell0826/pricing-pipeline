@@ -118,7 +118,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 	}, [task.id]);
 
 	return (
-		<Card key={id} className="w-full h-[220px]">
+		<Card key={id} className="w-full h-[220px] bg-modal">
 			<CardHeader>
 				<CardTitle>{title}</CardTitle>
 				<CardDescription>{createdBy}</CardDescription>
@@ -155,7 +155,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 									Modify the task details below.
 								</DialogDescription>
 							</DialogHeader>
-							<div className="space-y-4">
+							<div className="space-y-4 h-full p-2">
 								<div>
 									<label className="block text-sm font-medium text-foreground">
 										Title
@@ -209,7 +209,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 										</p>
 									)}
 								</div>
-								<div>
+								<div className="p-1">
 									<label className="block text-sm font-medium text-foreground">
 										Upload File
 									</label>
@@ -220,12 +220,12 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 									/>
 								</div>
 							</div>
-							<div className="flex justify-end mt-4">
+							<div className="flex justify-end mt-4 gap-4">
 								<Button onClick={handleEditSubmit}>
 									<DialogClose>Save</DialogClose>
 								</Button>
 
-								<Button variant="outline" className="ml-2 text-foreground">
+								<Button>
 									<DialogClose>Cancel</DialogClose>
 								</Button>
 							</div>
@@ -236,7 +236,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 
 					<Dialog>
 						<DialogTrigger asChild>
-							<Button className="text-foreground">View Files</Button>
+							<Button>View Files</Button>
 						</DialogTrigger>
 
 						<DialogContent>

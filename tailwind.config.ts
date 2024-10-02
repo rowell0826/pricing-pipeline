@@ -10,8 +10,12 @@ const config: Config = {
 	theme: {
 		extend: {
 			colors: {
-				background: "hsla(var(--background), 50%)",
-				foreground: "var(--font)",
+				background: "hsla(var(--barker-neutral), 100%)",
+				foreground: "hsl(var(--barker-modal))",
+				modal: "hsla(var(--barker-modal),40%)",
+				switch: "hsla(var(--barker-primary),100%)",
+				switch2: "hsla(var(--barker-secondary),100%)",
+				button: "hsla(var(--barker-button),100%)",
 				card: {
 					DEFAULT: "hsl(var(--card))",
 					foreground: "hsl(var(--card-foreground))",

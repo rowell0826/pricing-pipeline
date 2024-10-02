@@ -149,7 +149,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				<Switch />
 			</div>
 			<nav
-				className={`h-full flex flex-col justify-evenly items-center bg-background ${
+				className={`h-full flex flex-col justify-evenly items-center bg-modal ${
 					isOpen ? "w-[20%]" : "w-[5%]"
 				} transition-all duration-300 ease-in-out overflow-hidden`}
 			>
