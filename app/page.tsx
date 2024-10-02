@@ -132,7 +132,7 @@ export default function Home() {
 			<div className="flex w-full h-screen">
 				<SideBar onAddTask={addTaskToClientInput} />
 
-				<main className="w-full flex justify-center mt-20">
+				<main className="w-full flex justify-center mt-16">
 					<div className="grid grid-cols-1 md:grid-cols-2 w-full h-full gap-2 p-4 overflow-y-scroll">
 						{cardContainer.map(({ input }, idx) => (
 							<div
@@ -143,7 +143,7 @@ export default function Home() {
 								<div className="w-full flex justify-end items-center p-2">
 									<DropdownMenu>
 										<DropdownMenuTrigger asChild>
-											<Button className="mr-2">
+											<Button className="mr-4" size={"sm"}>
 												<BiSolidSortAlt />
 											</Button>
 										</DropdownMenuTrigger>
@@ -163,7 +163,7 @@ export default function Home() {
 									</DropdownMenu>
 								</div>
 								{idx === 0 && (
-									<ul className="overflow-y-scroll min-w-[300px] w-[350px] flex flex-col gap-2 justify-start items-center rounded-md custom-scrollbar scrollbar-hidden border-2 border-border">
+									<ul className="overflow-y-scroll min-w-[300px] w-[300px] flex flex-col gap-2 justify-start items-center rounded-md custom-scrollbar scrollbar-hidden border-2 border-border">
 										{tasks.map((task, index) => (
 											<CardComponent
 												key={index}
