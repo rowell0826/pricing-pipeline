@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 const config: Config = {
 	darkMode: ["class"],
@@ -10,12 +11,10 @@ const config: Config = {
 	theme: {
 		extend: {
 			colors: {
-				background: "hsla(var(--barker-neutral), 100%)",
-				foreground: "hsl(var(--barker-modal))",
-				modal: "hsla(var(--barker-modal),40%)",
-				switch: "hsla(var(--barker-primary),100%)",
-				switch2: "hsla(var(--barker-secondary),100%)",
-				button: "hsla(var(--barker-button),100%)",
+				background: "hsl(var(--background))",
+				foreground: "hsl(var(--foreground))",
+				sidebar: "hsla(var(--sidebar-bg),100%)",
+				sidebartx: "hsl(var(--sidebar-tx))",
 				card: {
 					DEFAULT: "hsl(var(--card))",
 					foreground: "hsl(var(--card-foreground))",
@@ -55,24 +54,13 @@ const config: Config = {
 					"5": "hsl(var(--chart-5))",
 				},
 			},
-			backgroundImage: {
-				radial: "radial-gradient(circle at top right, rgba(0, 168, 235, 0.5), rgba(15,15,185, 1))",
-			},
 			borderRadius: {
 				lg: "var(--radius)",
 				md: "calc(var(--radius) - 2px)",
 				sm: "calc(var(--radius) - 4px)",
 			},
-			scrollbar: {
-				width: "12px",
-				colors: {
-					thumb: "#888",
-					track: "#f1f1f1",
-				},
-			},
 		},
 	},
-	// eslint-disable-next-line @typescript-eslint/no-require-imports
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 };
 export default config;

@@ -149,7 +149,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				<Switch />
 			</div>
 			<nav
-				className={`h-full flex flex-col justify-evenly items-center bg-modal ${
+				className={`h-full flex flex-col justify-evenly items-center bg-sidebar ${
 					isOpen ? "w-[20%]" : "w-[5%]"
 				} transition-all duration-300 ease-in-out overflow-hidden`}
 			>
@@ -168,15 +168,15 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				</div>
 
 				<div>
-					<h1 className={`${isOpen ? "" : "hidden"} text-foreground`}>Hi, {userName}</h1>
-					<p className={`${isOpen ? "" : "hidden"} text-center text-foreground`}>
+					<h1 className={`${isOpen ? "" : "hidden"} text-background`}>Hi, {userName}</h1>
+					<p className={`${isOpen ? "" : "hidden"} text-center text-background`}>
 						{role}
 					</p>
 				</div>
 
 				<ul className="flex flex-col gap-4">
 					<li
-						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-foreground"
+						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-background"
 						onClick={handleViewFiles}
 					>
 						<span className="inline-block">
@@ -185,7 +185,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 						{isOpen && "View Files"}
 					</li>
 					<li
-						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-foreground"
+						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-background"
 						onClick={modalHandler}
 					>
 						<span className="inline-block">
@@ -195,7 +195,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 					</li>
 				</ul>
 				<p
-					className="mb-10 flex justify-center items-center cursor-pointer text-foreground"
+					className="mb-10 flex justify-center items-center cursor-pointer text-background"
 					onClick={handleSignOut}
 				>
 					<span className="inline-block">

@@ -133,26 +133,26 @@ export default function Home() {
 				<SideBar onAddTask={addTaskToClientInput} />
 
 				<main className="w-full flex justify-center mt-16">
-					<div className="grid grid-cols-1 md:grid-cols-2 w-full h-full gap-2 p-4 overflow-y-scroll">
+					<div className="grid grid-cols-1 md:grid-cols-2 w-full h-full justify-center gap-2 p-4 overflow-y-scroll">
 						{cardContainer.map(({ input }, idx) => (
 							<div
-								className="border-2 border-zinc-800 w-[400px] h-[300px] md:h-[350px] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-white/10 backdrop-blur-lg shadow-lg"
+								className="border-2 border-zinc-800 w-[320px] h-[300px] md:h-[350px] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg"
 								key={idx}
 							>
-								<h3 className="p-4">{input}</h3>
+								<h3 className="p-4 text-background">{input}</h3>
 								<div className="w-full flex justify-end items-center p-2">
 									<DropdownMenu>
 										<DropdownMenuTrigger asChild>
-											<Button className="mr-4" size={"sm"}>
+											<Button>
 												<BiSolidSortAlt />
 											</Button>
 										</DropdownMenuTrigger>
-										<DropdownMenuContent>
+										<DropdownMenuContent className="bg-sidebar">
 											<DropdownMenuGroup>
 												{sortCategories.map(({ input, filterBy }, idx) => (
 													<DropdownMenuItem
 														onClick={() => sortFilter(filterBy)}
-														className="cursor-pointer"
+														className="cursor-pointer text-sidebartx"
 														key={idx}
 													>
 														{input}

@@ -41,6 +41,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 	// State handlers
 	const [editedTitle, setEditedTitle] = useState(title);
 	const [editedDueDate, setEditedDueDate] = useState(formatDate(dueDate));
+	const [filesMarkedForDeletion, setFilesMarkedForDeletion] = useState<string[]>([]);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -73,11 +74,21 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 
 	const handleEditSubmit = async () => {
 		try {
+			// Delete the files from Firebase that are marked for deletion
+			for (const fileUrl of filesMarkedForDeletion) {
+				await deleteFileFromStorage(fileUrl);
+			}
+
 			const taskRef = doc(db, "tasks", id);
+
+			// Update Firestore document
 			await updateDoc(taskRef, {
 				title: editedTitle,
 				dueDate: new Date(editedDueDate),
+				downloads: downloadedFiles,
 			});
+
+			setFilesMarkedForDeletion([]);
 			alert("Task updated successfully!");
 		} catch (error) {
 			console.error("Error updating task:", error);
@@ -91,17 +102,20 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 		}
 	};
 
-	const handleFileDelete = async (fileUrl: string) => {
-		try {
-			await deleteFileFromStorage(fileUrl); // Call the deletion function
+	const handleFileDelete = (fileUrl: string) => {
+		// Add the file to the list of files marked for deletion
+		setFilesMarkedForDeletion((prev) => [...prev, fileUrl]);
 
-			// Update the state to remove the deleted file from the list
-			setDownloadedFiles((prevFiles) => prevFiles.filter((file) => file !== fileUrl));
+		// Update the state to remove the deleted file from the UI
+		setDownloadedFiles((prevFiles) => prevFiles.filter((file) => file !== fileUrl));
+	};
 
-			console.log(`File deleted: ${fileUrl}`);
-		} catch (error) {
-			console.error("Failed to delete file:", error);
-		}
+	const handleCancelEdit = () => {
+		// Revert any marked deletions by adding the marked files back to downloadedFiles
+		setDownloadedFiles((prevFiles) => [...prevFiles, ...filesMarkedForDeletion]);
+
+		// Clear the markedForDeletionFiles array
+		setFilesMarkedForDeletion([]);
 	};
 
 	useEffect(() => {
@@ -118,15 +132,15 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 	}, [task.id]);
 
 	return (
-		<Card key={id} className="w-full h-[220px] bg-modal">
-			<CardHeader>
+		<Card key={id} className="w-full h-[180px] bg-card">
+			<CardHeader className="h-[40%]">
 				<CardTitle>{title}</CardTitle>
 				<CardDescription>{createdBy}</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<ul>
 					{downloadedFiles.length > 0 ? (
-						<li className="flex items-center">
+						<li className="flex items-center text-sm">
 							<FaFile className="mr-2" />
 							Number of Files: {downloadedFiles.length}
 						</li>
@@ -134,32 +148,30 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 						<p>No files uploaded.</p>
 					)}
 					<div className="flex justify-between">
-						<span className="text-xs text-slate-500">Created At:</span>
-						<span className="text-xs text-slate-500">{formatDate(createdAt)}</span>
+						<span className="text-xs ">Created At:</span>
+						<span className="text-xs ">{formatDate(createdAt)}</span>
 					</div>
 					<div className="flex justify-between">
-						<span className="text-xs text-slate-500">Due Date:</span>
-						<span className="text-xs text-slate-500">{formatDate(dueDate)}</span>
+						<span className="text-xs ">Due Date:</span>
+						<span className="text-xs ">{formatDate(dueDate)}</span>
 					</div>
 				</ul>
-				<div className="w-full flex justify-end items-center gap-4 pt-2">
+				<div className="w-full flex justify-evenly items-center gap-4 pt-2">
 					<Dialog>
 						<DialogTrigger asChild>
-							<Button>Edit</Button>
+							<Button size={"sm"}>Edit</Button>
 						</DialogTrigger>
 
 						<DialogContent>
 							<DialogHeader className="text-foreground">
-								<DialogTitle>Edit Task</DialogTitle>
-								<DialogDescription className="text-foreground">
+								<DialogTitle className="p-2">Edit Task</DialogTitle>
+								<DialogDescription className="text-foreground p-2">
 									Modify the task details below.
 								</DialogDescription>
 							</DialogHeader>
 							<div className="space-y-4 h-full p-2">
 								<div>
-									<label className="block text-sm font-medium text-foreground">
-										Title
-									</label>
+									<label className="block text-sm font-medium ">Title</label>
 									<input
 										type="text"
 										value={editedTitle}
@@ -168,9 +180,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 									/>
 								</div>
 								<div>
-									<label className="block text-sm font-medium text-foreground">
-										Due Date
-									</label>
+									<label className="block text-sm font-medium ">Due Date</label>
 									<input
 										type="date"
 										value={editedDueDate}
@@ -179,7 +189,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 									/>
 								</div>
 								<div>
-									<label className="block text-sm font-medium text-foreground">
+									<label className="block text-sm font-medium ">
 										Uploaded Files
 									</label>
 									{downloadedFiles.length > 0 ? (
@@ -199,6 +209,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 													</a>
 													<IoCloseSharp
 														onClick={() => handleFileDelete(fileUrl)}
+														className="cursor-pointer"
 													/>
 												</li>
 											))}
@@ -210,13 +221,13 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 									)}
 								</div>
 								<div className="p-1">
-									<label className="block text-sm font-medium text-foreground">
+									<label className="block text-sm font-medium ">
 										Upload File
 									</label>
 									<input
 										type="file"
 										onChange={handleFileChange}
-										className="mt-1 block w-full text-foreground"
+										className="mt-1 block w-full "
 									/>
 								</div>
 							</div>
@@ -225,26 +236,26 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 									<DialogClose>Save</DialogClose>
 								</Button>
 
-								<Button>
+								<Button onClick={handleCancelEdit}>
 									<DialogClose>Cancel</DialogClose>
 								</Button>
 							</div>
 						</DialogContent>
 					</Dialog>
 
-					<Button onClick={() => onRemove(id)}>Remove</Button>
+					<Button onClick={() => onRemove(id)} size={"sm"}>
+						Remove
+					</Button>
 
 					<Dialog>
 						<DialogTrigger asChild>
-							<Button>View Files</Button>
+							<Button size={"sm"}>View Files</Button>
 						</DialogTrigger>
 
 						<DialogContent>
 							<DialogHeader>
-								<DialogTitle className="text-foreground">
-									Attached Files
-								</DialogTitle>
-								<DialogDescription className="text-foreground">
+								<DialogTitle>Attached Files</DialogTitle>
+								<DialogDescription>
 									Here are the files attached to this task. You can download them
 									below.
 								</DialogDescription>
@@ -256,9 +267,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 											key={index}
 											className="flex items-center justify-between"
 										>
-											<p className="text-foreground">
-												{getFilenameFromUrl(url)}
-											</p>
+											<p>{getFilenameFromUrl(url)}</p>
 
 											<p
 												className="text-foreground underline cursor-pointer"
