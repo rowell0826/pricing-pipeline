@@ -10,12 +10,7 @@ const Droppable: React.FC<PropsWithChildren<DroppableProps>> = (props) => {
 		id: props.id,
 	});
 
-	return (
-		<div ref={setNodeRef}>
-			<h2>I&apos;m the droppable component</h2>
-			{props.children}
-		</div>
-	);
+	return <div ref={setNodeRef}>{props.children}</div>;
 };
 
 export { Droppable };
