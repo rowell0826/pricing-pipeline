@@ -201,3 +201,24 @@ export const deleteFileFromStorage = async (fileUrl: string): Promise<void> => {
 		throw error;
 	}
 };
+
+// ---------------------------------- Firestore database ---------------------------------
+
+// Function to fetch user role from Firestore
+export const getUserRoleFromFirestore = async (userId: string) => {
+	try {
+		const userDocRef = doc(db, "users", userId); // Assuming 'users' is the collection where user data is stored
+		const userDoc = await getDoc(userDocRef);
+
+		if (userDoc.exists()) {
+			const userData = userDoc.data();
+			return userData.role; // Return the role from Firestore document
+		} else {
+			console.error("No such document!");
+			return null;
+		}
+	} catch (error) {
+		console.error("Error fetching user role:", error);
+		return null;
+	}
+};

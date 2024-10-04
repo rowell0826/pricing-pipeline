@@ -35,7 +35,7 @@ const Modal: React.FC<ModalProps> = ({
 						/>
 					</label>
 					<label className="text-foreground">
-						Due Date (MM/DD/YYYY):{"  "}
+						Due Date:{"  "}
 						<input
 							type="date"
 							value={dueDateInput}

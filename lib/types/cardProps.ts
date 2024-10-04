@@ -5,4 +5,5 @@ export interface Task {
 	createdAt: Date | null;
 	dueDate: Date | null;
 	downloads: string[];
+	status: "raw" | "filtering" | "pricing" | "done";
 }

@@ -101,22 +101,10 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 			console.log("File available at:", downloadUrl);
 
 			if (taskTitle && dueDateInput) {
-				const [month, day, year] = dueDateInput.split("/");
-				if (
-					!month ||
-					!day ||
-					!year ||
-					month.length !== 2 ||
-					day.length !== 2 ||
-					year.length !== 4
-				) {
-					alert("Invalid due date format. Please enter a valid date (MM/DD/YYYY).");
-					return;
-				}
+				const dueDate = new Date(dueDateInput); // `dueDateInput` is already in `YYYY-MM-DD` format
 
-				const dueDate = new Date(`${year}-${month}-${day}`);
 				if (isNaN(dueDate.getTime())) {
-					alert("Invalid due date format. Please enter a valid date (MM/DD/YYYY).");
+					alert("Invalid due date. Please select a valid date.");
 					return;
 				}
 

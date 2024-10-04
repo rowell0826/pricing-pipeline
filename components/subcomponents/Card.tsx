@@ -16,11 +16,42 @@ import {
 import { useEffect, useState } from "react";
 import { db, deleteFileFromStorage } from "@/lib/utils/firebase/firebase";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { useDraggable } from "@dnd-kit/core";
 
 const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }> = ({
 	task,
 	onRemove,
+}: {
+	task: Task;
+	onRemove: (id: string) => void;
 }) => {
+	const {
+		attributes,
+		listeners,
+		setNodeRef: setSortableRef,
+		transform,
+		transition,
+	} = useSortable({
+		id: task.id,
+	});
+
+	const { setNodeRef: setDraggableRef, listeners: draggableListeners } = useDraggable({
+		id: task.id,
+	});
+
+	// Combine draggable and sortable refs
+	const combinedRef = (node: HTMLElement | null) => {
+		setDraggableRef(node);
+		setSortableRef(node);
+	};
+
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+	};
+
 	const { id, title, createdAt, createdBy, dueDate, downloads } = task;
 
 	const formatDate = (date: Date | null | Timestamp) => {
@@ -133,161 +164,174 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 
 	return (
 		<Card key={id} className="w-full h-[180px] bg-card">
-			<CardHeader className="h-[40%]">
-				<CardTitle>{title}</CardTitle>
-				<CardDescription>{createdBy}</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<ul>
-					{downloadedFiles.length > 0 ? (
-						<li className="flex items-center text-sm">
-							<FaFile className="mr-2" />
-							Number of Files: {downloadedFiles.length}
-						</li>
-					) : (
-						<p>No files uploaded.</p>
-					)}
-					<div className="flex justify-between">
-						<span className="text-xs ">Created At:</span>
-						<span className="text-xs ">{formatDate(createdAt)}</span>
-					</div>
-					<div className="flex justify-between">
-						<span className="text-xs ">Due Date:</span>
-						<span className="text-xs ">{formatDate(dueDate)}</span>
-					</div>
-				</ul>
-				<div className="w-full flex justify-evenly items-center gap-4 pt-2">
-					<Dialog>
-						<DialogTrigger asChild>
-							<Button size={"sm"}>Edit</Button>
-						</DialogTrigger>
+			<div
+				ref={combinedRef}
+				style={style}
+				{...attributes}
+				{...listeners}
+				{...draggableListeners}
+			>
+				<CardHeader {...listeners} className="drag-handle h-[30%] py-2">
+					<CardTitle className="text-left">{title}</CardTitle>
+					<CardDescription className="text-left">{createdBy}</CardDescription>
+				</CardHeader>
 
-						<DialogContent>
-							<DialogHeader className="text-foreground">
-								<DialogTitle className="p-2">Edit Task</DialogTitle>
-								<DialogDescription className="text-foreground p-2">
-									Modify the task details below.
-								</DialogDescription>
-							</DialogHeader>
-							<div className="space-y-4 h-full p-2">
-								<div>
-									<label className="block text-sm font-medium ">Title</label>
-									<input
-										type="text"
-										value={editedTitle}
-										onChange={(e) => setEditedTitle(e.target.value)}
-										className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-									/>
-								</div>
-								<div>
-									<label className="block text-sm font-medium ">Due Date</label>
-									<input
-										type="date"
-										value={editedDueDate}
-										onChange={(e) => setEditedDueDate(e.target.value)}
-										className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-									/>
-								</div>
-								<div>
-									<label className="block text-sm font-medium ">
-										Uploaded Files
-									</label>
-									{downloadedFiles.length > 0 ? (
-										<ul className="mt-2 space-y-2 bg-white px-2 py-1">
-											{downloadedFiles.map((fileUrl, index) => (
-												<li
-													key={index}
-													className="flex justify-between items-center"
-												>
-													<a
-														href={fileUrl}
-														target="_blank"
-														rel="noopener noreferrer"
-														className="text-cyan-800 hover:underline"
+				<CardContent>
+					<ul>
+						{downloadedFiles.length > 0 ? (
+							<li className="flex items-center text-sm">
+								<FaFile className="mr-2" />
+								Number of Files: {downloadedFiles.length}
+							</li>
+						) : (
+							<p>No files uploaded.</p>
+						)}
+						<div className="flex justify-between">
+							<span className="text-xs ">Created At:</span>
+							<span className="text-xs ">{formatDate(createdAt)}</span>
+						</div>
+						<div className="flex justify-between">
+							<span className="text-xs ">Due Date:</span>
+							<span className="text-xs ">{formatDate(dueDate)}</span>
+						</div>
+					</ul>
+					<div className="w-full flex justify-evenly items-center gap-4 pt-2">
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button size={"sm"}>Edit</Button>
+							</DialogTrigger>
+
+							<DialogContent>
+								<DialogHeader className="text-foreground">
+									<DialogTitle className="p-2">Edit Task</DialogTitle>
+									<DialogDescription className="text-foreground p-2">
+										Modify the task details below.
+									</DialogDescription>
+								</DialogHeader>
+								<div className="space-y-4 h-full p-2">
+									<div>
+										<label className="block text-sm font-medium ">Title</label>
+										<input
+											type="text"
+											value={editedTitle}
+											onChange={(e) => setEditedTitle(e.target.value)}
+											className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+										/>
+									</div>
+									<div>
+										<label className="block text-sm font-medium ">
+											Due Date
+										</label>
+										<input
+											type="date"
+											value={editedDueDate}
+											onChange={(e) => setEditedDueDate(e.target.value)}
+											className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+										/>
+									</div>
+									<div>
+										<label className="block text-sm font-medium ">
+											Uploaded Files
+										</label>
+										{downloadedFiles.length > 0 ? (
+											<ul className="mt-2 space-y-2 bg-white px-2 py-1">
+												{downloadedFiles.map((fileUrl, index) => (
+													<li
+														key={index}
+														className="flex justify-between items-center"
 													>
-														{getFilenameFromUrl(fileUrl)}
-													</a>
-													<IoCloseSharp
-														onClick={() => handleFileDelete(fileUrl)}
-														className="cursor-pointer"
-													/>
-												</li>
-											))}
-										</ul>
+														<a
+															href={fileUrl}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="text-cyan-800 hover:underline"
+														>
+															{getFilenameFromUrl(fileUrl)}
+														</a>
+														<IoCloseSharp
+															onClick={() =>
+																handleFileDelete(fileUrl)
+															}
+															className="cursor-pointer"
+														/>
+													</li>
+												))}
+											</ul>
+										) : (
+											<p className="text-sm text-gray-500">
+												No files uploaded yet.
+											</p>
+										)}
+									</div>
+									<div className="p-1">
+										<label className="block text-sm font-medium ">
+											Upload File
+										</label>
+										<input
+											type="file"
+											onChange={handleFileChange}
+											className="mt-1 block w-full "
+										/>
+									</div>
+								</div>
+								<div className="flex justify-end mt-4 gap-4">
+									<Button onClick={handleEditSubmit}>
+										<DialogClose>Save</DialogClose>
+									</Button>
+
+									<Button onClick={handleCancelEdit}>
+										<DialogClose>Cancel</DialogClose>
+									</Button>
+								</div>
+							</DialogContent>
+						</Dialog>
+
+						<Button onClick={() => onRemove(id)} size={"sm"}>
+							Remove
+						</Button>
+
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button size={"sm"}>View Files</Button>
+							</DialogTrigger>
+
+							<DialogContent>
+								<DialogHeader>
+									<DialogTitle>Attached Files</DialogTitle>
+									<DialogDescription>
+										Here are the files attached to this task. You can download
+										them below.
+									</DialogDescription>
+								</DialogHeader>
+								<div className="space-y-4">
+									{downloadedFiles.length > 0 ? (
+										downloadedFiles.map((url, index) => (
+											<div
+												key={index}
+												className="flex items-center justify-between"
+											>
+												<p>{getFilenameFromUrl(url)}</p>
+
+												<p
+													className="text-foreground underline cursor-pointer"
+													onClick={() => handleDownload(url)}
+												>
+													Download
+												</p>
+											</div>
+										))
 									) : (
-										<p className="text-sm text-gray-500">
-											No files uploaded yet.
-										</p>
+										<p>No files available for download.</p>
 									)}
 								</div>
-								<div className="p-1">
-									<label className="block text-sm font-medium ">
-										Upload File
-									</label>
-									<input
-										type="file"
-										onChange={handleFileChange}
-										className="mt-1 block w-full "
-									/>
-								</div>
-							</div>
-							<div className="flex justify-end mt-4 gap-4">
-								<Button onClick={handleEditSubmit}>
-									<DialogClose>Save</DialogClose>
+								<Button className="mt-4" asChild>
+									<DialogClose>Close</DialogClose>
 								</Button>
-
-								<Button onClick={handleCancelEdit}>
-									<DialogClose>Cancel</DialogClose>
-								</Button>
-							</div>
-						</DialogContent>
-					</Dialog>
-
-					<Button onClick={() => onRemove(id)} size={"sm"}>
-						Remove
-					</Button>
-
-					<Dialog>
-						<DialogTrigger asChild>
-							<Button size={"sm"}>View Files</Button>
-						</DialogTrigger>
-
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>Attached Files</DialogTitle>
-								<DialogDescription>
-									Here are the files attached to this task. You can download them
-									below.
-								</DialogDescription>
-							</DialogHeader>
-							<div className="space-y-4">
-								{downloadedFiles.length > 0 ? (
-									downloadedFiles.map((url, index) => (
-										<div
-											key={index}
-											className="flex items-center justify-between"
-										>
-											<p>{getFilenameFromUrl(url)}</p>
-
-											<p
-												className="text-foreground underline cursor-pointer"
-												onClick={() => handleDownload(url)}
-											>
-												Download
-											</p>
-										</div>
-									))
-								) : (
-									<p>No files available for download.</p>
-								)}
-							</div>
-							<Button className="mt-4" asChild>
-								<DialogClose>Close</DialogClose>
-							</Button>
-						</DialogContent>
-					</Dialog>
-				</div>
-			</CardContent>
+							</DialogContent>
+						</Dialog>
+					</div>
+				</CardContent>
+			</div>
 		</Card>
 	);
 };

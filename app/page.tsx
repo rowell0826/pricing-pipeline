@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
+// Dnd Imports
+
 interface SortList {
 	input: string;
 	filterBy: string;
@@ -52,16 +54,23 @@ const cardContainer: ContainerList[] = [
 ];
 
 export default function Home() {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [tasks, setTasks] = useState<Task[]>([]);
+	const [rawTasks, setRawTasks] = useState<Task[]>([]); // Tasks in "Raw files"
+
 	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
 		key: "createdAt", // Default sort by createdAt
 		order: "asc",
 	});
 
+	const currentUser = auth.currentUser;
+
+	useEffect(() => {
+		console.log("Raw tasks:", rawTasks);
+	}, [rawTasks]);
+
 	// Function to add a new task to the state
 	const addTaskToClientInput = (taskTitle: string) => {
-		const currentUser = auth.currentUser;
-
 		const createdBy = currentUser ? currentUser.displayName || currentUser.uid : "Anonymous";
 
 		const newTask: Task = {
@@ -71,6 +80,7 @@ export default function Home() {
 			createdAt: new Date(),
 			dueDate: null,
 			downloads: [],
+			status: "raw",
 		};
 
 		setTasks((prevTasks) => [...prevTasks, newTask]);
@@ -100,6 +110,7 @@ export default function Home() {
 				});
 
 				setTasks(fetchedTasks);
+				setRawTasks(fetchedTasks);
 			} catch (error) {
 				console.log(error);
 				throw new Error("Cannot fetch data.");
@@ -108,13 +119,6 @@ export default function Home() {
 
 		fetchTasks();
 	}, [sortConfig.key, sortConfig.order]);
-
-	const sortFilter = (key: string) => {
-		setSortConfig((prevConfig) => {
-			const newOrder = prevConfig.key === key && prevConfig.order === "asc" ? "desc" : "asc";
-			return { key, order: newOrder };
-		});
-	};
 
 	const removeTask = async (taskID: string) => {
 		const taskDocRef = doc(db, "tasks", taskID);
@@ -127,12 +131,19 @@ export default function Home() {
 		}
 	};
 
+	const sortFilter = (key: string) => {
+		setSortConfig((prevConfig) => {
+			const newOrder = prevConfig.key === key && prevConfig.order === "asc" ? "desc" : "asc";
+			return { key, order: newOrder };
+		});
+	};
+
 	return (
 		<PrivateRoute>
 			<div className="flex w-full h-screen">
 				<SideBar onAddTask={addTaskToClientInput} />
 
-				<main className="w-full flex justify-center mt-16">
+				<main className="w-full flex justify-center mt-10">
 					<div className="grid grid-cols-1 md:grid-cols-2 w-full h-full justify-center gap-2 p-4 overflow-y-scroll">
 						{cardContainer.map(({ input }, idx) => (
 							<div
@@ -163,10 +174,11 @@ export default function Home() {
 									</DropdownMenu>
 								</div>
 								{idx === 0 && (
+									// Raw files container
 									<ul className="overflow-y-scroll min-w-[300px] w-[300px] flex flex-col gap-2 justify-start items-center rounded-md custom-scrollbar scrollbar-hidden border-2 border-border">
-										{tasks.map((task, index) => (
+										{rawTasks.map((task) => (
 											<CardComponent
-												key={index}
+												key={task.id}
 												task={task}
 												onRemove={removeTask}
 											/>
