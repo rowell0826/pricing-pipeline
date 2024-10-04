@@ -5,7 +5,7 @@ import CardComponent from "@/components/subcomponents/Card";
 import { Task } from "@/lib/types/cardProps";
 import { auth, db } from "@/lib/utils/firebase/firebase";
 import { BiSolidSortAlt } from "react-icons/bi";
-import { collection, deleteDoc, doc, getDocs, orderBy, query } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
 	DropdownMenuItem,
@@ -15,6 +15,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { DragEndEvent } from "@dnd-kit/core";
 
 // Dnd Imports
 
@@ -57,11 +58,23 @@ export default function Home() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [tasks, setTasks] = useState<Task[]>([]);
 	const [rawTasks, setRawTasks] = useState<Task[]>([]); // Tasks in "Raw files"
+	const [userRole, setUserRole] = useState<string | null>(null);
 
 	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
 		key: "createdAt", // Default sort by createdAt
 		order: "asc",
 	});
+
+	// Dnd droppable
+	const [isDropped, setIsDropped] = useState<string | null>(null);
+
+	const handleDragEnd = (event: DragEndEvent) => {
+		if (event.over) {
+			setIsDropped(String(event.over.id));
+		}
+	};
+
+	// Dnd Draggable
 
 	const currentUser = auth.currentUser;
 
@@ -69,21 +82,42 @@ export default function Home() {
 		console.log("Raw tasks:", rawTasks);
 	}, [rawTasks]);
 
+	// Fetch user role
+	useEffect(() => {
+		if (currentUser) {
+			const fetchUserRole = async () => {
+				const userDocRef = doc(db, "users", currentUser.uid);
+				const userSnapshot = await getDoc(userDocRef);
+
+				if (userSnapshot.exists()) {
+					const userData = userSnapshot.data();
+					setUserRole(userData.role);
+				}
+			};
+
+			fetchUserRole();
+		}
+	}, [currentUser]);
+
 	// Function to add a new task to the state
 	const addTaskToClientInput = (taskTitle: string) => {
 		const createdBy = currentUser ? currentUser.displayName || currentUser.uid : "Anonymous";
 
-		const newTask: Task = {
-			id: Date.now().toString(),
-			title: taskTitle,
-			createdBy: createdBy,
-			createdAt: new Date(),
-			dueDate: null,
-			downloads: [],
-			status: "raw",
-		};
+		if (userRole === "admin" || userRole === "client") {
+			const newTask: Task = {
+				id: Date.now().toString(),
+				title: taskTitle,
+				createdBy: createdBy,
+				createdAt: new Date(),
+				dueDate: null,
+				downloads: [],
+				status: "raw",
+			};
 
-		setTasks((prevTasks) => [...prevTasks, newTask]);
+			setTasks((prevTasks) => [...prevTasks, newTask]);
+		} else {
+			alert("You do not have permission to add a task.");
+		}
 	};
 
 	useEffect(() => {
