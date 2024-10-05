@@ -108,7 +108,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 					return;
 				}
 
-				await addDoc(collection(db, "tasks"), {
+				await addDoc(collection(db, "raw"), {
 					title: taskTitle,
 					createdAt: new Date(),
 					createdBy: userName,

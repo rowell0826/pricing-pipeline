@@ -136,7 +136,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 
 	return (
 		<Card key={id} className="w-full h-[180px] bg-card">
-			<CardHeader className="drag-handle h-[30%] py-2">
+			<CardHeader className="h-[30%] py-2">
 				<CardTitle className="text-left">{title}</CardTitle>
 				<CardDescription className="text-left">{createdBy}</CardDescription>
 			</CardHeader>
@@ -163,7 +163,9 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 				<div className="w-full flex justify-evenly items-center gap-4 pt-2">
 					<Dialog>
 						<DialogTrigger asChild>
-							<Button size={"sm"}>Edit</Button>
+							<Button size={"sm"} onClick={(e) => e.stopPropagation()}>
+								Edit
+							</Button>
 						</DialogTrigger>
 
 						<DialogContent>
@@ -247,13 +249,22 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 						</DialogContent>
 					</Dialog>
 
-					<Button onClick={() => onRemove(id)} size={"sm"}>
+					<Button
+						onClick={(e) => {
+							e.stopPropagation();
+
+							onRemove(id);
+						}}
+						size={"sm"}
+					>
 						Remove
 					</Button>
 
 					<Dialog>
 						<DialogTrigger asChild>
-							<Button size={"sm"}>View Files</Button>
+							<Button size={"sm"} onClick={(e) => e.stopPropagation}>
+								View Files
+							</Button>
 						</DialogTrigger>
 
 						<DialogContent>
