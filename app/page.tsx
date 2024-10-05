@@ -1,7 +1,6 @@
 "use client";
 import PrivateRoute from "@/components/privateRoute/PrivateRoute";
 import SideBar from "@/components/sidebar/SideBar";
-import CardComponent from "@/components/subcomponents/Card";
 import { Task } from "@/lib/types/cardProps";
 import { auth, db } from "@/lib/utils/firebase/firebase";
 import { BiSolidSortAlt } from "react-icons/bi";
@@ -28,7 +27,7 @@ import { Button } from "@/components/ui/button";
 // Dnd Imports
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { Droppable } from "@/components/droppable/Droppable";
-import { Draggable } from "@/components/droppable/Draggable";
+import { DraggableCard } from "@/components/droppable/Draggable";
 interface SortList {
 	input: string;
 	filterBy: string;
@@ -99,9 +98,11 @@ export default function Home() {
 	useEffect(() => {
 		const fetchTasks = async () => {
 			try {
-				const q = query(collection(db, "raw"), orderBy(sortConfig.key, sortConfig.order));
-				const querySnapshot = await getDocs(q);
-				const fetchedTasks = querySnapshot.docs.map((doc) => {
+				const raw = query(collection(db, "raw"), orderBy(sortConfig.key, sortConfig.order));
+
+				const rawSnapshot = await getDocs(raw);
+
+				const fetchedTasks = rawSnapshot.docs.map((doc) => {
 					const data = doc.data();
 					const createdAt = data.createdAt?.toDate();
 					const createdBy = data.createdBy;
@@ -127,6 +128,42 @@ export default function Home() {
 		};
 
 		fetchTasks();
+	}, [sortConfig.key, sortConfig.order]);
+
+	useEffect(() => {
+		const fetchFiltered = async () => {
+			try {
+				const filtering = query(
+					collection(db, "filtering"),
+					orderBy(sortConfig.key, sortConfig.order)
+				);
+				const filterSnapshot = await getDocs(filtering);
+				const fetchedFilteredTasks = filterSnapshot.docs.map((doc) => {
+					const data = doc.data();
+					const createdAt = data.createdAt?.toDate();
+					const createdBy = data.createdBy;
+					const dueDate = data.dueDate;
+					const downloads = data.fileUpload;
+					const title = data.title;
+
+					return {
+						id: doc.id,
+						title,
+						createdAt,
+						createdBy,
+						downloads,
+						dueDate,
+					} as Task;
+				});
+
+				setFilteredTasks(fetchedFilteredTasks);
+			} catch (error) {
+				console.log(error);
+				throw new Error("Cannot fetch data.");
+			}
+		};
+
+		fetchFiltered();
 	}, [sortConfig.key, sortConfig.order]);
 
 	// Function to add a new task to the state
@@ -202,8 +239,6 @@ export default function Home() {
 		if (over) {
 			const droppedTaskID = active.id;
 
-			console.log("droppedTaskID ", droppedTaskID);
-
 			if (over.id === "filter") {
 				const taskToMove = rawTasks.find((task) => task.id === droppedTaskID);
 
@@ -211,13 +246,18 @@ export default function Home() {
 					// Add the task to Firestore
 					await addTaskToFiltering(taskToMove);
 
+					removeTask(droppedTaskID as string);
+
 					// Optionally remove from raw tasks
 					setRawTasks((prev) => prev.filter((task) => task.id !== droppedTaskID));
 				}
 			}
 			setIsDropped(over.id);
+			console.log("Filtered tasks: ", filteredTasks);
 		}
 	};
+
+	console.log("Filterd ", filteredTasks);
 
 	return (
 		<PrivateRoute>
@@ -227,38 +267,45 @@ export default function Home() {
 				<main className="w-full flex justify-center mt-10">
 					<DndContext onDragEnd={handleDragEnd}>
 						<div className="grid grid-cols-1 md:grid-cols-2 w-full h-full justify-center gap-2 p-4 overflow-y-scroll">
-							<div className="border-2 border-zinc-800 w-[320px] max-h-full text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg">
-								<h3 className="p-4 text-background">Raw Files</h3>
-								<div className="w-full flex justify-end items-center p-2">
-									<DropdownMenu>
-										<DropdownMenuTrigger asChild>
-											<Button>
-												<BiSolidSortAlt />
-											</Button>
-										</DropdownMenuTrigger>
-										<DropdownMenuContent className="bg-sidebar">
-											<DropdownMenuGroup>
-												{sortCategories.map(({ input, filterBy }, idx) => (
-													<DropdownMenuItem
-														onClick={() => sortFilter(filterBy)}
-														className="cursor-pointer text-sidebartx"
-														key={idx}
-													>
-														{input}
-													</DropdownMenuItem>
-												))}
-											</DropdownMenuGroup>
-										</DropdownMenuContent>
-									</DropdownMenu>
+							<Droppable id="raw">
+								<div className="border-2 border-zinc-800 w-[320px] max-h-full text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg">
+									<h3 className="p-4 text-background">Raw Files</h3>
+									<div className="w-full flex justify-end items-center p-2">
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button>
+													<BiSolidSortAlt />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent className="bg-sidebar">
+												<DropdownMenuGroup>
+													{sortCategories.map(
+														({ input, filterBy }, idx) => (
+															<DropdownMenuItem
+																onClick={() => sortFilter(filterBy)}
+																className="cursor-pointer text-sidebartx"
+																key={idx}
+															>
+																{input}
+															</DropdownMenuItem>
+														)
+													)}
+												</DropdownMenuGroup>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</div>
+									{rawTasks.map((task) =>
+										!isDropped ? (
+											<DraggableCard
+												id={task.id}
+												key={task.id}
+												task={task}
+												onRemove={removeTask}
+											/>
+										) : null
+									)}
 								</div>
-								{!isDropped
-									? rawTasks.map((task) => (
-											<Draggable id={task.id} key={task.id}>
-												<CardComponent task={task} onRemove={removeTask} />
-											</Draggable>
-									  ))
-									: null}
-							</div>
+							</Droppable>
 
 							{/* Filtering Container */}
 							<Droppable id="filter">
@@ -288,16 +335,23 @@ export default function Home() {
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</div>
-									{isDropped === "filter"
-										? filteredTasks.map((task) => (
-												<Draggable id={task.id} key={task.id}>
-													<CardComponent
-														task={task}
-														onRemove={removeTask}
-													/>
-												</Draggable>
-										  ))
-										: null}
+									{filteredTasks.map((task) =>
+										isDropped === "filter" ? (
+											<DraggableCard
+												id={task.id}
+												key={task.id}
+												task={task}
+												onRemove={removeTask}
+											/>
+										) : (
+											<DraggableCard
+												id={task.id}
+												key={task.id}
+												task={task}
+												onRemove={removeTask}
+											/>
+										)
+									)}
 								</div>
 							</Droppable>
 						</div>
