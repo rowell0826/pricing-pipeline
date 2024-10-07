@@ -266,8 +266,8 @@ export default function Home() {
 
 				<main className="w-full max-h-[92%] flex justify-start mt-10">
 					<DndContext onDragEnd={handleDragEnd}>
-						<div className="relative grid grid-cols-1 md:grid-cols-2 max-h-full gap-2 p-4 overflow-y-scroll">
-							<div className="border-2 border-zinc-800 min-w-[280px] w-[280px] max-h-[35%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg">
+						<div className="relative grid grid-cols-1 md:grid-cols-4 max-h-full gap-8 p-4 overflow-y-scroll">
+							<div className="border-2 border-zinc-800 min-w-[280px] w-[280px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg">
 								<h3 className="p-4 text-background">Raw Files</h3>
 								<div className="w-full flex justify-end items-center p-2">
 									<DropdownMenu>
@@ -304,6 +304,54 @@ export default function Home() {
 							</div>
 
 							{/* Filtering Container */}
+							<Droppable id="filter">
+								<div className="border-2 border-zinc-800 min-w-[280px] w-[280px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden">
+									<h3 className="p-4 text-background">Filtering</h3>
+									<div className="w-full flex justify-end items-center p-2">
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button>
+													<BiSolidSortAlt />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent className="bg-sidebar">
+												<DropdownMenuGroup>
+													{sortCategories.map(
+														({ input, filterBy }, idx) => (
+															<DropdownMenuItem
+																onClick={() => sortFilter(filterBy)}
+																className="cursor-pointer text-sidebartx"
+																key={idx}
+															>
+																{input}
+															</DropdownMenuItem>
+														)
+													)}
+												</DropdownMenuGroup>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</div>
+									{filteredTasks.map((task) =>
+										isDropped === "filter" ? (
+											<DraggableCard
+												id={task.id}
+												key={task.id}
+												task={task}
+												onRemove={removeTask}
+											/>
+										) : (
+											<DraggableCard
+												id={task.id}
+												key={task.id}
+												task={task}
+												onRemove={removeTask}
+											/>
+										)
+									)}
+								</div>
+							</Droppable>
+
+							{/* Pricing Container */}
 							<Droppable id="filter">
 								<div className="border-2 border-zinc-800 min-w-[280px] w-[280px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden">
 									<h3 className="p-4 text-background">Filtering</h3>
