@@ -175,7 +175,12 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				<div className="w-full flex justify-evenly items-center gap-4 pt-2">
 					<Dialog>
 						<DialogTrigger asChild>
-							<Button size={"sm"} onClick={(e) => e.stopPropagation()}>
+							<Button
+								size={"sm"}
+								onClick={(e) => {
+									e.stopPropagation();
+								}}
+							>
 								Edit
 							</Button>
 						</DialogTrigger>

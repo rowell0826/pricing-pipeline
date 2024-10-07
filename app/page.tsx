@@ -261,51 +261,47 @@ export default function Home() {
 
 	return (
 		<PrivateRoute>
-			<div className="flex w-full h-screen">
+			<div className="flex w-full h-screen items-start">
 				<SideBar onAddTask={addTaskToClientInput} />
 
 				<main className="w-full flex justify-center mt-10">
 					<DndContext onDragEnd={handleDragEnd}>
 						<div className="grid grid-cols-1 md:grid-cols-2 w-full h-full justify-center gap-2 p-4 overflow-y-scroll">
-							<Droppable id="raw">
-								<div className="border-2 border-zinc-800 w-[320px] max-h-full text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg">
-									<h3 className="p-4 text-background">Raw Files</h3>
-									<div className="w-full flex justify-end items-center p-2">
-										<DropdownMenu>
-											<DropdownMenuTrigger asChild>
-												<Button>
-													<BiSolidSortAlt />
-												</Button>
-											</DropdownMenuTrigger>
-											<DropdownMenuContent className="bg-sidebar">
-												<DropdownMenuGroup>
-													{sortCategories.map(
-														({ input, filterBy }, idx) => (
-															<DropdownMenuItem
-																onClick={() => sortFilter(filterBy)}
-																className="cursor-pointer text-sidebartx"
-																key={idx}
-															>
-																{input}
-															</DropdownMenuItem>
-														)
-													)}
-												</DropdownMenuGroup>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</div>
-									{rawTasks.map((task) =>
-										!isDropped ? (
-											<DraggableCard
-												id={task.id}
-												key={task.id}
-												task={task}
-												onRemove={removeTask}
-											/>
-										) : null
-									)}
+							<div className="border-2 border-zinc-800 w-[320px] max-h-full text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg">
+								<h3 className="p-4 text-background">Raw Files</h3>
+								<div className="w-full flex justify-end items-center p-2">
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<Button>
+												<BiSolidSortAlt />
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent className="bg-sidebar">
+											<DropdownMenuGroup>
+												{sortCategories.map(({ input, filterBy }, idx) => (
+													<DropdownMenuItem
+														onClick={() => sortFilter(filterBy)}
+														className="cursor-pointer text-sidebartx"
+														key={idx}
+													>
+														{input}
+													</DropdownMenuItem>
+												))}
+											</DropdownMenuGroup>
+										</DropdownMenuContent>
+									</DropdownMenu>
 								</div>
-							</Droppable>
+								{rawTasks.map((task) =>
+									!isDropped ? (
+										<DraggableCard
+											id={task.id}
+											key={task.id}
+											task={task}
+											onRemove={removeTask}
+										/>
+									) : null
+								)}
+							</div>
 
 							{/* Filtering Container */}
 							<Droppable id="filter">

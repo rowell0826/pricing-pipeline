@@ -136,14 +136,16 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 			<div className="w-full flex justify-end items-center absolute p-2">
 				<Switch />
 			</div>
+
+			{/* Medium to larger devices */}
 			<nav
-				className={`h-full flex flex-col justify-evenly items-center bg-sidebar ${
+				className={`hidden h-full md:flex flex-col justify-evenly items-center bg-sidebar ${
 					isOpen ? "w-[20%]" : "w-[5%]"
 				} transition-all duration-300 ease-in-out overflow-hidden`}
 			>
 				<div
 					className={`relative w-full flex justify-end items-end ${
-						isOpen ? "-mt-[80px]" : "-mt-[100px]"
+						isOpen ? "-md:mt-[80px]" : "-md:mt-[100px]"
 					}`}
 				>
 					<div className="w-10 h-10 bg-gray-400 p-2 rounded-md flex justify-center items-center">
