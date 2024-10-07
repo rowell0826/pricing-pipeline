@@ -67,7 +67,7 @@ export default function Home() {
 	const [rawTasks, setRawTasks] = useState<Task[]>([]); // Tasks in "Raw files"
 	const [filteredTasks, setFilteredTasks] = useState<Task[]>([]); //Task in "Filtered files"
 	const [pricingTasks, setPricingTasks] = useState<Task[]>([]); // Task in "Pricing files"
-	/* const [done, setDone] = useState<Task[]>([]); // Task in "Done folder" */
+	const [done, setDone] = useState<Task[]>([]); // Task in "Done folder"
 	const [userRole, setUserRole] = useState<string | null>(null);
 
 	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
@@ -315,6 +315,19 @@ export default function Home() {
 					setFilteredTasks((prev) => prev.filter((task) => task.id !== droppedTaskID));
 				}
 			}
+
+			if (over.id === "done") {
+				const taskToMove = filteredTasks.find((task) => task.id === droppedTaskID);
+
+				if (taskToMove) {
+					// Add the task to Firestore
+					await addTaskToPricing(taskToMove);
+
+					removeTask(droppedTaskID as string);
+
+					setFilteredTasks((prev) => prev.filter((task) => task.id !== droppedTaskID));
+				}
+			}
 			setIsDropped(over.id);
 		}
 	};
@@ -329,8 +342,8 @@ export default function Home() {
 
 				<main className="w-full max-h-[92%] flex justify-start mt-10">
 					<DndContext onDragEnd={handleDragEnd}>
-						<div className="flex max-h-full w-full gap-4 p-4 overflow-y-scroll">
-							<div className="border-2 border-zinc-800 min-w-[280px] w-[280px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg">
+						<div className="flex flex-col md:flex-row max-h-full w-full gap-4 p-4 overflow-y-scroll">
+							<div className="border-2 border-zinc-800 min-w-[200px] w-[200px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden p-4">
 								<h3 className="p-4 text-background">Raw Files</h3>
 								<div className="w-full flex justify-end items-center p-2">
 									<DropdownMenu>
@@ -386,6 +399,17 @@ export default function Home() {
 								isDropped={isDropped}
 								removeTaskFromPreviousContainer={removeTaskFromPricing}
 								containerTitle={cardContainer[2]}
+							/>
+
+							{/* Done */}
+							<Droppable
+								id="done"
+								sortCategories={sortCategories}
+								sortFilter={sortFilter}
+								containerTask={done}
+								isDropped={isDropped}
+								removeTaskFromPreviousContainer={removeTaskFromPricing}
+								containerTitle={cardContainer[3]}
 							/>
 						</div>
 					</DndContext>

@@ -4,7 +4,7 @@ import { useDraggable } from "@dnd-kit/core";
 import { doc, onSnapshot, Timestamp, updateDoc } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import {
 	Dialog,
@@ -18,6 +18,7 @@ import {
 import { FaFile } from "react-icons/fa";
 import { IoCloseSharp } from "react-icons/io5";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Badge } from "../ui/badge";
 
 interface DraggableProps {
 	id: string | number;
@@ -161,42 +162,40 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			style={style}
 			{...listeners}
 			{...attributes}
-			className="h-[190px]"
+			className="h-[190px] w-full"
 		>
 			<CardHeader className="h-[30%] py-2">
-				<CardTitle className="text-left">{title}</CardTitle>
+				<CardTitle className="text-left text-xs">{title}</CardTitle>
 				<Avatar className="mr-2 w-6 h-6">
 					<AvatarFallback className="text-xs">{getInitials(createdBy)}</AvatarFallback>
 				</Avatar>
 			</CardHeader>
 
-			<CardContent className="h-[70%] flex flex-col justify-center">
-				<ul>
+			<div className="p-2">
+				<div>
 					{downloadedFiles.length > 0 ? (
-						<li className="flex items-center text-xs">
+						<p className="flex items-center text-[8px]">
 							<FaFile className="mr-2" />
 							Number of Files: {downloadedFiles.length}
-						</li>
+						</p>
 					) : (
-						<li className="text-xs">No files uploaded.</li>
+						<p className="text-[8px]">No files uploaded.</p>
 					)}
-					<div className="flex justify-between">
-						<span className="text-xs ">Created At:</span>
-						<span className="text-xs ">{formatDate(createdAt)}</span>
-					</div>
-					<div className="flex justify-between">
-						<span className="text-xs ">Due Date:</span>
-						<span className="text-xs ">{formatDate(dueDate)}</span>
-					</div>
-				</ul>
-				<div className="w-full flex justify-evenly items-center gap-4 pt-2">
+				</div>
+				<div className="">
+					<Badge className="text-[8px]">Created: {formatDate(createdAt)}</Badge>
+
+					<Badge className="text-[8px]">Due: {formatDate(dueDate)}</Badge>
+				</div>
+				<div className="w-full flex justify-evenly items-center gap-2 pt-2">
 					<Dialog>
 						<DialogTrigger asChild>
 							<Button
-								size={"sm"}
+								size={"xs"}
 								onClick={(e) => {
 									e.stopPropagation();
 								}}
+								className="text-[8px]"
 							>
 								Edit
 							</Button>
@@ -289,14 +288,19 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 							onRemove(id);
 						}}
-						size={"sm"}
+						size={"xs"}
+						className="text-[8px]"
 					>
 						Remove
 					</Button>
 
 					<Dialog>
 						<DialogTrigger asChild>
-							<Button size={"sm"} onClick={(e) => e.stopPropagation}>
+							<Button
+								size={"xs"}
+								onClick={(e) => e.stopPropagation}
+								className="text-[8px]"
+							>
 								View Files
 							</Button>
 						</DialogTrigger>
@@ -336,7 +340,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						</DialogContent>
 					</Dialog>
 				</div>
-			</CardContent>
+			</div>
 		</Card>
 	);
 };

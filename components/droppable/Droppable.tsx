@@ -41,7 +41,7 @@ const Droppable: React.FC<PropsWithChildren<DroppableProps>> = ({
 	return (
 		<div
 			ref={setNodeRef}
-			className="border-2 border-zinc-800 min-w-[280px] w-[280px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden"
+			className="border-2 border-zinc-800 min-w-[200px] w-[200px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden p-4"
 			id={id}
 		>
 			<h3 className="p-4 text-background">{containerTitle.input}</h3>
