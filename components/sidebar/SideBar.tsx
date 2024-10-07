@@ -6,6 +6,7 @@ import {
 	listFiles,
 	signOutUser,
 } from "@/lib/utils/firebase/firebase";
+import { RxHamburgerMenu } from "react-icons/rx";
 import { Switch } from "../ui/switch";
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/utils/firebase/firebase";
@@ -20,6 +21,17 @@ import { getDownloadURL } from "firebase/storage";
 import Modal from "../modal/Modal";
 import React from "react";
 import FileListModal from "../modal/FileListModal";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuShortcut,
+	DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Button } from "../ui/button";
 
 export default function SideBar({ onAddTask }: SideBarProps) {
 	const [userName, setUserName] = useState<string | null>(null);
@@ -135,6 +147,29 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 		<>
 			<div className="w-full flex justify-end items-center absolute p-2">
 				<Switch />
+			</div>
+
+			{/* Mobile devices */}
+			<div className="md:hidden w-[10%] h-[10%] flex justify-start items-start z-10">
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button size={"sm"} className="bg-background text-sidebar">
+							<RxHamburgerMenu className="m-auto" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent className="w-80 ml-2">
+						<DropdownMenuLabel className="flex justify-between">
+							{userName}
+							<DropdownMenuShortcut>{role}</DropdownMenuShortcut>
+						</DropdownMenuLabel>
+						<DropdownMenuSeparator />
+						<DropdownMenuGroup>
+							<DropdownMenuItem>View Files</DropdownMenuItem>
+							<DropdownMenuItem>Create Task</DropdownMenuItem>
+							<DropdownMenuItem>Sign Out</DropdownMenuItem>
+						</DropdownMenuGroup>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 
 			{/* Medium to larger devices */}
