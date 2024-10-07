@@ -150,7 +150,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 			</div>
 
 			{/* Mobile devices */}
-			<div className="md:hidden w-[10%] h-[10%] flex justify-start items-start z-10">
+			<div className="md:hidden w-[10%] flex justify-start items-start z-10 p-1">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button size={"sm"} className="bg-background text-sidebar">
