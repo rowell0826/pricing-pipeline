@@ -36,8 +36,6 @@ const Droppable: React.FC<PropsWithChildren<DroppableProps>> = ({
 		id,
 	});
 
-	console.log("Droppable ID:", id);
-
 	return (
 		<div
 			ref={setNodeRef}

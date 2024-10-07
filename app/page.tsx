@@ -338,7 +338,7 @@ export default function Home() {
 					// Add the task to Firestore
 					await addTaskToPricing(taskToMove);
 
-					removeTask(droppedTaskID as string);
+					removeTaskFromFilter(droppedTaskID as string);
 
 					setFilteredTasks((prev) => prev.filter((task) => task.id !== droppedTaskID));
 				}
@@ -351,27 +351,29 @@ export default function Home() {
 					// Add the task to Firestore
 					await addTaskToDone(taskToMove);
 
-					removeTask(droppedTaskID as string);
+					removeTaskFromPricing(droppedTaskID as string);
 
 					setPricingTasks((prev) => prev.filter((task) => task.id !== droppedTaskID));
 				}
 			}
+
 			setIsDropped(over.id);
 		}
 	};
 
 	console.log("Filtered tasks: ", filteredTasks);
 	console.log("Pricing tasks: ", pricingTasks);
+	console.log("Done container: ", done);
 
 	return (
 		<PrivateRoute>
 			<div className="flex w-full h-screen items-start">
 				<SideBar onAddTask={addTaskToClientInput} />
 
-				<main className="w-full max-h-[92%] flex justify-start mt-10">
+				<main className="w-full h-full max-h-[92%] flex justify-start mt-10">
 					<DndContext onDragEnd={handleDragEnd}>
 						<div className="flex flex-col md:flex-row max-h-full w-full gap-4 p-4 overflow-y-scroll">
-							<div className="border-2 border-zinc-800 min-w-[200px] w-[200px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden p-4">
+							<div className="border-2 border-zinc-800 min-w-[200px] w-[200px] h-[400px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden p-4">
 								<h3 className="p-4 text-background">Raw Files</h3>
 								<div className="w-full flex justify-end items-center p-2">
 									<DropdownMenu>
