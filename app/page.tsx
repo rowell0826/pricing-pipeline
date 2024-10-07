@@ -235,7 +235,35 @@ export default function Home() {
 				await addDoc(filteringCollectionRef, taskData);
 			}
 		} catch (error) {
-			console.error("Error adding task to filtering: ", error);
+			console.error("Error adding task to pricing: ", error);
+		}
+	};
+
+	const addTaskToDone = async (task: Task) => {
+		try {
+			if (
+				userRole === "admin" ||
+				userRole === "data scientist" ||
+				userRole === "prompt engineer"
+			) {
+				const taskData: Task = {
+					id: task.id,
+					title: task.title,
+					createdBy: task.createdBy,
+					createdAt: task.createdAt,
+					dueDate: task.dueDate,
+					downloads: task.downloads,
+					status: "done", // Set status to filtering
+				};
+
+				setDone((prev) => [...prev, taskData]);
+
+				// Add the task to the filtering collection
+				const filteringCollectionRef = collection(db, "done");
+				await addDoc(filteringCollectionRef, taskData);
+			}
+		} catch (error) {
+			console.error("Error adding task to done: ", error);
 		}
 	};
 
@@ -321,11 +349,11 @@ export default function Home() {
 
 				if (taskToMove) {
 					// Add the task to Firestore
-					await addTaskToPricing(taskToMove);
+					await addTaskToDone(taskToMove);
 
 					removeTask(droppedTaskID as string);
 
-					setFilteredTasks((prev) => prev.filter((task) => task.id !== droppedTaskID));
+					setPricingTasks((prev) => prev.filter((task) => task.id !== droppedTaskID));
 				}
 			}
 			setIsDropped(over.id);
