@@ -264,10 +264,10 @@ export default function Home() {
 			<div className="flex w-full h-screen items-start">
 				<SideBar onAddTask={addTaskToClientInput} />
 
-				<main className="w-full flex justify-center mt-10">
+				<main className="w-full max-h-[92%] flex justify-start mt-10">
 					<DndContext onDragEnd={handleDragEnd}>
-						<div className="grid grid-cols-1 md:grid-cols-2 w-full max-h-[50%] justify-center gap-2 p-4 overflow-y-scroll">
-							<div className="border-2 border-zinc-800 w-[320px] max-h-full text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg">
+						<div className="relative grid grid-cols-1 md:grid-cols-2 max-h-full gap-2 p-4 overflow-y-scroll">
+							<div className="border-2 border-zinc-800 min-w-[280px] w-[280px] max-h-[35%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg">
 								<h3 className="p-4 text-background">Raw Files</h3>
 								<div className="w-full flex justify-end items-center p-2">
 									<DropdownMenu>
@@ -305,7 +305,7 @@ export default function Home() {
 
 							{/* Filtering Container */}
 							<Droppable id="filter">
-								<div className="border-2 border-zinc-800 w-[320px] max-h-full text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg">
+								<div className="border-2 border-zinc-800 min-w-[280px] w-[280px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden">
 									<h3 className="p-4 text-background">Filtering</h3>
 									<div className="w-full flex justify-end items-center p-2">
 										<DropdownMenu>

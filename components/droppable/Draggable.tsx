@@ -4,7 +4,7 @@ import { useDraggable } from "@dnd-kit/core";
 import { doc, onSnapshot, Timestamp, updateDoc } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import {
 	Dialog,
@@ -17,6 +17,7 @@ import {
 } from "../ui/dialog";
 import { FaFile } from "react-icons/fa";
 import { IoCloseSharp } from "react-icons/io5";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 interface DraggableProps {
 	id: string | number;
@@ -63,6 +64,13 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [downloadedFiles, setDownloadedFiles] = useState<string[]>(downloads || []);
+
+	// Get user's initials
+	const getInitials = (name: string) => {
+		const nameParts = name.split(" ");
+		const initials = nameParts.map((part) => part.charAt(0).toUpperCase()).join("");
+		return initials.length > 2 ? initials.slice(0, 2) : initials; // Limit to 2 characters
+	};
 
 	const getFilenameFromUrl = (url: string) => {
 		const urlParts = url.split("/");
@@ -150,18 +158,20 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		<Card key={id} ref={setNodeRef} style={style} {...listeners} {...attributes}>
 			<CardHeader className="h-[30%] py-2">
 				<CardTitle className="text-left">{title}</CardTitle>
-				<CardDescription className="text-left">{createdBy}</CardDescription>
+				<Avatar className="mr-2 w-6 h-6">
+					<AvatarFallback className="text-xs">{getInitials(createdBy)}</AvatarFallback>
+				</Avatar>
 			</CardHeader>
 
 			<CardContent>
 				<ul>
 					{downloadedFiles.length > 0 ? (
-						<li className="flex items-center text-sm">
+						<li className="flex items-center text-xs">
 							<FaFile className="mr-2" />
 							Number of Files: {downloadedFiles.length}
 						</li>
 					) : (
-						<p>No files uploaded.</p>
+						<li className="text-xs">No files uploaded.</li>
 					)}
 					<div className="flex justify-between">
 						<span className="text-xs ">Created At:</span>
