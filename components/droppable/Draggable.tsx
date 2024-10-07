@@ -155,7 +155,14 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	}, [task.id]);
 
 	return (
-		<Card key={id} ref={setNodeRef} style={style} {...listeners} {...attributes}>
+		<Card
+			key={id}
+			ref={setNodeRef}
+			style={style}
+			{...listeners}
+			{...attributes}
+			className="h-[190px]"
+		>
 			<CardHeader className="h-[30%] py-2">
 				<CardTitle className="text-left">{title}</CardTitle>
 				<Avatar className="mr-2 w-6 h-6">
@@ -163,7 +170,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				</Avatar>
 			</CardHeader>
 
-			<CardContent>
+			<CardContent className="h-[70%] flex flex-col justify-center">
 				<ul>
 					{downloadedFiles.length > 0 ? (
 						<li className="flex items-center text-xs">

@@ -33,9 +33,9 @@ interface SortList {
 	filterBy: string;
 }
 
-/* interface ContainerList {
+export interface ContainerList {
 	input: string;
-} */
+}
 
 const sortCategories: SortList[] = [
 	{
@@ -56,18 +56,18 @@ const sortCategories: SortList[] = [
 	},
 ];
 
-/* const cardContainer: ContainerList[] = [
+const cardContainer: ContainerList[] = [
 	{ input: "Raw files" },
 	{ input: "Filtering" },
 	{ input: "Pricing" },
 	{ input: "Done" },
-]; */
+];
 
 export default function Home() {
 	const [rawTasks, setRawTasks] = useState<Task[]>([]); // Tasks in "Raw files"
 	const [filteredTasks, setFilteredTasks] = useState<Task[]>([]); //Task in "Filtered files"
-	/* const [pricingTasks, setPricingTasks] = useState<Task[]>([]); // Task in "Pricing files"
-	const [done, setDone] = useState<Task[]>([]); // Task in "Done folder" */
+	const [pricingTasks, setPricingTasks] = useState<Task[]>([]); // Task in "Pricing files"
+	/* const [done, setDone] = useState<Task[]>([]); // Task in "Done folder" */
 	const [userRole, setUserRole] = useState<string | null>(null);
 
 	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
@@ -211,12 +211,62 @@ export default function Home() {
 		}
 	};
 
+	const addTaskToPricing = async (task: Task) => {
+		try {
+			if (
+				userRole === "admin" ||
+				userRole === "data scientist" ||
+				userRole === "prompt engineer"
+			) {
+				const taskData: Task = {
+					id: task.id,
+					title: task.title,
+					createdBy: task.createdBy,
+					createdAt: task.createdAt,
+					dueDate: task.dueDate,
+					downloads: task.downloads,
+					status: "pricing", // Set status to filtering
+				};
+
+				setPricingTasks((prev) => [...prev, taskData]);
+
+				// Add the task to the filtering collection
+				const filteringCollectionRef = collection(db, "filtering");
+				await addDoc(filteringCollectionRef, taskData);
+			}
+		} catch (error) {
+			console.error("Error adding task to filtering: ", error);
+		}
+	};
+
 	const removeTask = async (taskID: string) => {
 		const taskDocRef = doc(db, "raw", taskID);
 
 		try {
 			await deleteDoc(taskDocRef);
 			setRawTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
+		} catch (error) {
+			console.error("Error removing task: ", error);
+		}
+	};
+
+	const removeTaskFromFilter = async (taskID: string) => {
+		const taskDocRef = doc(db, "filter", taskID);
+
+		try {
+			await deleteDoc(taskDocRef);
+			setFilteredTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
+		} catch (error) {
+			console.error("Error removing task: ", error);
+		}
+	};
+
+	const removeTaskFromPricing = async (taskID: string) => {
+		const taskDocRef = doc(db, "pricing", taskID);
+
+		try {
+			await deleteDoc(taskDocRef);
+			setPricingTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
 		} catch (error) {
 			console.error("Error removing task: ", error);
 		}
@@ -252,12 +302,25 @@ export default function Home() {
 					setRawTasks((prev) => prev.filter((task) => task.id !== droppedTaskID));
 				}
 			}
+
+			if (over.id === "pricing") {
+				const taskToMove = filteredTasks.find((task) => task.id === droppedTaskID);
+
+				if (taskToMove) {
+					// Add the task to Firestore
+					await addTaskToPricing(taskToMove);
+
+					removeTask(droppedTaskID as string);
+
+					setFilteredTasks((prev) => prev.filter((task) => task.id !== droppedTaskID));
+				}
+			}
 			setIsDropped(over.id);
-			console.log("Filtered tasks: ", filteredTasks);
 		}
 	};
 
-	console.log("Filterd ", filteredTasks);
+	console.log("Filtered tasks: ", filteredTasks);
+	console.log("Pricing tasks: ", pricingTasks);
 
 	return (
 		<PrivateRoute>
@@ -266,7 +329,7 @@ export default function Home() {
 
 				<main className="w-full max-h-[92%] flex justify-start mt-10">
 					<DndContext onDragEnd={handleDragEnd}>
-						<div className="relative grid grid-cols-1 md:grid-cols-4 max-h-full gap-8 p-4 overflow-y-scroll">
+						<div className="flex max-h-full w-full gap-4 p-4 overflow-y-scroll">
 							<div className="border-2 border-zinc-800 min-w-[280px] w-[280px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg">
 								<h3 className="p-4 text-background">Raw Files</h3>
 								<div className="w-full flex justify-end items-center p-2">
@@ -304,100 +367,26 @@ export default function Home() {
 							</div>
 
 							{/* Filtering Container */}
-							<Droppable id="filter">
-								<div className="border-2 border-zinc-800 min-w-[280px] w-[280px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden">
-									<h3 className="p-4 text-background">Filtering</h3>
-									<div className="w-full flex justify-end items-center p-2">
-										<DropdownMenu>
-											<DropdownMenuTrigger asChild>
-												<Button>
-													<BiSolidSortAlt />
-												</Button>
-											</DropdownMenuTrigger>
-											<DropdownMenuContent className="bg-sidebar">
-												<DropdownMenuGroup>
-													{sortCategories.map(
-														({ input, filterBy }, idx) => (
-															<DropdownMenuItem
-																onClick={() => sortFilter(filterBy)}
-																className="cursor-pointer text-sidebartx"
-																key={idx}
-															>
-																{input}
-															</DropdownMenuItem>
-														)
-													)}
-												</DropdownMenuGroup>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</div>
-									{filteredTasks.map((task) =>
-										isDropped === "filter" ? (
-											<DraggableCard
-												id={task.id}
-												key={task.id}
-												task={task}
-												onRemove={removeTask}
-											/>
-										) : (
-											<DraggableCard
-												id={task.id}
-												key={task.id}
-												task={task}
-												onRemove={removeTask}
-											/>
-										)
-									)}
-								</div>
-							</Droppable>
+							<Droppable
+								id="filter"
+								sortCategories={sortCategories}
+								sortFilter={sortFilter}
+								containerTask={filteredTasks}
+								isDropped={isDropped}
+								removeTaskFromPreviousContainer={removeTaskFromFilter}
+								containerTitle={cardContainer[1]}
+							/>
 
 							{/* Pricing Container */}
-							<Droppable id="filter">
-								<div className="border-2 border-zinc-800 min-w-[280px] w-[280px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden">
-									<h3 className="p-4 text-background">Filtering</h3>
-									<div className="w-full flex justify-end items-center p-2">
-										<DropdownMenu>
-											<DropdownMenuTrigger asChild>
-												<Button>
-													<BiSolidSortAlt />
-												</Button>
-											</DropdownMenuTrigger>
-											<DropdownMenuContent className="bg-sidebar">
-												<DropdownMenuGroup>
-													{sortCategories.map(
-														({ input, filterBy }, idx) => (
-															<DropdownMenuItem
-																onClick={() => sortFilter(filterBy)}
-																className="cursor-pointer text-sidebartx"
-																key={idx}
-															>
-																{input}
-															</DropdownMenuItem>
-														)
-													)}
-												</DropdownMenuGroup>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</div>
-									{filteredTasks.map((task) =>
-										isDropped === "filter" ? (
-											<DraggableCard
-												id={task.id}
-												key={task.id}
-												task={task}
-												onRemove={removeTask}
-											/>
-										) : (
-											<DraggableCard
-												id={task.id}
-												key={task.id}
-												task={task}
-												onRemove={removeTask}
-											/>
-										)
-									)}
-								</div>
-							</Droppable>
+							<Droppable
+								id="pricing"
+								sortCategories={sortCategories}
+								sortFilter={sortFilter}
+								containerTask={pricingTasks}
+								isDropped={isDropped}
+								removeTaskFromPreviousContainer={removeTaskFromPricing}
+								containerTitle={cardContainer[2]}
+							/>
 						</div>
 					</DndContext>
 				</main>
