@@ -164,9 +164,11 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
-							<DropdownMenuItem>View Files</DropdownMenuItem>
-							<DropdownMenuItem>Create Task</DropdownMenuItem>
-							<DropdownMenuItem>Sign Out</DropdownMenuItem>
+							<DropdownMenuItem onClick={handleViewFiles}>
+								View Files
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={modalHandler}>Create Task</DropdownMenuItem>
+							<DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
 						</DropdownMenuGroup>
 					</DropdownMenuContent>
 				</DropdownMenu>
