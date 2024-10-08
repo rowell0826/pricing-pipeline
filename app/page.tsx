@@ -82,10 +82,10 @@ export default function Home() {
 	const [userRole, setUserRole] = useState<string | null>(null);
 
 	const cardContainer: ContainerList[] = [
-		{ id: "container1", items: rawTasks, setter: setRawTasks },
-		{ id: "container2", items: filteredTasks, setter: setFilteredTasks },
-		{ id: "container3", items: pricingTasks, setter: setPricingTasks },
-		{ id: "container4", items: done, setter: setDone },
+		{ id: "raw", items: rawTasks, setter: setRawTasks },
+		{ id: "filtering", items: filteredTasks, setter: setFilteredTasks },
+		{ id: "pricing", items: pricingTasks, setter: setPricingTasks },
+		{ id: "done", items: done, setter: setDone },
 	];
 
 	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
@@ -436,13 +436,17 @@ export default function Home() {
 
 					switch (activeContainer) {
 						case "raw":
-							return setRawTasks(newItems);
+							setRawTasks(newItems);
+							break;
 						case "filtering":
-							return setFilteredTasks(newItems);
+							setFilteredTasks(newItems);
+							break;
 						case "pricing":
-							return setFilteredTasks(newItems);
+							setFilteredTasks(newItems);
+							break;
 						case "done":
-							return setDone(newItems);
+							setDone(newItems);
+							break;
 						default:
 							break;
 					}
