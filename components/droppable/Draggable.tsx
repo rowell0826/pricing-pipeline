@@ -1,9 +1,9 @@
 import { Task } from "@/lib/types/cardProps";
 import { db, deleteFileFromStorage } from "@/lib/utils/firebase/firebase";
 import { useDraggable } from "@dnd-kit/core";
-import { doc, onSnapshot, Timestamp, updateDoc } from "firebase/firestore";
+import { doc, Timestamp, updateDoc } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import {
@@ -23,6 +23,7 @@ import { Badge } from "../ui/badge";
 interface DraggableProps {
 	id: string | number;
 	task: Task;
+	containerTitle: string;
 	getInitials: (name: string) => string;
 	onRemove: (collectionName: string, taskId: string) => void;
 }
@@ -32,7 +33,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		id: props.id,
 	});
 
-	const { task, onRemove, getInitials } = props;
+	const { task, onRemove, getInitials, containerTitle } = props;
 	const { id, title, createdAt, createdBy, dueDate, downloads } = task;
 
 	// Declare the style object and cast it as React.CSSProperties
@@ -135,19 +136,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		// Clear the markedForDeletionFiles array
 		setFilesMarkedForDeletion([]);
 	};
-
-	useEffect(() => {
-		// Subscribe to Firestore updates for this task
-		const unsubscribe = onSnapshot(doc(db, "tasks", task.id), (doc) => {
-			const updatedTask = doc.data();
-			if (updatedTask?.downloads) {
-				setDownloadedFiles(updatedTask.downloads);
-			}
-		});
-
-		// Cleanup listener on component unmount
-		return () => unsubscribe();
-	}, [task.id]);
 
 	return (
 		<Card key={id} ref={setNodeRef} style={style} {...attributes} className="h-[190px] w-full">
@@ -273,9 +261,9 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						onClick={(e) => {
 							e.stopPropagation();
 
-							onRemove(id, task.id);
+							onRemove(containerTitle, task.id);
 
-							console.log(`ID ${id} task.id ${task.id}`);
+							console.log(`Container: ${containerTitle} task.id ${task.id}`);
 						}}
 						size={"xs"}
 						className="text-[8px]"

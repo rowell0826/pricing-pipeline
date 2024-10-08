@@ -3,8 +3,8 @@ import {
 	clientFileUpload,
 	db,
 	getUserDetails,
-	listFiles,
 	signOutUser,
+	storage,
 } from "@/lib/utils/firebase/firebase";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { Switch } from "../ui/switch";
@@ -17,7 +17,7 @@ import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { PiSignOutBold } from "react-icons/pi";
 import { addDoc, collection } from "firebase/firestore";
 import { SideBarProps } from "@/lib/types/sideBarProps";
-import { getDownloadURL } from "firebase/storage";
+import { getDownloadURL, listAll, ref } from "firebase/storage";
 import Modal from "../modal/Modal";
 import React from "react";
 import FileListModal from "../modal/FileListModal";
@@ -32,6 +32,17 @@ import {
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
+import { AuthRole } from "@/lib/types/authTypes";
+import { FileObject } from "@/lib/types/modalProps";
+
+const folderAccessByRole: Record<AuthRole, string[]> = {
+	admin: ["raw", "filtering", "pricing", "done"],
+	client: ["raw", "done"],
+	dataManager: ["raw", "filtering"],
+	dataQA: ["raw", "filtering"],
+	dataScientist: ["pricing", "done"],
+	promptEngineer: ["pricing", "done"],
+};
 
 export default function SideBar({ onAddTask }: SideBarProps) {
 	const [userName, setUserName] = useState<string | null>(null);
@@ -42,19 +53,43 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 	const [file, setFile] = useState<File | null>(null);
 	const [dueDateInput, setDueDateInput] = useState<string | Date>("");
 	const [taskTitle, setTaskTitle] = useState<string>("");
-	const [fileList, setFileList] = useState<string[]>([]);
 	const [openFileModal, setOpenFileModal] = useState<boolean>(false);
+	const [fileList, setFileList] = useState<FileObject[]>([]);
 
 	// Function to fetch and list files
-	const fetchFiles = async () => {
-		const fileRefs = await listFiles("/raw");
-		const fileUrls = await Promise.all(
-			fileRefs.map(async (fileRef) => {
-				const url = await getDownloadURL(fileRef);
-				return url;
-			})
-		);
-		setFileList(fileUrls);
+	const fetchFiles = async (role: AuthRole) => {
+		try {
+			// Get the accessible folders for the user's role
+			const accessibleFolders = folderAccessByRole[role];
+
+			// Variable to Store file objects with URLs and folder types
+			let fileObjects: { url: string; folderType: string }[] = [];
+
+			// Loop through each accessible folder and fetch the files
+			for (const folder of accessibleFolders) {
+				// Create a storage reference to the folder
+				const folderRef = ref(storage, `/${folder}`);
+
+				// List all files in the folder
+				const folderContents = await listAll(folderRef);
+
+				// Fetch file URLs for the current folder and map them to the expected shape
+				const urls = await Promise.all(
+					folderContents.items.map(async (fileRef) => {
+						const url = await getDownloadURL(fileRef);
+						return { url, folderType: folder }; // Add folder type here
+					})
+				);
+
+				// Add the file objects from this folder to the overall list
+				fileObjects = [...fileObjects, ...urls];
+			}
+
+			// Set the state with all fetched file objects
+			setFileList(fileObjects);
+		} catch (error) {
+			console.error("Error fetching files: ", error);
+		}
 	};
 
 	// Fetch user data and role
@@ -138,9 +173,11 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 		}
 	};
 
-	const handleViewFiles = () => {
+	const handleViewFiles = async () => {
+		if (role) {
+			await fetchFiles(role as AuthRole);
+		}
 		setOpenFileModal(true);
-		fetchFiles();
 	};
 
 	return (

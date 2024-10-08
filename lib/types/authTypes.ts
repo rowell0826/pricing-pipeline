@@ -22,3 +22,11 @@ export interface AuthContextProps {
 export interface UserRole {
 	role: string;
 }
+
+export type AuthRole =
+	| "admin"
+	| "client"
+	| "dataManager"
+	| "dataQA"
+	| "dataScientist"
+	| "promptEngineer";

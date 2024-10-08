@@ -4,6 +4,19 @@ import { DialogClose, DialogContent, DialogHeader, DialogTitle } from "../ui/dia
 import { Button } from "../ui/button";
 
 const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileList }) => {
+	/* const getFilenameFromUrl = (url: string | undefined) => {
+		if (!url) {
+			return "unknown_filename"; // Handle undefined or empty URL
+		}
+
+		const urlParts = url.split("/");
+		const filename =
+			urlParts[urlParts.length - 1].split("?")[0].split("/").pop() || "unknown_filename";
+		const decodedFilename = decodeURIComponent(filename).replace("raw/", "");
+
+		return decodedFilename;
+	}; */
+
 	const getFilenameFromUrl = (url: string) => {
 		const urlParts = url.split("/");
 		const filename =
@@ -13,6 +26,19 @@ const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileL
 		return decodedFilename;
 	};
 
+	// Function to group files by folder type
+	const groupFilesByFolder = (files: { url: string; folderType: string }[]) => {
+		return files.reduce((acc, { url, folderType }) => {
+			if (!acc[folderType]) {
+				acc[folderType] = [];
+			}
+			acc[folderType].push(url);
+			return acc;
+		}, {} as Record<string, string[]>);
+	};
+
+	const groupedFiles = groupFilesByFolder(fileList);
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent>
@@ -21,17 +47,22 @@ const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileL
 				</DialogHeader>
 
 				<div className="space-y-2">
-					{fileList.length > 0 ? (
-						fileList.map((fileUrl, index) => (
-							<a
-								key={index}
-								href={fileUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="block text-foreground underline"
-							>
-								{getFilenameFromUrl(fileUrl)}
-							</a>
+					{Object.keys(groupedFiles).length > 0 ? (
+						Object.entries(groupedFiles).map(([folderType, urls]) => (
+							<div key={folderType}>
+								<h2 className="font-semibold">{folderType}</h2>
+								{urls.map((url, idx) => (
+									<a
+										key={idx}
+										href={url}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="block text-foreground underline"
+									>
+										{getFilenameFromUrl(url)}
+									</a>
+								))}
+							</div>
 						))
 					) : (
 						<p>No files uploaded yet.</p>
@@ -39,7 +70,7 @@ const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileL
 				</div>
 
 				<DialogClose asChild>
-					<Button className="mt-4 w-full text-foreground py-2 px-4 rounded">Close</Button>
+					<Button className="mt-4 w-full text-sidebartx py-2 px-4 rounded">Close</Button>
 				</DialogClose>
 			</DialogContent>
 		</Dialog>

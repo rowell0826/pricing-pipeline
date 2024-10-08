@@ -573,6 +573,7 @@ export default function Home() {
 										<Droppable id={id}>
 											{items.map((task) => (
 												<DraggableCard
+													containerTitle={id}
 													id={task.id}
 													key={task.id}
 													task={task}
