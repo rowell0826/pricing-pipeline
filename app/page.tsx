@@ -14,7 +14,7 @@ import {
 	orderBy,
 	query,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	DropdownMenuItem,
 	DropdownMenu,
@@ -285,7 +285,7 @@ export default function Home() {
 		}
 	}; */
 
-	const removeTask = async (taskID: string) => {
+	/* const removeTask = async (taskID: string) => {
 		const taskDocRef = doc(db, "raw", taskID);
 
 		try {
@@ -294,7 +294,18 @@ export default function Home() {
 		} catch (error) {
 			console.error("Error removing task: ", error);
 		}
-	};
+	}; */
+
+	const removeTask = async (collectionName: string, taskID: string, setTasks: React.Dispatch<React.SetStateAction<Task[]>>) => {
+		const taskDocRef = doc(db, collectionName, taskID); // Use the collectionName parameter
+	  
+		try {
+		  await deleteDoc(taskDocRef); // Delete the document from the specified collection
+		  setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID)); // Update state
+		} catch (error) {
+		  console.error("Error removing task: ", error);
+		}
+	  };
 
 	/* const removeTaskFromFilter = async (taskID: string) => {
 		const taskDocRef = doc(db, "filter", taskID);
