@@ -3,7 +3,7 @@ export interface ModalProps {
 	onOpenChange: (open: boolean) => void;
 	taskTitle: string;
 	setTaskTitle: (title: string) => void;
-	dueDateInput: string;
+	dueDateInput: string | Date;
 	setDueDateInput: (date: string) => void;
 	file: File | null;
 	setFile: (file: File | null) => void;
@@ -13,5 +13,5 @@ export interface ModalProps {
 export interface FileListModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	fileList: string[]
+	fileList: string[];
 }

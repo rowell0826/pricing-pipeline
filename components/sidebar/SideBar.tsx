@@ -40,7 +40,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 	const [isOpen, setIsOpen] = useState<boolean>(true);
 	const [openCreateTaskModal, setOpenCreateTaskModal] = useState<boolean>(false);
 	const [file, setFile] = useState<File | null>(null);
-	const [dueDateInput, setDueDateInput] = useState<string>("");
+	const [dueDateInput, setDueDateInput] = useState<string | Date>("");
 	const [taskTitle, setTaskTitle] = useState<string>("");
 	const [fileList, setFileList] = useState<string[]>([]);
 	const [openFileModal, setOpenFileModal] = useState<boolean>(false);

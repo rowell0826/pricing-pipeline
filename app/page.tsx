@@ -2,7 +2,7 @@
 import PrivateRoute from "@/components/privateRoute/PrivateRoute";
 import SideBar from "@/components/sidebar/SideBar";
 import { Task } from "@/lib/types/cardProps";
-import { auth, db } from "@/lib/utils/firebase/firebase";
+import { auth, db, storage } from "@/lib/utils/firebase/firebase";
 import { BiSolidSortAlt } from "react-icons/bi";
 import {
 	// addDoc,
@@ -44,6 +44,9 @@ import {
 	sortableKeyboardCoordinates,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { deleteObject, ref } from "firebase/storage";
 interface SortList {
 	input: string;
 	filterBy: string;
@@ -184,6 +187,13 @@ export default function Home() {
 		fetchFiltered();
 	}, [sortConfig.key, sortConfig.order]);
 
+	// Get user's initials
+	const getInitials = (name: string) => {
+		const nameParts = name.split(" ");
+		const initials = nameParts.map((part) => part.charAt(0).toUpperCase()).join("");
+		return initials.length > 2 ? initials.slice(0, 2) : initials; // Limit to 2 characters
+	};
+
 	// Function to add a new task to the state
 	const addTaskToClientInput = (taskTitle: string) => {
 		const createdBy = currentUser ? currentUser.displayName || currentUser.uid : "Anonymous";
@@ -296,16 +306,43 @@ export default function Home() {
 		}
 	}; */
 
-	const removeTask = async (collectionName: string, taskID: string, setTasks: React.Dispatch<React.SetStateAction<Task[]>>) => {
-		const taskDocRef = doc(db, collectionName, taskID); // Use the collectionName parameter
-	  
+	const removeTask = async (collectionName: string, taskID: string) => {
+		const taskDocRef = doc(db, collectionName, taskID);
+		const taskDocSnapshot = await getDoc(taskDocRef);
+
+		console.log(`Doc Snapshot: ${taskDocSnapshot}`);
 		try {
-		  await deleteDoc(taskDocRef); // Delete the document from the specified collection
-		  setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID)); // Update state
+			if (taskDocSnapshot.exists()) {
+				const taskData = taskDocSnapshot.data();
+
+				// Assume the file path is stored in a field called 'filePath'
+				const filePath = taskData?.filePath;
+
+				console.log(`Filepath: ${filePath}`);
+
+				if (filePath) {
+					// Create a reference to the file in Firebase Storage
+					const fileRef = ref(storage, filePath);
+
+					try {
+						// Delete the file from Firebase Storage
+						await deleteObject(fileRef);
+						console.log(`File deleted successfully: ${filePath}`);
+					} catch (error) {
+						console.error("Error deleting file from storage: ", error);
+					}
+				}
+
+				// After the file is deleted, delete the document from Firestore
+				await deleteDoc(taskDocRef);
+				console.log(`Task deleted successfully from collection: ${collectionName}`);
+			} else {
+				console.log("No task found with the given ID");
+			}
 		} catch (error) {
-		  console.error("Error removing task: ", error);
+			console.error("Error removing task: ", error);
 		}
-	  };
+	};
 
 	/* const removeTaskFromFilter = async (taskID: string) => {
 		const taskDocRef = doc(db, "filter", taskID);
@@ -359,7 +396,10 @@ export default function Home() {
 
 		if (over) {
 			// Determine the active and over containers
-			const activeContainer = rawTasks.some((task) => task.id === active.id)
+			const activeContainer = rawTasks.some((task) => {
+				console.log("Task.id: ", task.id);
+				return task.id === active.id;
+			})
 				? "raw"
 				: filteredTasks.some((task) => task.id === active.id)
 				? "filtering"
@@ -411,16 +451,21 @@ export default function Home() {
 							setRawTasks((prev) =>
 								prev.filter((task) => task.id !== String(active.id))
 							);
+							removeTask(activeContainer, String(active.id));
+							console.log("Active Container: ", activeContainer);
+							console.log("over Container: ", overContainer);
 							break;
 						case "filtering":
 							setFilteredTasks((prev) =>
 								prev.filter((task) => task.id !== String(active.id))
 							);
+							removeTask(activeContainer, String(active.id));
 							break;
 						case "pricing":
 							setPricingTasks((prev) =>
 								prev.filter((task) => task.id !== String(active.id))
 							);
+							removeTask(activeContainer, String(active.id));
 							break;
 						case "done":
 							setDone((prev) => prev.filter((task) => task.id !== String(active.id)));
@@ -467,10 +512,6 @@ export default function Home() {
 			setActiveId(null);
 		}
 	};
-
-	console.log("Filtered tasks: ", filteredTasks);
-	console.log("Pricing tasks: ", pricingTasks);
-	console.log("Done container: ", done);
 
 	return (
 		<PrivateRoute>
@@ -526,6 +567,7 @@ export default function Home() {
 													key={task.id}
 													task={task}
 													onRemove={removeTask}
+													getInitials={getInitials}
 												/>
 											))}
 										</Droppable>
@@ -546,17 +588,18 @@ export default function Home() {
 										// Return the dragged item component, styled or structured appropriately for both vertical and horizontal containers
 										if (draggedItem) {
 											return (
-												<div
-													style={{
-														display: "inline-block", // Or adjust based on your layout
-														padding: "10px",
-														backgroundColor: "white",
-														border: "1px solid gray",
-														borderRadius: "4px",
-													}}
-												>
-													{draggedItem.title}
-												</div>
+												<Card>
+													<CardHeader className="h-[30%] py-2">
+														<CardTitle className="text-left text-xs">
+															{draggedItem.title}
+														</CardTitle>
+														<Avatar className="mr-2 w-6 h-6">
+															<AvatarFallback className="text-xs">
+																{getInitials(draggedItem.createdBy)}
+															</AvatarFallback>
+														</Avatar>
+													</CardHeader>
+												</Card>
 											);
 										} else {
 											return null;

@@ -23,7 +23,8 @@ import { Badge } from "../ui/badge";
 interface DraggableProps {
 	id: string | number;
 	task: Task;
-	onRemove: (taskId: string) => void;
+	getInitials: (name: string) => string;
+	onRemove: (collectionName: string, taskId: string) => void;
 }
 
 export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) => {
@@ -31,7 +32,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		id: props.id,
 	});
 
-	const { task, onRemove } = props;
+	const { task, onRemove, getInitials } = props;
 	const { id, title, createdAt, createdBy, dueDate, downloads } = task;
 
 	// Declare the style object and cast it as React.CSSProperties
@@ -65,13 +66,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [downloadedFiles, setDownloadedFiles] = useState<string[]>(downloads || []);
-
-	// Get user's initials
-	const getInitials = (name: string) => {
-		const nameParts = name.split(" ");
-		const initials = nameParts.map((part) => part.charAt(0).toUpperCase()).join("");
-		return initials.length > 2 ? initials.slice(0, 2) : initials; // Limit to 2 characters
-	};
 
 	const getFilenameFromUrl = (url: string) => {
 		const urlParts = url.split("/");
@@ -279,7 +273,9 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						onClick={(e) => {
 							e.stopPropagation();
 
-							onRemove(id);
+							onRemove(id, task.id);
+
+							console.log(`ID ${id} task.id ${task.id}`);
 						}}
 						size={"xs"}
 						className="text-[8px]"

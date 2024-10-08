@@ -38,7 +38,7 @@ const Modal: React.FC<ModalProps> = ({
 						Due Date:{"  "}
 						<input
 							type="date"
-							value={dueDateInput}
+							value={dueDateInput.toString()}
 							onChange={(e) => setDueDateInput(e.target.value)}
 							className="mt-1 border rounded px-2 py-1 !text-black"
 						/>
