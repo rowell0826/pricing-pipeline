@@ -307,33 +307,43 @@ export default function Home() {
 	}; */
 
 	const removeTask = async (collectionName: string, taskID: string) => {
+		// Fetch the task database before deleting to get the file path
 		const taskDocRef = doc(db, collectionName, taskID);
+
+		// Fetch the task document before deleting to get the file path
 		const taskDocSnapshot = await getDoc(taskDocRef);
 
-		console.log(`Doc Snapshot: ${taskDocSnapshot}`);
 		try {
 			if (taskDocSnapshot.exists()) {
 				const taskData = taskDocSnapshot.data();
 
-				// Assume the file path is stored in a field called 'filePath'
-				const filePath = taskData?.filePath;
+				// Assuming the file name is stored in the task document
+				console.log("Task data: ", taskData);
+				console.log(`Doc Snapshot: ${taskDocSnapshot}`);
 
-				console.log(`Filepath: ${filePath}`);
+				const fileUpload = taskData?.fileUpload;
 
-				if (filePath) {
-					// Create a reference to the file in Firebase Storage
-					const fileRef = ref(storage, filePath);
+				if (fileUpload && Array.isArray(fileUpload)) {
+					for (const fileUrl of fileUpload) {
+						// Extract the file path from the URL
+						const decodedPath = decodeURIComponent(
+							fileUrl.split("/o/")[1].split("?")[0]
+						);
 
-					try {
-						// Delete the file from Firebase Storage
-						await deleteObject(fileRef);
-						console.log(`File deleted successfully: ${filePath}`);
-					} catch (error) {
-						console.error("Error deleting file from storage: ", error);
+						// Create a reference to the file in Firebase Storage
+						const fileRef = ref(storage, decodedPath);
+
+						try {
+							// Delete the file from Firebase Storage
+							await deleteObject(fileRef);
+							console.log(`File deleted successfully: ${decodedPath}`);
+						} catch (error) {
+							console.error("Error deleting file from storage: ", error);
+						}
 					}
 				}
 
-				// After the file is deleted, delete the document from Firestore
+				// After the file(s) are deleted, delete the document from Firestore
 				await deleteDoc(taskDocRef);
 				console.log(`Task deleted successfully from collection: ${collectionName}`);
 			} else {
