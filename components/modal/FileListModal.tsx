@@ -4,26 +4,14 @@ import { DialogClose, DialogContent, DialogHeader, DialogTitle } from "../ui/dia
 import { Button } from "../ui/button";
 
 const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileList }) => {
-	/* const getFilenameFromUrl = (url: string | undefined) => {
-		if (!url) {
-			return "unknown_filename"; // Handle undefined or empty URL
-		}
-
+	const getFilenameFromUrl = (url: string, removeSegment?: string) => {
 		const urlParts = url.split("/");
 		const filename =
 			urlParts[urlParts.length - 1].split("?")[0].split("/").pop() || "unknown_filename";
-		const decodedFilename = decodeURIComponent(filename).replace("raw/", "");
 
-		return decodedFilename;
-	}; */
+		const decodedFilename = decodeURIComponent(filename);
 
-	const getFilenameFromUrl = (url: string) => {
-		const urlParts = url.split("/");
-		const filename =
-			urlParts[urlParts.length - 1].split("?")[0].split("/").pop() || "unknown_filename";
-		const decodedFilename = decodeURIComponent(filename).replace("raw/", "");
-
-		return decodedFilename;
+		return removeSegment ? decodedFilename.replace(removeSegment, "") : decodedFilename;
 	};
 
 	// Function to group files by folder type
@@ -53,13 +41,13 @@ const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileL
 								<h2 className="font-semibold">{folderType}</h2>
 								{urls.map((url, idx) => (
 									<a
-										key={idx}
+										key={`${folderType}-${idx}`}
 										href={url}
 										target="_blank"
 										rel="noopener noreferrer"
 										className="block text-foreground underline"
 									>
-										{getFilenameFromUrl(url)}
+										{getFilenameFromUrl(url, `${folderType}/`)}
 									</a>
 								))}
 							</div>
