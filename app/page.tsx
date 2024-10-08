@@ -25,9 +25,20 @@ import {
 import { Button } from "@/components/ui/button";
 
 // Dnd Imports
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import {
+	closestCenter,
+	DndContext,
+	DragEndEvent,
+	DragOverlay,
+	DragStartEvent,
+	KeyboardSensor,
+	PointerSensor,
+	useSensor,
+	useSensors,
+} from "@dnd-kit/core";
 import { Droppable } from "@/components/droppable/Droppable";
 import { DraggableCard } from "@/components/droppable/Draggable";
+import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 interface SortList {
 	input: string;
 	filterBy: string;
@@ -307,56 +318,132 @@ export default function Home() {
 		});
 	};
 
+	// Dnd context
+	const sensors = useSensors(
+		useSensor(PointerSensor),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		})
+	);
+
 	// Dnd droppable
-	const [isDropped, setIsDropped] = useState<number | string | null>(null);
+	const [activeId, setActiveId] = useState<string | null>(null);
 
 	// Dnd Draggable
+	const handleDragStart = (e: DragStartEvent) => {
+		const { active } = e;
+
+		setActiveId(String(active.id));
+	};
+
 	const handleDragEnd = async (event: DragEndEvent) => {
 		const { active, over } = event;
 
 		if (over) {
-			const droppedTaskID = active.id;
+			// Determine the active and over containers
+			const activeContainer = rawTasks.some((task) => task.id === active.id)
+				? "raw"
+				: filteredTasks.some((task) => task.id === active.id)
+				? "filtering"
+				: pricingTasks.some((task) => task.id === active.id)
+				? "pricing"
+				: "done";
 
-			if (over.id === "filter") {
-				const taskToMove = rawTasks.find((task) => task.id === droppedTaskID);
+			const overContainer = over.id;
 
-				if (taskToMove) {
-					// Add the task to Firestore
-					await addTaskToFiltering(taskToMove);
+			const draggedItem =
+				activeContainer === "raw"
+					? rawTasks.find((task) => task.id === active.id)
+					: activeContainer === "filtering"
+					? filteredTasks.find((task) => task.id === active.id)
+					: activeContainer === "pricing"
+					? pricingTasks.find((task) => task.id === active.id)
+					: done.find((task) => task.id === active.id);
 
-					removeTask(droppedTaskID as string);
+			if (draggedItem) {
+				const newItem: Task = {
+					id: Date.now().toString(),
+					title: draggedItem.title,
+					createdBy: draggedItem.createdBy,
+					createdAt: draggedItem.createdAt,
+					dueDate: draggedItem.dueDate,
+					downloads: draggedItem.downloads,
+					status: activeContainer,
+				};
 
-					// Optionally remove from raw tasks
-					setRawTasks((prev) => prev.filter((task) => task.id !== droppedTaskID));
+				if (activeContainer !== overContainer) {
+					// Move between different containers
+					switch (overContainer) {
+						case "filtering":
+							setFilteredTasks((prev) => [...prev, newItem]);
+							break;
+						case "pricing":
+							setPricingTasks((prev) => [...prev, newItem]);
+							break;
+						case "done":
+							setDone((prev) => [...prev, newItem]);
+							break;
+						default:
+							throw Error("Container does not exist");
+					}
+
+					// Remove from the previous container
+					switch (activeContainer) {
+						case "raw":
+							setRawTasks((prev) =>
+								prev.filter((task) => task.id !== String(active.id))
+							);
+							break;
+						case "filtering":
+							setFilteredTasks((prev) =>
+								prev.filter((task) => task.id !== String(active.id))
+							);
+							break;
+						case "pricing":
+							setPricingTasks((prev) =>
+								prev.filter((task) => task.id !== String(active.id))
+							);
+							break;
+						case "done":
+							setDone((prev) => prev.filter((task) => task.id !== String(active.id)));
+							break;
+						default:
+							throw Error("Task does not exist");
+					}
+				} else {
+					const items =
+						activeContainer === "raw"
+							? rawTasks
+							: activeContainer === "filtering"
+							? filteredTasks
+							: activeContainer === "pricing"
+							? pricingTasks
+							: done;
+
+					const index = items.findIndex((item) => item.id === active.id);
+					const newItems = arrayMove(
+						items,
+						index,
+						items.findIndex((item) => item.id === over.id)
+					);
+
+					switch (activeContainer) {
+						case "raw":
+							return setRawTasks(newItems);
+						case "filtering":
+							return setFilteredTasks(newItems);
+						case "pricing":
+							return setFilteredTasks(newItems);
+						case "done":
+							return setDone(newItems);
+
+						default:
+							break;
+					}
 				}
 			}
 
-			if (over.id === "pricing") {
-				const taskToMove = filteredTasks.find((task) => task.id === droppedTaskID);
-
-				if (taskToMove) {
-					// Add the task to Firestore
-					await addTaskToPricing(taskToMove);
-
-					removeTask(droppedTaskID as string);
-
-					setFilteredTasks((prev) => prev.filter((task) => task.id !== droppedTaskID));
-				}
-			}
-
-			if (over.id === "done") {
-				const taskToMove = filteredTasks.find((task) => task.id === droppedTaskID);
-
-				if (taskToMove) {
-					// Add the task to Firestore
-					await addTaskToDone(taskToMove);
-
-					removeTask(droppedTaskID as string);
-
-					setPricingTasks((prev) => prev.filter((task) => task.id !== droppedTaskID));
-				}
-			}
-			setIsDropped(over.id);
+			setActiveId(null);
 		}
 	};
 
@@ -369,7 +456,12 @@ export default function Home() {
 				<SideBar onAddTask={addTaskToClientInput} />
 
 				<main className="w-full max-h-[92%] flex justify-start mt-10">
-					<DndContext onDragEnd={handleDragEnd}>
+					<DndContext
+						sensors={sensors}
+						collisionDetection={closestCenter}
+						onDragStart={handleDragStart}
+						onDragEnd={handleDragEnd}
+					>
 						<div className="flex flex-col md:flex-row max-h-full w-full gap-4 p-4 overflow-y-scroll">
 							<div className="border-2 border-zinc-800 min-w-[200px] w-[200px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden p-4">
 								<h3 className="p-4 text-background">Raw Files</h3>
@@ -396,7 +488,7 @@ export default function Home() {
 									</DropdownMenu>
 								</div>
 								{rawTasks.map((task) =>
-									!isDropped ? (
+									!activeId ? (
 										<DraggableCard
 											id={task.id}
 											key={task.id}
@@ -409,11 +501,11 @@ export default function Home() {
 
 							{/* Filtering Container */}
 							<Droppable
-								id="filter"
+								id="filtering"
 								sortCategories={sortCategories}
 								sortFilter={sortFilter}
 								containerTask={filteredTasks}
-								isDropped={isDropped}
+								activeId={activeId}
 								removeTaskFromPreviousContainer={removeTaskFromFilter}
 								containerTitle={cardContainer[1]}
 							/>
@@ -424,7 +516,7 @@ export default function Home() {
 								sortCategories={sortCategories}
 								sortFilter={sortFilter}
 								containerTask={pricingTasks}
-								isDropped={isDropped}
+								activeId={activeId}
 								removeTaskFromPreviousContainer={removeTaskFromPricing}
 								containerTitle={cardContainer[2]}
 							/>
@@ -435,11 +527,42 @@ export default function Home() {
 								sortCategories={sortCategories}
 								sortFilter={sortFilter}
 								containerTask={done}
-								isDropped={isDropped}
+								activeId={activeId}
 								removeTaskFromPreviousContainer={removeTaskFromPricing}
 								containerTitle={cardContainer[3]}
 							/>
 						</div>
+						<DragOverlay>
+							{activeId
+								? (() => {
+										// Find the item in any of the containers
+										const draggedItem =
+											rawTasks.find((item) => item.id === activeId) ||
+											filteredTasks.find((item) => item.id === activeId) ||
+											pricingTasks.find((item) => item.id === activeId) ||
+											done.find((item) => item.id === activeId);
+
+										// Return the dragged item component, styled or structured appropriately for both vertical and horizontal containers
+										if (draggedItem) {
+											return (
+												<div
+													style={{
+														display: "inline-block", // Or adjust based on your layout
+														padding: "10px",
+														backgroundColor: "white",
+														border: "1px solid gray",
+														borderRadius: "4px",
+													}}
+												>
+													{draggedItem.title}
+												</div>
+											);
+										} else {
+											return null;
+										}
+								  })()
+								: null}
+						</DragOverlay>
 					</DndContext>
 				</main>
 			</div>

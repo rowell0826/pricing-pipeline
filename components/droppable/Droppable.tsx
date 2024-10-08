@@ -18,7 +18,7 @@ interface DroppableProps {
 	sortCategories: Array<{ input: string; filterBy: string }>;
 	sortFilter: (filterBy: string) => void;
 	containerTask: Task[];
-	isDropped: string | number | null;
+	activeId: string | number | null;
 	removeTaskFromPreviousContainer: (taskID: string) => Promise<void>;
 	containerTitle: ContainerList;
 }
@@ -28,7 +28,7 @@ const Droppable: React.FC<PropsWithChildren<DroppableProps>> = ({
 	sortCategories,
 	sortFilter,
 	containerTask,
-	isDropped,
+	activeId,
 	removeTaskFromPreviousContainer,
 	containerTitle,
 }) => {
@@ -68,7 +68,7 @@ const Droppable: React.FC<PropsWithChildren<DroppableProps>> = ({
 				</DropdownMenu>
 			</div>
 			{containerTask.map((task) =>
-				isDropped === id ? (
+				activeId === id ? (
 					<DraggableCard
 						id={task.id}
 						key={task.id}
