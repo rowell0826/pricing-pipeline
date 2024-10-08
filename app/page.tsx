@@ -5,7 +5,7 @@ import { Task } from "@/lib/types/cardProps";
 import { auth, db } from "@/lib/utils/firebase/firebase";
 import { BiSolidSortAlt } from "react-icons/bi";
 import {
-	addDoc,
+	// addDoc,
 	collection,
 	deleteDoc,
 	doc,
@@ -38,14 +38,21 @@ import {
 } from "@dnd-kit/core";
 import { Droppable } from "@/components/droppable/Droppable";
 import { DraggableCard } from "@/components/droppable/Draggable";
-import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import {
+	arrayMove,
+	SortableContext,
+	sortableKeyboardCoordinates,
+	verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 interface SortList {
 	input: string;
 	filterBy: string;
 }
 
 export interface ContainerList {
-	input: string;
+	id: string;
+	items: Task[]; // Store the tasks in this container
+	setter: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 
 const sortCategories: SortList[] = [
@@ -67,19 +74,19 @@ const sortCategories: SortList[] = [
 	},
 ];
 
-const cardContainer: ContainerList[] = [
-	{ input: "Raw files" },
-	{ input: "Filtering" },
-	{ input: "Pricing" },
-	{ input: "Done" },
-];
-
 export default function Home() {
 	const [rawTasks, setRawTasks] = useState<Task[]>([]); // Tasks in "Raw files"
 	const [filteredTasks, setFilteredTasks] = useState<Task[]>([]); //Task in "Filtered files"
 	const [pricingTasks, setPricingTasks] = useState<Task[]>([]); // Task in "Pricing files"
 	const [done, setDone] = useState<Task[]>([]); // Task in "Done folder"
 	const [userRole, setUserRole] = useState<string | null>(null);
+
+	const cardContainer: ContainerList[] = [
+		{ id: "container1", items: rawTasks, setter: setRawTasks },
+		{ id: "container2", items: filteredTasks, setter: setFilteredTasks },
+		{ id: "container3", items: pricingTasks, setter: setPricingTasks },
+		{ id: "container4", items: done, setter: setDone },
+	];
 
 	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
 		key: "createdAt", // Default sort by createdAt
@@ -198,7 +205,7 @@ export default function Home() {
 		}
 	};
 
-	const addTaskToFiltering = async (task: Task) => {
+	/* const addTaskToFiltering = async (task: Task) => {
 		try {
 			if (userRole === "admin" || userRole === "data manager" || userRole === "data QA") {
 				const taskData: Task = {
@@ -220,9 +227,9 @@ export default function Home() {
 		} catch (error) {
 			console.error("Error adding task to filtering: ", error);
 		}
-	};
+	}; */
 
-	const addTaskToPricing = async (task: Task) => {
+	/* const addTaskToPricing = async (task: Task) => {
 		try {
 			if (
 				userRole === "admin" ||
@@ -276,7 +283,7 @@ export default function Home() {
 		} catch (error) {
 			console.error("Error adding task to done: ", error);
 		}
-	};
+	}; */
 
 	const removeTask = async (taskID: string) => {
 		const taskDocRef = doc(db, "raw", taskID);
@@ -289,7 +296,7 @@ export default function Home() {
 		}
 	};
 
-	const removeTaskFromFilter = async (taskID: string) => {
+	/* const removeTaskFromFilter = async (taskID: string) => {
 		const taskDocRef = doc(db, "filter", taskID);
 
 		try {
@@ -298,9 +305,9 @@ export default function Home() {
 		} catch (error) {
 			console.error("Error removing task: ", error);
 		}
-	};
+	}; */
 
-	const removeTaskFromPricing = async (taskID: string) => {
+	/* const removeTaskFromPricing = async (taskID: string) => {
 		const taskDocRef = doc(db, "pricing", taskID);
 
 		try {
@@ -309,7 +316,7 @@ export default function Home() {
 		} catch (error) {
 			console.error("Error removing task: ", error);
 		}
-	};
+	}; */
 
 	const sortFilter = (key: string) => {
 		setSortConfig((prevConfig) => {
@@ -436,7 +443,6 @@ export default function Home() {
 							return setFilteredTasks(newItems);
 						case "done":
 							return setDone(newItems);
-
 						default:
 							break;
 					}
@@ -463,74 +469,53 @@ export default function Home() {
 						onDragEnd={handleDragEnd}
 					>
 						<div className="flex flex-col md:flex-row max-h-full w-full gap-4 p-4 overflow-y-scroll">
-							<div className="border-2 border-zinc-800 min-w-[200px] w-[200px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden p-4">
-								<h3 className="p-4 text-background">Raw Files</h3>
-								<div className="w-full flex justify-end items-center p-2">
-									<DropdownMenu>
-										<DropdownMenuTrigger asChild>
-											<Button>
-												<BiSolidSortAlt />
-											</Button>
-										</DropdownMenuTrigger>
-										<DropdownMenuContent className="bg-sidebar">
-											<DropdownMenuGroup>
-												{sortCategories.map(({ input, filterBy }, idx) => (
-													<DropdownMenuItem
-														onClick={() => sortFilter(filterBy)}
-														className="cursor-pointer text-sidebartx"
-														key={idx}
-													>
-														{input}
-													</DropdownMenuItem>
-												))}
-											</DropdownMenuGroup>
-										</DropdownMenuContent>
-									</DropdownMenu>
+							{cardContainer.map(({ id, items }) => (
+								<div
+									key={id}
+									className="border-2 border-zinc-800 min-w-[200px] w-[200px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden p-4"
+								>
+									<h3 className="p-4 text-background">{id}</h3>
+									<div className="w-full flex justify-end items-center p-2">
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button>
+													<BiSolidSortAlt />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent className="bg-sidebar">
+												<DropdownMenuGroup>
+													{sortCategories.map(
+														({ input, filterBy }, idx) => (
+															<DropdownMenuItem
+																onClick={() => sortFilter(filterBy)}
+																className="cursor-pointer text-sidebartx"
+																key={idx}
+															>
+																{input}
+															</DropdownMenuItem>
+														)
+													)}
+												</DropdownMenuGroup>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</div>
+									<SortableContext
+										items={items.map((item) => item.id)}
+										strategy={verticalListSortingStrategy}
+									>
+										<Droppable id={id}>
+											{items.map((task) => (
+												<DraggableCard
+													id={task.id}
+													key={task.id}
+													task={task}
+													onRemove={removeTask}
+												/>
+											))}
+										</Droppable>
+									</SortableContext>
 								</div>
-								{rawTasks.map((task) =>
-									!activeId ? (
-										<DraggableCard
-											id={task.id}
-											key={task.id}
-											task={task}
-											onRemove={removeTask}
-										/>
-									) : null
-								)}
-							</div>
-
-							{/* Filtering Container */}
-							<Droppable
-								id="filtering"
-								sortCategories={sortCategories}
-								sortFilter={sortFilter}
-								containerTask={filteredTasks}
-								activeId={activeId}
-								removeTaskFromPreviousContainer={removeTaskFromFilter}
-								containerTitle={cardContainer[1]}
-							/>
-
-							{/* Pricing Container */}
-							<Droppable
-								id="pricing"
-								sortCategories={sortCategories}
-								sortFilter={sortFilter}
-								containerTask={pricingTasks}
-								activeId={activeId}
-								removeTaskFromPreviousContainer={removeTaskFromPricing}
-								containerTitle={cardContainer[2]}
-							/>
-
-							{/* Done */}
-							<Droppable
-								id="done"
-								sortCategories={sortCategories}
-								sortFilter={sortFilter}
-								containerTask={done}
-								activeId={activeId}
-								removeTaskFromPreviousContainer={removeTaskFromPricing}
-								containerTitle={cardContainer[3]}
-							/>
+							))}
 						</div>
 						<DragOverlay>
 							{activeId
