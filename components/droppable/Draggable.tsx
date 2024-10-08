@@ -156,15 +156,8 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	}, [task.id]);
 
 	return (
-		<Card
-			key={id}
-			ref={setNodeRef}
-			style={style}
-			{...listeners}
-			{...attributes}
-			className="h-[190px] w-full"
-		>
-			<CardHeader className="h-[30%] py-2">
+		<Card key={id} ref={setNodeRef} style={style} {...attributes} className="h-[190px] w-full">
+			<CardHeader className="h-[30%] py-2" {...listeners}>
 				<CardTitle className="text-left text-xs">{title}</CardTitle>
 				<Avatar className="mr-2 w-6 h-6">
 					<AvatarFallback className="text-xs">{getInitials(createdBy)}</AvatarFallback>
@@ -298,7 +291,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						<DialogTrigger asChild>
 							<Button
 								size={"xs"}
-								onClick={(e) => e.stopPropagation}
+								onClick={(e) => e.stopPropagation()}
 								className="text-[8px]"
 							>
 								View Files

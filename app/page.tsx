@@ -466,7 +466,7 @@ export default function Home() {
 			<div className="flex w-full h-screen items-start">
 				<SideBar onAddTask={addTaskToClientInput} />
 
-				<main className="w-full max-h-[92%] flex justify-start mt-10">
+				<main className="w-full h-[92.5%] max-h-full flex justify-start mt-10">
 					<DndContext
 						sensors={sensors}
 						collisionDetection={closestCenter}
@@ -477,7 +477,7 @@ export default function Home() {
 							{cardContainer.map(({ id, items }) => (
 								<div
 									key={id}
-									className="border-2 border-zinc-800 min-w-[200px] w-[200px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden p-4"
+									className="border-2 border-zinc-800 min-w-[200px] w-[200px] min-h-[300px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-foreground bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden p-4"
 								>
 									<h3 className="p-4 text-background">{id}</h3>
 									<div className="w-full flex justify-end items-center p-2">
