@@ -317,20 +317,32 @@ export default function Home() {
 		}
 	};
 
-	const removeTask = async (taskID: string, container: string) => {
+	const removeTask = async (taskID: string, container: string, filePaths: string[] = []) => {
 		const taskDocRef = doc(db, container, taskID);
 
 		try {
+			await Promise.all(
+				filePaths.map(async (filePath) => {
+					// Create a reference to the file in Firebase Storage
+					const fileRef = ref(storage, decodeURIComponent(filePath)); // Ensure it's a valid path
+					await deleteObject(fileRef); // Delete the file
+				})
+			);
+
 			await deleteDoc(taskDocRef);
 			switch (container) {
 				case "raw":
 					setRawTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
+					break;
 				case "filtering":
 					setFilteredTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
+					break;
 				case "pricing":
 					setPricingTasks((prevTask) => prevTask.filter((task) => task.id !== taskID));
+					break;
 				case "done":
 					setDone((prevTask) => prevTask.filter((task) => task.id !== taskID));
+					break;
 				default:
 					throw Error("Cannot delete ticket.");
 			}

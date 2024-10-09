@@ -24,7 +24,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 	task: Task;
 	onRemove: (id: string) => void;
 }) => {
-	const { id, title, createdAt, createdBy, dueDate, downloads } = task;
+	const { id, title, createdAt, createdBy, dueDate, fileUpload } = task;
 
 	const formatDate = (date: Date | null | Timestamp) => {
 		if (!date) return "Unknown Date";
@@ -50,7 +50,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [downloadedFiles, setDownloadedFiles] = useState<string[]>(downloads || []);
+	const [downloadedFiles, setDownloadedFiles] = useState<string[]>(fileUpload || []);
 
 	const getFilenameFromUrl = (url: string) => {
 		const urlParts = url.split("/");
@@ -88,7 +88,7 @@ const CardComponent: React.FC<{ task: Task; onRemove: (taskId: string) => void }
 			await updateDoc(taskRef, {
 				title: editedTitle,
 				dueDate: new Date(editedDueDate),
-				downloads: downloadedFiles,
+				fileUpload: downloadedFiles,
 			});
 
 			setFilesMarkedForDeletion([]);

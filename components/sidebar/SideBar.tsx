@@ -148,7 +148,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 			console.log("File available at:", downloadUrl);
 
 			if (taskTitle && dueDateInput) {
-				const dueDate = new Date(dueDateInput); // `dueDateInput` is already in `YYYY-MM-DD` format
+				const dueDate = new Date(dueDateInput);
 
 				if (isNaN(dueDate.getTime())) {
 					alert("Invalid due date. Please select a valid date.");

@@ -1,9 +1,9 @@
 import { Task } from "@/lib/types/cardProps";
-import { db, deleteFileFromStorage } from "@/lib/utils/firebase/firebase";
+import { clientFileUpload, db, deleteFileFromStorage } from "@/lib/utils/firebase/firebase";
 import { useDraggable } from "@dnd-kit/core";
 import { doc, Timestamp, updateDoc } from "firebase/firestore";
-import { getDownloadURL, getStorage, ref } from "firebase/storage";
-import { useState } from "react";
+import { getDownloadURL, getStorage, ref, StorageReference } from "firebase/storage";
+import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import {
@@ -25,7 +25,7 @@ interface DraggableProps {
 	task: Task;
 	containerTitle: string;
 	getInitials: (name: string) => string;
-	onRemove: (taskID: string, container: string) => void;
+	onRemove: (taskID: string, container: string, filePaths: string[]) => void;
 }
 
 export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) => {
@@ -35,6 +35,27 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 	const { task, onRemove, getInitials, containerTitle } = props;
 	const { id, title, createdAt, createdBy, dueDate, fileUpload } = task;
+
+	useEffect(() => {
+		if (fileUpload && fileUpload.length > 0) {
+			const fileUrls = fileUpload
+				.map((file) => {
+					// If it's already a URL (string), just return it
+					if (typeof file === "string") {
+						return file;
+					} else if (file instanceof File) {
+						// If it's a File object, create an object URL
+						return URL.createObjectURL(file);
+					} else {
+						console.warn("Unexpected value in fileUpload:", file);
+						return null;
+					}
+				})
+				.filter((url) => url !== null); // Filter out null values
+
+			setDownloadedFiles(fileUrls);
+		}
+	}, [fileUpload]);
 
 	// Declare the style object and cast it as React.CSSProperties
 	const style: React.CSSProperties = {
@@ -66,7 +87,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [downloadedFiles, setDownloadedFiles] = useState<string[]>(fileUpload || []);
+	const [downloadedFiles, setDownloadedFiles] = useState<string[]>([]);
 
 	const getFilenameFromUrl = (url: string) => {
 		const urlParts = url.split("/");
@@ -94,28 +115,31 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const handleEditSubmit = async () => {
 		try {
 			// Delete the files from Firebase that are marked for deletion
-			for (const fileUrl of filesMarkedForDeletion) {
-				await deleteFileFromStorage(fileUrl);
+			for (const files of filesMarkedForDeletion) {
+				await deleteFileFromStorage(files);
 			}
 
 			const taskRef = doc(db, containerTitle, id);
 
+			const fileSnapshot = await clientFileUpload(selectedFile as File);
+			const fileUrl = await getDownloadURL(fileSnapshot?.ref as StorageReference);
+
 			// Update Firestore document
 			await updateDoc(taskRef, {
 				title: editedTitle,
-				dueDate: new Date(editedDueDate),
-				downloads: downloadedFiles,
+				dueDate: editedDueDate ? new Date(editedDueDate) : editedDueDate,
+				fileUpload: [fileUrl],
 			});
 
-			setFilesMarkedForDeletion([]);
-			alert("Task updated successfully!");
+			console.log("Task updated: ", fileUrl);
 		} catch (error) {
 			console.error("Error updating task:", error);
+			console.log("Downloaded files: ", downloadedFiles);
 			alert("There was an error updating the task.");
 		}
 	};
 
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files && e.target.files.length > 0) {
 			setSelectedFile(e.target.files[0]);
 		}
@@ -261,7 +285,24 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						onClick={(e) => {
 							e.stopPropagation();
 
-							onRemove(task.id, containerTitle);
+							console.log("File Upload Array: ", task.fileUpload); // Log the file upload array
+
+							const filePaths: string[] = task.fileUpload
+								.map((file) => {
+									if (typeof file === "string") {
+										const match = file.match(/\/o\/([^?]*)/);
+										return match ? decodeURIComponent(match[1]) : undefined;
+									} else if (file instanceof File) {
+										return file.name; // Extract name or any property from File
+									}
+									return undefined; // In case of an unexpected type
+								})
+								.filter((path): path is string => path !== undefined);
+
+							// Log the valid file paths
+							console.log("Valid File Paths: ", filePaths);
+
+							onRemove(task.id, containerTitle, filePaths);
 						}}
 						size={"xs"}
 						className="text-[8px]"
