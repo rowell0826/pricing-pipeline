@@ -412,7 +412,7 @@ export default function Home() {
 					switch (overContainer) {
 						case "filtering":
 							setFilteredTasks((prev) => {
-								console.log("render");
+								console.log("Task transferred to filtering");
 								addTaskToFiltering(newItem, overContainer);
 
 								return [...prev, newItem];
@@ -420,10 +420,22 @@ export default function Home() {
 
 							break;
 						case "pricing":
-							setPricingTasks((prev) => [...prev, newItem]);
+							setPricingTasks((prev) => {
+								console.log("Task transferred to pricing");
+								addTaskToPricing(newItem, overContainer);
+
+								return [...prev, newItem];
+							});
+
 							break;
 						case "done":
-							setDone((prev) => [...prev, newItem]);
+							setDone((prev) => {
+								console.log("Task transferred to done");
+								addTaskToDone(newItem, overContainer);
+
+								return [...prev, newItem];
+							});
+
 							break;
 						default:
 							throw Error("Container does not exist");
