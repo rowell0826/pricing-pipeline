@@ -346,7 +346,18 @@ export default function Home() {
 
 		try {
 			await deleteDoc(taskDocRef);
-			setRawTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
+			switch (container) {
+				case "raw":
+					setRawTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
+				case "filtering":
+					setFilteredTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
+				case "pricing":
+					setPricingTasks((prevTask) => prevTask.filter((task) => task.id !== taskID));
+				case "done":
+					setDone((prevTask) => prevTask.filter((task) => task.id !== taskID));
+				default:
+					throw Error("Cannot delete ticket.");
+			}
 		} catch (error) {
 			console.error("Error removing task: ", error);
 		}
