@@ -108,8 +108,8 @@ export default function SignInForm() {
 	};
 
 	return (
-		<main className="w-screen min-h-screen flex flex-col items-center justify-center">
-			<section className="w-screen min-h-[50%] flex flex-col items-center justify-center p-24">
+		<main className="w-full min-h-[50%] flex flex-col items-center justify-center">
+			<section className="w-full min-h-[50%] flex flex-col items-center justify-center p-24">
 				<div className="border border-slate-100 shadow-lg rounded-lg p-8 w-full min-w-80 max-w-md text-foreground">
 					<Form {...form}>
 						<form
@@ -168,13 +168,13 @@ export default function SignInForm() {
 							</div>
 
 							<p className="text-[12px]">
-								<Link href="/signin/passwordReset" className="text-cyan-200">
+								<Link href="/signin/passwordReset" className="text-cyan-500">
 									Forgot Password?
 								</Link>
 							</p>
 
 							<p className="text-[12px]">
-								<Link href="/signup" className="text-cyan-200">
+								<Link href="/signup" className="text-cyan-500">
 									Register here
 								</Link>{" "}
 							</p>

@@ -104,13 +104,13 @@ export default function SignUpForm() {
 	};
 
 	return (
-		<main className="w-screen min-h-screen flex flex-col items-center justify-center">
-			<section className="w-screen min-h-[50%] flex flex-col items-center justify-between p-24">
+		<main className="w-full h-[50%] min-h-[450px] flex flex-col items-center justify-center">
+			<section className="w-full h-[50%] min-h-[450px] flex flex-col items-center justify-center p-24">
 				<div className="border border-slate-100 shadow-lg rounded-lg p-8 w-full min-w-80 max-w-md">
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(handleSubmit)}
-							className="max-w-md w-full flex flex-col gap-4"
+							className="max-w-sm w-full flex flex-col gap-4"
 						>
 							{formItemLabels.map(
 								(

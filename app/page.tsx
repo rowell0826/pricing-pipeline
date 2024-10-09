@@ -101,6 +101,23 @@ export default function Home() {
 	const currentUser = auth.currentUser;
 
 	// Fetch user role
+	/* useEffect(() => {
+		if (currentUser) {
+			const fetchUserRole = async () => {
+				const userDocRef = doc(db, "users", currentUser.uid);
+				const userSnapshot = await getDoc(userDocRef);
+
+				if (userSnapshot.exists()) {
+					const userData = userSnapshot.data();
+					setUserRole(userData.role);
+				}
+			};
+
+			fetchUserRole();
+		}
+	}, [currentUser]); */
+
+	// Render results to "raw files" container
 	useEffect(() => {
 		if (currentUser) {
 			const fetchUserRole = async () => {
@@ -115,10 +132,7 @@ export default function Home() {
 
 			fetchUserRole();
 		}
-	}, [currentUser]);
 
-	// Render results to "raw files" container
-	useEffect(() => {
 		const fetchTasks = async () => {
 			try {
 				const raw = query(collection(db, "raw"), orderBy(sortConfig.key, sortConfig.order));
@@ -231,45 +245,7 @@ export default function Home() {
 		};
 
 		fetchTasks();
-	}, [sortConfig.key, sortConfig.order]);
-
-	useEffect(() => {
-		const fetchFiltered = async () => {
-			try {
-				const filtering = query(
-					collection(db, "filtering"),
-					orderBy(sortConfig.key, sortConfig.order)
-				);
-				const filterSnapshot = await getDocs(filtering);
-				const fetchedFilteredTasks = filterSnapshot.docs.map((doc) => {
-					const data = doc.data();
-					const createdAt = data.createdAt?.toDate();
-					const createdBy = data.createdBy;
-					const dueDate = data.dueDate;
-					const fileUpload = data.fileUpload;
-					const title = data.title;
-					const status = data.status;
-
-					return {
-						id: doc.id,
-						title,
-						createdAt,
-						createdBy,
-						fileUpload,
-						dueDate,
-						status,
-					} as Task;
-				});
-
-				setFilteredTasks(fetchedFilteredTasks);
-			} catch (error) {
-				console.log(error);
-				throw new Error("Cannot fetch data.");
-			}
-		};
-
-		fetchFiltered();
-	}, [sortConfig.key, sortConfig.order]);
+	}, [sortConfig.key, sortConfig.order, currentUser]);
 
 	// Get user's initials
 	const getInitials = (name: string) => {
@@ -410,28 +386,6 @@ export default function Home() {
 			console.error("Error removing task: ", error);
 		}
 	};
-
-	/* const removeTaskFromFilter = async (taskID: string) => {
-		const taskDocRef = doc(db, "filter", taskID);
-
-		try {
-			await deleteDoc(taskDocRef);
-			setFilteredTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
-		} catch (error) {
-			console.error("Error removing task: ", error);
-		}
-	}; */
-
-	/* const removeTaskFromPricing = async (taskID: string) => {
-		const taskDocRef = doc(db, "pricing", taskID);
-
-		try {
-			await deleteDoc(taskDocRef);
-			setPricingTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
-		} catch (error) {
-			console.error("Error removing task: ", error);
-		}
-	}; */
 
 	const sortFilter = (key: string) => {
 		setSortConfig((prevConfig) => {

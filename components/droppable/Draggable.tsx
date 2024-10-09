@@ -72,7 +72,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		const urlParts = url.split("/");
 		const filename =
 			urlParts[urlParts.length - 1].split("?")[0].split("/").pop() || "unknown_filename";
-		const decodedFilename = decodeURIComponent(filename).replace("raw/", "");
+		const decodedFilename = decodeURIComponent(filename).replace(`${containerTitle}/`, "");
 
 		return decodedFilename;
 	};
@@ -98,7 +98,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				await deleteFileFromStorage(fileUrl);
 			}
 
-			const taskRef = doc(db, "tasks", id);
+			const taskRef = doc(db, containerTitle, id);
 
 			// Update Firestore document
 			await updateDoc(taskRef, {
