@@ -11,9 +11,11 @@ import {
 import { doc, Firestore, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import {
 	deleteObject,
+	getDownloadURL,
 	getStorage,
 	listAll,
 	ref,
+	uploadBytes,
 	uploadBytesResumable,
 	UploadTaskSnapshot,
 } from "firebase/storage";
@@ -168,6 +170,44 @@ export const clientFileUpload = async (file: File): Promise<UploadTaskSnapshot |
 		console.error("Error uploading file:", error);
 
 		return null;
+	}
+};
+
+// Function to transfer file from a specific firebase storage folder to another
+export const transferFile = async (
+	taskId: string,
+	sourceFolder: string,
+	targetFolderId: string
+) => {
+	try {
+		if (!sourceFolder) {
+			console.error("Source folder not found for task:", taskId);
+			return;
+		}
+
+		// Get the file URL from the task
+		const fileUrl = await getDownloadURL(ref(storage, `${sourceFolder}/${taskId}`));
+
+		// Fetch the file data
+		const response = await fetch(fileUrl);
+		const blob = await response.blob();
+
+		// Define the target path for the new folder
+		const targetPath = `${targetFolderId}/${taskId}`; // Use targetFolderId to set the new location
+
+		// Create a reference to the new location
+		const targetRef = ref(storage, targetPath);
+
+		// Upload the file to the new location
+		await uploadBytes(targetRef, blob);
+
+		// Optionally, delete the original file
+		const sourceRef = ref(storage, `${sourceFolder}/${taskId}`);
+		await deleteObject(sourceRef);
+
+		console.log(`File transferred from ${sourceFolder} to ${targetPath}`);
+	} catch (error) {
+		console.error("Error transferring file: ", error);
 	}
 };
 

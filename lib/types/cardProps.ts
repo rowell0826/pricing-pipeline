@@ -4,6 +4,8 @@ export interface Task {
 	createdBy: string;
 	createdAt: Date | null;
 	dueDate: Date | null;
-	downloads: string[];
-	status: "raw" | "filtering" | "pricing" | "done";
+	fileUpload: string[];
+	status: TaskStatus;
 }
+
+export type TaskStatus = "raw" | "filtering" | "pricing" | "done";

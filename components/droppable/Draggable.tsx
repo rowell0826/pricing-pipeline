@@ -25,7 +25,7 @@ interface DraggableProps {
 	task: Task;
 	containerTitle: string;
 	getInitials: (name: string) => string;
-	onRemove: (collectionName: string, taskId: string) => void;
+	onRemove: (taskID: string, container: string) => void;
 }
 
 export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) => {
@@ -34,7 +34,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	});
 
 	const { task, onRemove, getInitials, containerTitle } = props;
-	const { id, title, createdAt, createdBy, dueDate, downloads } = task;
+	const { id, title, createdAt, createdBy, dueDate, fileUpload } = task;
 
 	// Declare the style object and cast it as React.CSSProperties
 	const style: React.CSSProperties = {
@@ -66,7 +66,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [downloadedFiles, setDownloadedFiles] = useState<string[]>(downloads || []);
+	const [downloadedFiles, setDownloadedFiles] = useState<string[]>(fileUpload || []);
 
 	const getFilenameFromUrl = (url: string) => {
 		const urlParts = url.split("/");
@@ -261,9 +261,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						onClick={(e) => {
 							e.stopPropagation();
 
-							onRemove(containerTitle, task.id);
-
-							console.log(`Container: ${containerTitle} task.id ${task.id}`);
+							onRemove(task.id, containerTitle);
 						}}
 						size={"xs"}
 						className="text-[8px]"

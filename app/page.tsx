@@ -1,10 +1,11 @@
 "use client";
 import PrivateRoute from "@/components/privateRoute/PrivateRoute";
 import SideBar from "@/components/sidebar/SideBar";
-import { Task } from "@/lib/types/cardProps";
+import { Task, TaskStatus } from "@/lib/types/cardProps";
 import { auth, db, storage } from "@/lib/utils/firebase/firebase";
 import { BiSolidSortAlt } from "react-icons/bi";
 import {
+	addDoc,
 	// addDoc,
 	collection,
 	deleteDoc,
@@ -47,6 +48,7 @@ import {
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { deleteObject, ref } from "firebase/storage";
+import { AuthRole } from "@/lib/types/authTypes";
 interface SortList {
 	input: string;
 	filterBy: string;
@@ -82,7 +84,7 @@ export default function Home() {
 	const [filteredTasks, setFilteredTasks] = useState<Task[]>([]); //Task in "Filtered files"
 	const [pricingTasks, setPricingTasks] = useState<Task[]>([]); // Task in "Pricing files"
 	const [done, setDone] = useState<Task[]>([]); // Task in "Done folder"
-	const [userRole, setUserRole] = useState<string | null>(null);
+	const [userRole, setUserRole] = useState<AuthRole | null>(null);
 
 	const cardContainer: ContainerList[] = [
 		{ id: "raw", items: rawTasks, setter: setRawTasks },
@@ -128,16 +130,18 @@ export default function Home() {
 					const createdAt = data.createdAt?.toDate();
 					const createdBy = data.createdBy;
 					const dueDate = data.dueDate;
-					const downloads = data.fileUpload;
+					const fileUpload = data.fileUpload;
 					const title = data.title;
+					const status = data.status;
 
 					return {
 						id: doc.id,
 						title,
 						createdAt,
 						createdBy,
-						downloads,
+						fileUpload,
 						dueDate,
+						status,
 					} as Task;
 				});
 
@@ -164,16 +168,18 @@ export default function Home() {
 					const createdAt = data.createdAt?.toDate();
 					const createdBy = data.createdBy;
 					const dueDate = data.dueDate;
-					const downloads = data.fileUpload;
+					const fileUpload = data.fileUpload;
 					const title = data.title;
+					const status = data.status;
 
 					return {
 						id: doc.id,
 						title,
 						createdAt,
 						createdBy,
-						downloads,
+						fileUpload,
 						dueDate,
+						status,
 					} as Task;
 				});
 
@@ -205,7 +211,7 @@ export default function Home() {
 				createdBy: createdBy,
 				createdAt: new Date(),
 				dueDate: null,
-				downloads: [],
+				fileUpload: [],
 				status: "raw",
 			};
 
@@ -215,88 +221,50 @@ export default function Home() {
 		}
 	};
 
-	/* const addTaskToFiltering = async (task: Task) => {
+	const addTaskToFiltering = async (task: Task, container: string) => {
 		try {
-			if (userRole === "admin" || userRole === "data manager" || userRole === "data QA") {
-				const taskData: Task = {
-					id: task.id,
-					title: task.title,
-					createdBy: task.createdBy,
-					createdAt: task.createdAt,
-					dueDate: task.dueDate,
-					downloads: task.downloads,
-					status: "filtering", // Set status to filtering
-				};
-
-				setFilteredTasks((prev) => [...prev, taskData]);
-
+			if (userRole === "admin" || userRole === "dataManager" || userRole === "dataQA") {
 				// Add the task to the filtering collection
-				const filteringCollectionRef = collection(db, "filtering");
-				await addDoc(filteringCollectionRef, taskData);
+				const filteringCollectionRef = collection(db, container);
+
+				await addDoc(filteringCollectionRef, task);
 			}
 		} catch (error) {
 			console.error("Error adding task to filtering: ", error);
 		}
-	}; */
+	};
 
-	/* const addTaskToPricing = async (task: Task) => {
+	const addTaskToPricing = async (task: Task, container: string) => {
 		try {
-			if (
-				userRole === "admin" ||
-				userRole === "data scientist" ||
-				userRole === "prompt engineer"
-			) {
-				const taskData: Task = {
-					id: task.id,
-					title: task.title,
-					createdBy: task.createdBy,
-					createdAt: task.createdAt,
-					dueDate: task.dueDate,
-					downloads: task.downloads,
-					status: "pricing", // Set status to filtering
-				};
-
-				setPricingTasks((prev) => [...prev, taskData]);
-
+			if (userRole === "admin" || userRole === "dataManager" || userRole === "dataQA") {
 				// Add the task to the filtering collection
-				const filteringCollectionRef = collection(db, "filtering");
-				await addDoc(filteringCollectionRef, taskData);
+				const filteringCollectionRef = collection(db, container);
+
+				await addDoc(filteringCollectionRef, task);
 			}
 		} catch (error) {
 			console.error("Error adding task to pricing: ", error);
 		}
 	};
 
-	const addTaskToDone = async (task: Task) => {
+	const addTaskToDone = async (task: Task, container: string) => {
 		try {
 			if (
 				userRole === "admin" ||
-				userRole === "data scientist" ||
-				userRole === "prompt engineer"
+				userRole === "dataScientist" ||
+				userRole === "promptEngineer"
 			) {
-				const taskData: Task = {
-					id: task.id,
-					title: task.title,
-					createdBy: task.createdBy,
-					createdAt: task.createdAt,
-					dueDate: task.dueDate,
-					downloads: task.downloads,
-					status: "done", // Set status to filtering
-				};
-
-				setDone((prev) => [...prev, taskData]);
-
 				// Add the task to the filtering collection
-				const filteringCollectionRef = collection(db, "done");
-				await addDoc(filteringCollectionRef, taskData);
+				const filteringCollectionRef = collection(db, container);
+				await addDoc(filteringCollectionRef, task);
 			}
 		} catch (error) {
 			console.error("Error adding task to done: ", error);
 		}
-	}; */
+	};
 
-	/* const removeTask = async (taskID: string) => {
-		const taskDocRef = doc(db, "raw", taskID);
+	const removeTask = async (taskID: string, container: string) => {
+		const taskDocRef = doc(db, container, taskID);
 
 		try {
 			await deleteDoc(taskDocRef);
@@ -304,9 +272,9 @@ export default function Home() {
 		} catch (error) {
 			console.error("Error removing task: ", error);
 		}
-	}; */
+	};
 
-	const removeTask = async (collectionName: string, taskID: string) => {
+	const removeTaskByDragging = async (collectionName: string, taskID: string) => {
 		// Fetch the task database before deleting to get the file path
 		const taskDocRef = doc(db, collectionName, taskID);
 
@@ -435,15 +403,21 @@ export default function Home() {
 					createdBy: draggedItem.createdBy,
 					createdAt: draggedItem.createdAt,
 					dueDate: draggedItem.dueDate,
-					downloads: draggedItem.downloads,
-					status: activeContainer,
+					fileUpload: draggedItem.fileUpload,
+					status: overContainer as TaskStatus,
 				};
 
 				if (activeContainer !== overContainer) {
 					// Move between different containers
 					switch (overContainer) {
 						case "filtering":
-							setFilteredTasks((prev) => [...prev, newItem]);
+							setFilteredTasks((prev) => {
+								console.log("render");
+								addTaskToFiltering(newItem, overContainer);
+
+								return [...prev, newItem];
+							});
+
 							break;
 						case "pricing":
 							setPricingTasks((prev) => [...prev, newItem]);
@@ -461,21 +435,21 @@ export default function Home() {
 							setRawTasks((prev) =>
 								prev.filter((task) => task.id !== String(active.id))
 							);
-							removeTask(activeContainer, String(active.id));
+							removeTaskByDragging(activeContainer, String(active.id));
 							console.log("Active Container: ", activeContainer);
-							console.log("over Container: ", overContainer);
+
 							break;
 						case "filtering":
 							setFilteredTasks((prev) =>
 								prev.filter((task) => task.id !== String(active.id))
 							);
-							removeTask(activeContainer, String(active.id));
+							removeTaskByDragging(activeContainer, String(active.id));
 							break;
 						case "pricing":
 							setPricingTasks((prev) =>
 								prev.filter((task) => task.id !== String(active.id))
 							);
-							removeTask(activeContainer, String(active.id));
+							removeTaskByDragging(activeContainer, String(active.id));
 							break;
 						case "done":
 							setDone((prev) => prev.filter((task) => task.id !== String(active.id)));
