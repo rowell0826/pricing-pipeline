@@ -122,10 +122,25 @@ export default function Home() {
 		const fetchTasks = async () => {
 			try {
 				const raw = query(collection(db, "raw"), orderBy(sortConfig.key, sortConfig.order));
+				const filtering = query(
+					collection(db, "filtering"),
+					orderBy(sortConfig.key, sortConfig.order)
+				);
+				const pricing = query(
+					collection(db, "pricing"),
+					orderBy(sortConfig.key, sortConfig.order)
+				);
+				const done = query(
+					collection(db, "done"),
+					orderBy(sortConfig.key, sortConfig.order)
+				);
 
 				const rawSnapshot = await getDocs(raw);
+				const filteringSnapshot = await getDocs(filtering);
+				const pricingSnapshot = await getDocs(pricing);
+				const doneSnapshot = await getDocs(done);
 
-				const fetchedTasks = rawSnapshot.docs.map((doc) => {
+				const fetchedRawTasks = rawSnapshot.docs.map((doc) => {
 					const data = doc.data();
 					const createdAt = data.createdAt?.toDate();
 					const createdBy = data.createdBy;
@@ -145,7 +160,70 @@ export default function Home() {
 					} as Task;
 				});
 
-				setRawTasks(fetchedTasks);
+				const fetchedFilteringTasks = filteringSnapshot.docs.map((doc) => {
+					const data = doc.data();
+					const createdAt = data.createdAt?.toDate();
+					const createdBy = data.createdBy;
+					const dueDate = data.dueDate;
+					const fileUpload = data.fileUpload;
+					const title = data.title;
+					const status = data.status;
+
+					return {
+						id: doc.id,
+						title,
+						createdAt,
+						createdBy,
+						fileUpload,
+						dueDate,
+						status,
+					} as Task;
+				});
+
+				const fetchedPricingTasks = pricingSnapshot.docs.map((doc) => {
+					const data = doc.data();
+					const createdAt = data.createdAt?.toDate();
+					const createdBy = data.createdBy;
+					const dueDate = data.dueDate;
+					const fileUpload = data.fileUpload;
+					const title = data.title;
+					const status = data.status;
+
+					return {
+						id: doc.id,
+						title,
+						createdAt,
+						createdBy,
+						fileUpload,
+						dueDate,
+						status,
+					} as Task;
+				});
+
+				const fetchedDoneTasks = doneSnapshot.docs.map((doc) => {
+					const data = doc.data();
+					const createdAt = data.createdAt?.toDate();
+					const createdBy = data.createdBy;
+					const dueDate = data.dueDate;
+					const fileUpload = data.fileUpload;
+					const title = data.title;
+					const status = data.status;
+
+					return {
+						id: doc.id,
+						title,
+						createdAt,
+						createdBy,
+						fileUpload,
+						dueDate,
+						status,
+					} as Task;
+				});
+
+				setRawTasks(fetchedRawTasks);
+				setFilteredTasks(fetchedFilteringTasks);
+				setPricingTasks(fetchedPricingTasks);
+				setDone(fetchedDoneTasks);
 			} catch (error) {
 				console.log(error);
 				throw new Error("Cannot fetch data.");
@@ -411,27 +489,27 @@ export default function Home() {
 					// Move between different containers
 					switch (overContainer) {
 						case "filtering":
+							addTaskToFiltering(newItem, overContainer);
 							setFilteredTasks((prev) => {
 								console.log("Task transferred to filtering");
-								addTaskToFiltering(newItem, overContainer);
 
 								return [...prev, newItem];
 							});
 
 							break;
 						case "pricing":
+							addTaskToPricing(newItem, overContainer);
 							setPricingTasks((prev) => {
 								console.log("Task transferred to pricing");
-								addTaskToPricing(newItem, overContainer);
 
 								return [...prev, newItem];
 							});
 
 							break;
 						case "done":
+							addTaskToDone(newItem, overContainer);
 							setDone((prev) => {
 								console.log("Task transferred to done");
-								addTaskToDone(newItem, overContainer);
 
 								return [...prev, newItem];
 							});
@@ -465,6 +543,7 @@ export default function Home() {
 							break;
 						case "done":
 							setDone((prev) => prev.filter((task) => task.id !== String(active.id)));
+							removeTaskByDragging(activeContainer, String(active.id));
 							break;
 						default:
 							throw Error("Task does not exist");
