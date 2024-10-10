@@ -88,7 +88,13 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		const urlParts = url.split("/");
 		const filename =
 			urlParts[urlParts.length - 1].split("?")[0].split("/").pop() || "unknown_filename";
-		const decodedFilename = decodeURIComponent(filename).replace(`${containerTitle}/`, "");
+		const decodedFilename = decodeURIComponent(filename).replace(
+			/^(raw|filtering|pricing|done)\//,
+			""
+		);
+
+		console.log("DecodedFileName: ", decodedFilename);
+
 		return decodedFilename;
 	};
 
@@ -135,7 +141,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 			const taskRef = doc(db, containerTitle, id);
 
-			const fileSnapshot = await clientFileUpload(selectedFile as File);
+			const fileSnapshot = await clientFileUpload(containerTitle, selectedFile as File);
 			const fileUrl = await getDownloadURL(fileSnapshot?.ref as StorageReference);
 
 			const taskDoc = await getDoc(taskRef);
@@ -324,8 +330,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						onClick={(e) => {
 							e.stopPropagation();
 
-							console.log("File Upload Array: ", task.fileUpload);
-
 							const filePaths: FileUpload[] = task.fileUpload
 								.map((file) => {
 									if (typeof file === "string") {
@@ -345,9 +349,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 									return undefined; // Handle unexpected types
 								})
 								.filter((path): path is FileUpload => path !== undefined); // Ensure the filter keeps only FileUpload objects
-
-							// Log the valid file paths
-							console.log("Valid File Uploads: ", filePaths);
 
 							// Log the valid file paths
 							console.log("Valid File Paths: ", filePaths);
@@ -379,28 +380,25 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 									below.
 								</DialogDescription>
 							</DialogHeader>
-							<div className="space-y-4">
+							<div className="space-y-4 overflow-y-scroll">
 								{Object.keys(groupedDownloadFiles).length > 0 ? (
 									Object.keys(groupedDownloadFiles).map((folder) => (
 										<div key={folder} id={folder}>
 											<h4>{folder}</h4>
-											{groupedDownloadFiles[folder].map((filePath, index) => {
-												console.log("filePath: ", filePath);
-												return (
-													<div
-														key={index}
-														className="flex items-center justify-between"
+											{groupedDownloadFiles[folder].map((filePath, index) => (
+												<div
+													key={index}
+													className="flex items-center justify-between"
+												>
+													<p>{getFilenameFromUrl(filePath)}</p>
+													<p
+														className="text-foreground underline cursor-pointer"
+														onClick={() => handleDownload(filePath)}
 													>
-														<p>{getFilenameFromUrl(filePath)}</p>
-														<p
-															className="text-foreground underline cursor-pointer"
-															onClick={() => handleDownload(filePath)}
-														>
-															Download
-														</p>
-													</div>
-												);
-											})}
+														Download
+													</p>
+												</div>
+											))}
 										</div>
 									))
 								) : (

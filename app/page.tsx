@@ -326,6 +326,8 @@ export default function Home() {
 		const taskFileStorage = taskDetails?.fileUpload;
 
 		try {
+			await deleteDoc(taskDocRef);
+
 			await Promise.all(
 				taskFileStorage.map(async (file: FileUpload) => {
 					// Create a reference to the file in Firebase Storage
@@ -334,7 +336,6 @@ export default function Home() {
 				})
 			);
 
-			await deleteDoc(taskDocRef);
 			switch (container) {
 				case "raw":
 					setRawTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));

@@ -33,7 +33,7 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { AuthRole } from "@/lib/types/authTypes";
-import { FileObject } from "@/lib/types/modalProps";
+import { FileUpload } from "@/lib/types/cardProps";
 
 const folderAccessByRole: Record<AuthRole, string[]> = {
 	admin: ["raw", "filtering", "pricing", "done"],
@@ -54,7 +54,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 	const [dueDateInput, setDueDateInput] = useState<string | Date>("");
 	const [taskTitle, setTaskTitle] = useState<string>("");
 	const [openFileModal, setOpenFileModal] = useState<boolean>(false);
-	const [fileList, setFileList] = useState<FileObject[]>([]);
+	const [fileList, setFileList] = useState<FileUpload[]>([]);
 
 	// Function to fetch and list files
 	const fetchFiles = async (role: AuthRole) => {
@@ -63,7 +63,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 			const accessibleFolders = folderAccessByRole[role];
 
 			// Variable to Store file objects with URLs and folder types
-			let fileObjects: { url: string; folderType: string }[] = [];
+			let fileObjects: { filePath: string; folder: string }[] = [];
 
 			// Loop through each accessible folder and fetch the files
 			for (const folder of accessibleFolders) {
@@ -74,15 +74,15 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				const folderContents = await listAll(folderRef);
 
 				// Fetch file URLs for the current folder and map them to the expected shape
-				const urls = await Promise.all(
+				const filePaths = await Promise.all(
 					folderContents.items.map(async (fileRef) => {
-						const url = await getDownloadURL(fileRef);
-						return { url, folderType: folder }; // Add folder type here
+						const filePath = await getDownloadURL(fileRef);
+						return { filePath, folder: folder }; // Add folder type here
 					})
 				);
 
 				// Add the file objects from this folder to the overall list
-				fileObjects = [...fileObjects, ...urls];
+				fileObjects = [...fileObjects, ...filePaths];
 			}
 
 			// Set the state with all fetched file objects
@@ -141,7 +141,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 			return;
 		}
 
-		const snapshot = await clientFileUpload(file);
+		const snapshot = await clientFileUpload("raw", file);
 
 		if (snapshot) {
 			const downloadUrl = await getDownloadURL(snapshot.ref);

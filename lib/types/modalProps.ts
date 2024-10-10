@@ -1,3 +1,5 @@
+import { FileUpload } from "./cardProps";
+
 export interface ModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -10,12 +12,9 @@ export interface ModalProps {
 	handleAddTask: () => Promise<void>;
 }
 
-export interface FileObject {
-	url: string;
-	folderType: string;
-}
+
 export interface FileListModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	fileList: FileObject[]; // Updated type
+	fileList: FileUpload[]; // Updated type
 }

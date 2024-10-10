@@ -15,12 +15,12 @@ const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileL
 	};
 
 	// Function to group files by folder type
-	const groupFilesByFolder = (files: { url: string; folderType: string }[]) => {
-		return files.reduce((acc, { url, folderType }) => {
-			if (!acc[folderType]) {
-				acc[folderType] = [];
+	const groupFilesByFolder = (files: { filePath: string; folder: string }[]) => {
+		return files.reduce((acc, { filePath, folder }) => {
+			if (!acc[folder]) {
+				acc[folder] = [];
 			}
-			acc[folderType].push(url);
+			acc[folder].push(filePath);
 			return acc;
 		}, {} as Record<string, string[]>);
 	};

@@ -130,7 +130,7 @@ export const signOutUser = async (): Promise<void> => await signOut(auth);
 // ---------------------------------- Firestore Storage ---------------------------------
 
 // Client file uploads
-export const clientFileUpload = async (file: File): Promise<UploadTaskSnapshot | null> => {
+export const clientFileUpload = async (container: string, file: File): Promise<UploadTaskSnapshot | null> => {
 	if (!file) {
 		console.error("No file provided for upload.");
 		return null;
@@ -138,7 +138,7 @@ export const clientFileUpload = async (file: File): Promise<UploadTaskSnapshot |
 
 	try {
 		// Create a reference for the file in Firebase Storage (adjust the path as needed)
-		const clientRawFileRef = ref(storage, `raw/${file.name}`);
+		const clientRawFileRef = ref(storage, `${container}/${file.name}`);
 
 		// Create an upload task to monitor the upload progress
 		const uploadTask = uploadBytesResumable(clientRawFileRef, file);
