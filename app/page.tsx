@@ -291,7 +291,7 @@ export default function Home() {
 	const addTaskToPricing = async (task: Task, container: string) => {
 		try {
 			if (userRole === "admin" || userRole === "dataManager" || userRole === "dataQA") {
-				// Add the task to the filtering collection
+				// Add the task to the pricing collection
 				const filteringCollectionRef = collection(db, container);
 
 				await addDoc(filteringCollectionRef, task);
@@ -308,7 +308,7 @@ export default function Home() {
 				userRole === "dataScientist" ||
 				userRole === "promptEngineer"
 			) {
-				// Add the task to the filtering collection
+				// Add the task to the done collection
 				const filteringCollectionRef = collection(db, container);
 				await addDoc(filteringCollectionRef, task);
 			}
