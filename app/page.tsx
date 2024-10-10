@@ -1,7 +1,7 @@
 "use client";
 import PrivateRoute from "@/components/privateRoute/PrivateRoute";
 import SideBar from "@/components/sidebar/SideBar";
-import { Task, TaskStatus } from "@/lib/types/cardProps";
+import { FileUpload, Task, TaskStatus } from "@/lib/types/cardProps";
 import { auth, db, storage } from "@/lib/utils/firebase/firebase";
 import { BiSolidSortAlt } from "react-icons/bi";
 import {
@@ -317,14 +317,19 @@ export default function Home() {
 		}
 	};
 
-	const removeTask = async (taskID: string, container: string, filePaths: string[] = []) => {
+	const removeTask = async (taskID: string, container: string) => {
 		const taskDocRef = doc(db, container, taskID);
+
+		const taskSnapshot = await getDoc(taskDocRef);
+		const taskDetails = taskSnapshot.data();
+
+		const taskFileStorage = taskDetails?.fileUpload;
 
 		try {
 			await Promise.all(
-				filePaths.map(async (filePath) => {
+				taskFileStorage.map(async (file: FileUpload) => {
 					// Create a reference to the file in Firebase Storage
-					const fileRef = ref(storage, decodeURIComponent(filePath));
+					const fileRef = ref(storage, decodeURIComponent(file.filePath));
 					await deleteObject(fileRef); // Delete the file
 				})
 			);
@@ -360,35 +365,6 @@ export default function Home() {
 
 		try {
 			if (taskDocSnapshot.exists()) {
-				const taskData = taskDocSnapshot.data();
-
-				// Assuming the file name is stored in the task document
-				console.log("Task data: ", taskData);
-				console.log(`Doc Snapshot: ${taskDocSnapshot}`);
-
-				const fileUpload = taskData?.fileUpload;
-
-				if (fileUpload && Array.isArray(fileUpload)) {
-					for (const fileUrl of fileUpload) {
-						// Extract the file path from the URL
-						const decodedPath = decodeURIComponent(
-							fileUrl.split("/o/")[1].split("?")[0]
-						);
-
-						// Create a reference to the file in Firebase Storage
-						const fileRef = ref(storage, decodedPath);
-
-						try {
-							// Delete the file from Firebase Storage
-							await deleteObject(fileRef);
-							console.log(`File deleted successfully: ${decodedPath}`);
-						} catch (error) {
-							console.error("Error deleting file from storage: ", error);
-						}
-					}
-				}
-
-				// After the file(s) are deleted, delete the document from Firestore
 				await deleteDoc(taskDocRef);
 				console.log(`Task deleted successfully from collection: ${collectionName}`);
 			} else {

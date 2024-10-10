@@ -25,7 +25,7 @@ interface DraggableProps {
 	task: Task;
 	containerTitle: string;
 	getInitials: (name: string) => string;
-	onRemove: (taskID: string, container: string, filePaths: string[]) => void;
+	onRemove: (taskID: string, container: string, fileUpload: FileUpload[]) => void;
 }
 
 export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) => {
@@ -81,22 +81,38 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		fetchTaskData();
 	}, [containerTitle, id]);
 
-	const getFilenameFromUrl = (url: FileUpload) => {
-		const urlParts = url.filePath?.split("/");
+	const getFilenameFromUrl = (url: string) => {
+		if (typeof url !== "string") {
+			throw new TypeError(`Expected a string, but received: ${typeof url}`);
+		}
+		const urlParts = url.split("/");
 		const filename =
 			urlParts[urlParts.length - 1].split("?")[0].split("/").pop() || "unknown_filename";
 		const decodedFilename = decodeURIComponent(filename).replace(`${containerTitle}/`, "");
-
 		return decodedFilename;
 	};
+
+	// Function to group files by folder
+	const groupFilesByFolder = (files: FileUpload[]) => {
+		return files.reduce((acc, file) => {
+			if (acc[file.folder]) {
+				acc[file.folder].push(file.filePath);
+			} else {
+				acc[file.folder] = [file.filePath];
+			}
+			return acc;
+		}, {} as Record<string, string[]>);
+	};
+
+	const groupedDownloadFiles = groupFilesByFolder(downloadedFiles as FileUpload[]);
 
 	const isFileUpload = (file: string | File | FileUpload): file is FileUpload => {
 		return (file as FileUpload).filePath !== undefined;
 	};
 
-	const handleDownload = async (url: FileUpload) => {
+	const handleDownload = async (url: string) => {
 		const storage = getStorage();
-		const fileRef = ref(storage, url.filePath);
+		const fileRef = ref(storage, url);
 
 		console.log("handleDownload URL: ", url);
 
@@ -146,16 +162,18 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		}
 	};
 
-	const handleFileDelete = (file: FileUpload) => {
+	const handleFileDelete = (file: string) => {
 		// Add the file to the list of files marked for deletion
-		setFilesMarkedForDeletion((prev) => [...prev, file.filePath]); // Store the filePath or any unique identifier
+		setFilesMarkedForDeletion((prev) => [...prev, file]); // Store the filePath or any unique identifier
+
+		console.log("handleFileDelete: ", file);
 
 		// Update the state to remove the deleted file from the UI
 		setDownloadedFiles((prevFiles) =>
 			prevFiles.filter(
 				(prevFile) =>
 					// Check if the previous file matches the file to delete
-					!(isFileUpload(prevFile) && prevFile.filePath === file.filePath)
+					!(isFileUpload(prevFile) && prevFile.filePath === file)
 			)
 		);
 	};
@@ -252,11 +270,15 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 																rel="noopener noreferrer"
 																className="text-cyan-800 hover:underline"
 															>
-																{getFilenameFromUrl(fileUrl)}
+																{getFilenameFromUrl(
+																	fileUrl.filePath
+																)}
 															</a>
 															<IoCloseSharp
 																onClick={() =>
-																	handleFileDelete(fileUrl)
+																	handleFileDelete(
+																		fileUrl.filePath
+																	)
 																}
 																className="cursor-pointer"
 															/>
@@ -302,20 +324,30 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						onClick={(e) => {
 							e.stopPropagation();
 
-							console.log("File Upload Array: ", task.fileUpload); // Log the file upload array
+							console.log("File Upload Array: ", task.fileUpload);
 
-							const filePaths: string[] = task.fileUpload
+							const filePaths: FileUpload[] = task.fileUpload
 								.map((file) => {
 									if (typeof file === "string") {
 										const match = file.match(/\/o\/([^?]*)/);
-
-										return match ? decodeURIComponent(match[1]) : undefined;
+										if (match) {
+											const decodedPath = decodeURIComponent(match[1]);
+											// Return an object conforming to the FileUpload type
+											return {
+												folder: containerTitle,
+												filePath: decodedPath,
+											}; // You need to specify the folder name
+										}
 									} else if (file instanceof File) {
-										return file.name; // Extract name or any property from File
+										// Create a FileUpload object
+										return { folder: containerTitle, filePath: file.name }; // Adjust accordingly
 									}
-									return undefined; // In case of an unexpected type
+									return undefined; // Handle unexpected types
 								})
-								.filter((path): path is string => path !== undefined);
+								.filter((path): path is FileUpload => path !== undefined); // Ensure the filter keeps only FileUpload objects
+
+							// Log the valid file paths
+							console.log("Valid File Uploads: ", filePaths);
 
 							// Log the valid file paths
 							console.log("Valid File Paths: ", filePaths);
@@ -348,28 +380,27 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 								</DialogDescription>
 							</DialogHeader>
 							<div className="space-y-4">
-								{downloadedFiles.length > 0 ? (
-									downloadedFiles.map((url, index) => (
-										<div
-											key={index}
-											className="flex items-center justify-between"
-										>
-											{isFileUpload(url) ? (
-												<>
-													<p>{getFilenameFromUrl(url)}</p>
-
-													<p
-														className="text-foreground underline cursor-pointer"
-														onClick={() => handleDownload(url)}
+								{Object.keys(groupedDownloadFiles).length > 0 ? (
+									Object.keys(groupedDownloadFiles).map((folder) => (
+										<div key={folder} id={folder}>
+											<h4>{folder}</h4>
+											{groupedDownloadFiles[folder].map((filePath, index) => {
+												console.log("filePath: ", filePath);
+												return (
+													<div
+														key={index}
+														className="flex items-center justify-between"
 													>
-														Download
-													</p>
-												</>
-											) : (
-												<span className="text-gray-500">
-													Invalid file type
-												</span>
-											)}
+														<p>{getFilenameFromUrl(filePath)}</p>
+														<p
+															className="text-foreground underline cursor-pointer"
+															onClick={() => handleDownload(filePath)}
+														>
+															Download
+														</p>
+													</div>
+												);
+											})}
 										</div>
 									))
 								) : (
