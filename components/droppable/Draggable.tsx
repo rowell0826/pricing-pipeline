@@ -1,7 +1,7 @@
-import { Task } from "@/lib/types/cardProps";
+import { FileUpload, Task } from "@/lib/types/cardProps";
 import { clientFileUpload, db, deleteFileFromStorage } from "@/lib/utils/firebase/firebase";
 import { useDraggable } from "@dnd-kit/core";
-import { doc, Timestamp, updateDoc } from "firebase/firestore";
+import { doc, getDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, StorageReference } from "firebase/storage";
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle } from "../ui/card";
@@ -34,28 +34,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	});
 
 	const { task, onRemove, getInitials, containerTitle } = props;
-	const { id, title, createdAt, createdBy, dueDate, fileUpload } = task;
-
-	useEffect(() => {
-		if (fileUpload && fileUpload.length > 0) {
-			const fileUrls = fileUpload
-				.map((file) => {
-					// If it's already a URL (string), just return it
-					if (typeof file === "string") {
-						return file;
-					} else if (file instanceof File) {
-						// If it's a File object, create an object URL
-						return URL.createObjectURL(file);
-					} else {
-						console.warn("Unexpected value in fileUpload:", file);
-						return null;
-					}
-				})
-				.filter((url) => url !== null); // Filter out null values
-
-			setDownloadedFiles(fileUrls);
-		}
-	}, [fileUpload]);
+	const { id, title, createdAt, createdBy, dueDate } = task;
 
 	// Declare the style object and cast it as React.CSSProperties
 	const style: React.CSSProperties = {
@@ -87,10 +66,23 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [downloadedFiles, setDownloadedFiles] = useState<string[]>([]);
+	const [downloadedFiles, setDownloadedFiles] = useState<(string | File | FileUpload)[]>([]);
 
-	const getFilenameFromUrl = (url: string) => {
-		const urlParts = url.split("/");
+	useEffect(() => {
+		const fetchTaskData = async () => {
+			const taskRef = doc(db, containerTitle, id);
+			const taskSnapshot = await getDoc(taskRef);
+			const taskData = taskSnapshot.data();
+
+			if (taskData) {
+				setDownloadedFiles(taskData.fileUpload || []);
+			}
+		};
+		fetchTaskData();
+	}, [containerTitle, id]);
+
+	const getFilenameFromUrl = (url: FileUpload) => {
+		const urlParts = url.filePath?.split("/");
 		const filename =
 			urlParts[urlParts.length - 1].split("?")[0].split("/").pop() || "unknown_filename";
 		const decodedFilename = decodeURIComponent(filename).replace(`${containerTitle}/`, "");
@@ -98,9 +90,15 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		return decodedFilename;
 	};
 
-	const handleDownload = async (url: string) => {
+	const isFileUpload = (file: string | File | FileUpload): file is FileUpload => {
+		return (file as FileUpload).filePath !== undefined;
+	};
+
+	const handleDownload = async (url: FileUpload) => {
 		const storage = getStorage();
-		const fileRef = ref(storage, url);
+		const fileRef = ref(storage, url.filePath);
+
+		console.log("handleDownload URL: ", url);
 
 		try {
 			const downloadUrl = await getDownloadURL(fileRef);
@@ -124,11 +122,14 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			const fileSnapshot = await clientFileUpload(selectedFile as File);
 			const fileUrl = await getDownloadURL(fileSnapshot?.ref as StorageReference);
 
+			const taskDoc = await getDoc(taskRef);
+			const currentFileUpload = taskDoc.data()?.fileUpload || [];
+
 			// Update Firestore document
 			await updateDoc(taskRef, {
 				title: editedTitle,
 				dueDate: editedDueDate ? new Date(editedDueDate) : editedDueDate,
-				fileUpload: [{ folder: containerTitle, filePath: fileUrl }],
+				fileUpload: [...currentFileUpload, { folder: containerTitle, filePath: fileUrl }],
 			});
 
 			console.log("Task updated: ", fileUrl);
@@ -145,12 +146,18 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		}
 	};
 
-	const handleFileDelete = (fileUrl: string) => {
+	const handleFileDelete = (file: FileUpload) => {
 		// Add the file to the list of files marked for deletion
-		setFilesMarkedForDeletion((prev) => [...prev, fileUrl]);
+		setFilesMarkedForDeletion((prev) => [...prev, file.filePath]); // Store the filePath or any unique identifier
 
 		// Update the state to remove the deleted file from the UI
-		setDownloadedFiles((prevFiles) => prevFiles.filter((file) => file !== fileUrl));
+		setDownloadedFiles((prevFiles) =>
+			prevFiles.filter(
+				(prevFile) =>
+					// Check if the previous file matches the file to delete
+					!(isFileUpload(prevFile) && prevFile.filePath === file.filePath)
+			)
+		);
 	};
 
 	const handleCancelEdit = () => {
@@ -237,18 +244,28 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 													key={index}
 													className="flex justify-between items-center"
 												>
-													<a
-														href={fileUrl}
-														target="_blank"
-														rel="noopener noreferrer"
-														className="text-cyan-800 hover:underline"
-													>
-														{getFilenameFromUrl(fileUrl)}
-													</a>
-													<IoCloseSharp
-														onClick={() => handleFileDelete(fileUrl)}
-														className="cursor-pointer"
-													/>
+													{isFileUpload(fileUrl) ? (
+														<>
+															<a
+																href={fileUrl.filePath}
+																target="_blank"
+																rel="noopener noreferrer"
+																className="text-cyan-800 hover:underline"
+															>
+																{getFilenameFromUrl(fileUrl)}
+															</a>
+															<IoCloseSharp
+																onClick={() =>
+																	handleFileDelete(fileUrl)
+																}
+																className="cursor-pointer"
+															/>
+														</>
+													) : (
+														<span className="text-gray-500">
+															Invalid file type
+														</span>
+													)}
 												</li>
 											))}
 										</ul>
@@ -337,14 +354,22 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 											key={index}
 											className="flex items-center justify-between"
 										>
-											<p>{getFilenameFromUrl(url)}</p>
+											{isFileUpload(url) ? (
+												<>
+													<p>{getFilenameFromUrl(url)}</p>
 
-											<p
-												className="text-foreground underline cursor-pointer"
-												onClick={() => handleDownload(url)}
-											>
-												Download
-											</p>
+													<p
+														className="text-foreground underline cursor-pointer"
+														onClick={() => handleDownload(url)}
+													>
+														Download
+													</p>
+												</>
+											) : (
+												<span className="text-gray-500">
+													Invalid file type
+												</span>
+											)}
 										</div>
 									))
 								) : (
