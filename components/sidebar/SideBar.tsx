@@ -143,23 +143,16 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 
 		const snapshot = await clientFileUpload("raw", file);
 
-		if (snapshot) {
+		if ((snapshot && role === "client") || (snapshot && role === "admin")) {
 			const downloadUrl = await getDownloadURL(snapshot.ref);
 			console.log("File available at:", downloadUrl);
 
 			if (taskTitle && dueDateInput) {
-				const dueDate = new Date(dueDateInput);
-
-				if (isNaN(dueDate.getTime())) {
-					alert("Invalid due date. Please select a valid date.");
-					return;
-				}
-
 				await addDoc(collection(db, "raw"), {
 					title: taskTitle,
 					createdAt: new Date(),
 					createdBy: userName,
-					dueDate,
+					dueDate: new Date(dueDateInput),
 					fileUpload: [{ folder: "raw", filePath: downloadUrl }],
 				});
 
@@ -170,6 +163,8 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				setDueDateInput("");
 				setFile(null);
 			}
+		} else {
+			alert("You do not have permission to add a task.");
 		}
 	};
 

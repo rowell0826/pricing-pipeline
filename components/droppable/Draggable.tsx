@@ -170,7 +170,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 	const handleFileDelete = (file: string) => {
 		// Add the file to the list of files marked for deletion
-		setFilesMarkedForDeletion((prev) => [...prev, file]); // Store the filePath or any unique identifier
+		setFilesMarkedForDeletion((prev) => [...prev, file]);
 
 		console.log("handleFileDelete: ", file);
 
@@ -336,22 +336,19 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 										const match = file.match(/\/o\/([^?]*)/);
 										if (match) {
 											const decodedPath = decodeURIComponent(match[1]);
-											// Return an object conforming to the FileUpload type
+
 											return {
 												folder: containerTitle,
 												filePath: decodedPath,
-											}; // You need to specify the folder name
+											};
 										}
 									} else if (file instanceof File) {
 										// Create a FileUpload object
-										return { folder: containerTitle, filePath: file.name }; // Adjust accordingly
+										return { folder: containerTitle, filePath: file.name };
 									}
-									return undefined; // Handle unexpected types
+									return undefined;
 								})
-								.filter((path): path is FileUpload => path !== undefined); // Ensure the filter keeps only FileUpload objects
-
-							// Log the valid file paths
-							console.log("Valid File Paths: ", filePaths);
+								.filter((path): path is FileUpload => path !== undefined);
 
 							onRemove(task.id, containerTitle, filePaths);
 						}}

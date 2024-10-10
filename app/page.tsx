@@ -275,45 +275,45 @@ export default function Home() {
 		}
 	};
 
-	const addTaskToFiltering = async (task: Task, container: string) => {
-		try {
-			if (userRole === "admin" || userRole === "dataManager" || userRole === "dataQA") {
-				// Add the task to the filtering collection
-				const filteringCollectionRef = collection(db, container);
+	const transferTaskToNextContainer = async (
+		task: Task,
+		prevContainer: string,
+		currContainer: string
+	) => {
+		const nextCollectionRef = collection(db, currContainer);
 
-				await addDoc(filteringCollectionRef, task);
+		try {
+			const isTransferAllowed = (): boolean => {
+				const roleAndContainerMap: Record<AuthRole, string[]> = {
+					client: [],
+					admin: ["raw", "filtering", "pricing"],
+					dataManager: ["raw", "filtering"],
+					dataQA: ["raw", "filtering"],
+					dataScientist: ["pricing"],
+					promptEngineer: ["pricing"],
+				};
+
+				// Ensure userRole is valid and check allowed containers
+				if (!userRole || !(userRole in roleAndContainerMap)) {
+					throw new Error("Invalid or undefined user role");
+				}
+
+				// Return true if the role is allowed to transfer from the previous container
+				return roleAndContainerMap[userRole]?.includes(prevContainer) ?? false;
+			};
+
+			// Check if the transfer is allowed based on userRole and prevContainer
+			if (isTransferAllowed()) {
+				await addDoc(nextCollectionRef, task);
+			} else {
+				alert("You're restricted from moving this item to the next container.");
+				const currCollectionRef = collection(db, prevContainer);
+
+				// Add back to the previous container as a fallback
+				await addDoc(currCollectionRef, task);
 			}
 		} catch (error) {
-			console.error("Error adding task to filtering: ", error);
-		}
-	};
-
-	const addTaskToPricing = async (task: Task, container: string) => {
-		try {
-			if (userRole === "admin" || userRole === "dataManager" || userRole === "dataQA") {
-				// Add the task to the pricing collection
-				const filteringCollectionRef = collection(db, container);
-
-				await addDoc(filteringCollectionRef, task);
-			}
-		} catch (error) {
-			console.error("Error adding task to pricing: ", error);
-		}
-	};
-
-	const addTaskToDone = async (task: Task, container: string) => {
-		try {
-			if (
-				userRole === "admin" ||
-				userRole === "dataScientist" ||
-				userRole === "promptEngineer"
-			) {
-				// Add the task to the done collection
-				const filteringCollectionRef = collection(db, container);
-				await addDoc(filteringCollectionRef, task);
-			}
-		} catch (error) {
-			console.error("Error adding task to done: ", error);
+			console.log("Error transferring task to next container: ", error);
 		}
 	};
 
@@ -332,7 +332,7 @@ export default function Home() {
 				taskFileStorage.map(async (file: FileUpload) => {
 					// Create a reference to the file in Firebase Storage
 					const fileRef = ref(storage, decodeURIComponent(file.filePath));
-					await deleteObject(fileRef); // Delete the file
+					await deleteObject(fileRef); // Delete the file from firebase storage
 				})
 			);
 
@@ -443,7 +443,7 @@ export default function Home() {
 					// Move between different containers
 					switch (overContainer) {
 						case "filtering":
-							addTaskToFiltering(newItem, overContainer);
+							transferTaskToNextContainer(newItem, activeContainer, overContainer);
 							setFilteredTasks((prev) => {
 								console.log("Task transferred to filtering");
 
@@ -452,7 +452,7 @@ export default function Home() {
 
 							break;
 						case "pricing":
-							addTaskToPricing(newItem, overContainer);
+							transferTaskToNextContainer(newItem, activeContainer, overContainer);
 							setPricingTasks((prev) => {
 								console.log("Task transferred to pricing");
 
@@ -461,7 +461,7 @@ export default function Home() {
 
 							break;
 						case "done":
-							addTaskToDone(newItem, overContainer);
+							transferTaskToNextContainer(newItem, activeContainer, overContainer);
 							setDone((prev) => {
 								console.log("Task transferred to done");
 
@@ -585,23 +585,25 @@ export default function Home() {
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</div>
-									<SortableContext
-										items={items.map((item) => item.id)}
-										strategy={verticalListSortingStrategy}
-									>
-										<Droppable id={id}>
-											{items.map((task) => (
-												<DraggableCard
-													containerTitle={id}
-													id={task.id}
-													key={task.id}
-													task={task}
-													onRemove={removeTask}
-													getInitials={getInitials}
-												/>
-											))}
-										</Droppable>
-									</SortableContext>
+									<div className="custom-scrollbar overflow-y-scroll">
+										<SortableContext
+											items={items.map((item) => item.id)}
+											strategy={verticalListSortingStrategy}
+										>
+											<Droppable id={id}>
+												{items.map((task) => (
+													<DraggableCard
+														containerTitle={id}
+														id={task.id}
+														key={task.id}
+														task={task}
+														onRemove={removeTask}
+														getInitials={getInitials}
+													/>
+												))}
+											</Droppable>
+										</SortableContext>
+									</div>
 								</div>
 							))}
 						</div>
