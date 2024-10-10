@@ -128,7 +128,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			await updateDoc(taskRef, {
 				title: editedTitle,
 				dueDate: editedDueDate ? new Date(editedDueDate) : editedDueDate,
-				fileUpload: [fileUrl],
+				fileUpload: [{ folder: containerTitle, filePath: fileUrl }],
 			});
 
 			console.log("Task updated: ", fileUrl);
@@ -291,6 +291,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 								.map((file) => {
 									if (typeof file === "string") {
 										const match = file.match(/\/o\/([^?]*)/);
+
 										return match ? decodeURIComponent(match[1]) : undefined;
 									} else if (file instanceof File) {
 										return file.name; // Extract name or any property from File

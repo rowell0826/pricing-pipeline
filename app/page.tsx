@@ -324,7 +324,7 @@ export default function Home() {
 			await Promise.all(
 				filePaths.map(async (filePath) => {
 					// Create a reference to the file in Firebase Storage
-					const fileRef = ref(storage, decodeURIComponent(filePath)); // Ensure it's a valid path
+					const fileRef = ref(storage, decodeURIComponent(filePath));
 					await deleteObject(fileRef); // Delete the file
 				})
 			);

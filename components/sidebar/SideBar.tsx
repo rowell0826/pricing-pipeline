@@ -160,7 +160,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 					createdAt: new Date(),
 					createdBy: userName,
 					dueDate,
-					fileUpload: [downloadUrl],
+					fileUpload: [{ folder: "raw", filePath: downloadUrl }],
 				});
 
 				alert("Task added successfully!");
