@@ -190,7 +190,21 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 					<DropdownMenuContent className="w-80 ml-2">
 						<DropdownMenuLabel className="flex justify-between">
 							{userName}
-							<DropdownMenuShortcut>{role}</DropdownMenuShortcut>
+							<DropdownMenuShortcut>
+								{role === "admin"
+									? "Admin"
+									: role === "client"
+									? "Client"
+									: role === "dataManager"
+									? "Data Manager"
+									: role === "dataQA"
+									? "Data QA"
+									: role === "dataScientist"
+									? "Data Scientist"
+									: role === "promptEngineer"
+									? "Prompt Engineer"
+									: "No assigned role"}
+							</DropdownMenuShortcut>
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
@@ -227,7 +241,19 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				<div>
 					<h1 className={`${isOpen ? "" : "hidden"} text-background`}>Hi, {userName}</h1>
 					<p className={`${isOpen ? "" : "hidden"} text-center text-background`}>
-						{role}
+						{role === "admin"
+							? "Admin"
+							: role === "client"
+							? "Client"
+							: role === "dataManager"
+							? "Data Manager"
+							: role === "dataQA"
+							? "Data QA"
+							: role === "dataScientist"
+							? "Data Scientist"
+							: role === "promptEngineer"
+							? "Prompt Engineer"
+							: "No assigned role"}
 					</p>
 				</div>
 
