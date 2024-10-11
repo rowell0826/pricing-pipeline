@@ -100,8 +100,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			""
 		);
 
-		console.log("DecodedFileName: ", decodedFilename);
-
 		return decodedFilename;
 	};
 
@@ -126,8 +124,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const handleDownload = async (url: string) => {
 		const storage = getStorage();
 		const fileRef = ref(storage, url);
-
-		console.log("handleDownload URL: ", url);
 
 		try {
 			const downloadUrl = await getDownloadURL(fileRef);
@@ -178,8 +174,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const handleFileDelete = (file: string) => {
 		// Add the file to the list of files marked for deletion
 		setFilesMarkedForDeletion((prev) => [...prev, file]);
-
-		console.log("handleFileDelete: ", file);
 
 		// Update the state to remove the deleted file from the UI
 		setDownloadedFiles((prevFiles) =>
