@@ -100,24 +100,7 @@ export default function Home() {
 
 	const currentUser = auth.currentUser;
 
-	// Fetch user role
-	/* useEffect(() => {
-		if (currentUser) {
-			const fetchUserRole = async () => {
-				const userDocRef = doc(db, "users", currentUser.uid);
-				const userSnapshot = await getDoc(userDocRef);
-
-				if (userSnapshot.exists()) {
-					const userData = userSnapshot.data();
-					setUserRole(userData.role);
-				}
-			};
-
-			fetchUserRole();
-		}
-	}, [currentUser]); */
-
-	// Render results to "raw files" container
+	// Fetch user role and files
 	useEffect(() => {
 		if (currentUser) {
 			const fetchUserRole = async () => {

@@ -10,7 +10,7 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
 	useEffect(() => {
 		if (!loading && !user) {
-			router.push("/signin"); // Redirect to sign-in page if not authenticated
+			router.push("/signin");
 		}
 	}, [user, loading, router]);
 

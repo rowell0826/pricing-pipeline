@@ -102,14 +102,12 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				// Set display name from Firebase Auth
 				setUserName(displayName || "User");
 
-				// Fetch user role from Firestore
 				const userDetails = await getUserDetails(uid);
 
 				if (userDetails) {
 					setRole(userDetails.role || "No Role");
 				}
 			} else {
-				// User is not signed in, reset the state
 				setUserName(null);
 				setRole(null);
 			}
