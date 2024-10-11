@@ -27,7 +27,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 					if (userSnapshot.exists()) {
 						const userData = userSnapshot.data();
-						console.log("User data:", userData);
 
 						if (userData.role) {
 							setRole(userData.role);
