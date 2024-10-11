@@ -2,9 +2,23 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogHeader } from "@/components/ui/dialog";
+import {
+	Dialog,
+	DialogHeader,
+	DialogContent,
+	DialogOverlay,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Select, SelectItem, SelectLabel } from "@/components/ui/select";
+import {
+	Select,
+	SelectItem,
+	SelectLabel,
+	SelectContent,
+	SelectGroup,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import {
 	Table,
 	TableBody,
@@ -15,8 +29,6 @@ import {
 } from "@/components/ui/table";
 import { useAuth } from "@/lib/context/AuthContext";
 import { db } from "@/lib/utils/firebase/firebase";
-import { DialogContent, DialogOverlay, DialogTitle } from "@radix-ui/react-dialog";
-import { SelectContent, SelectGroup, SelectTrigger, SelectValue } from "@radix-ui/react-select";
 import { collection, getDocs, query, Timestamp } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 
@@ -105,12 +117,26 @@ const Admin: React.FC = () => {
 
 			{openDialogUser && (
 				<Dialog open={!!openDialogUser} onOpenChange={() => setOpenDialogUser(null)}>
-					<DialogOverlay />
+					<DialogOverlay className="bg-black/50" />
 					<DialogContent className="flex flex-col justify-start items-center">
 						<DialogHeader>
 							<DialogTitle>{openDialogUser.displayName}</DialogTitle>
 						</DialogHeader>
-						<Label>{openDialogUser.role}</Label>
+						<Label>
+							{openDialogUser.role === "admin"
+								? "Admin"
+								: openDialogUser.role === "client"
+								? "Client"
+								: openDialogUser.role === "dataManager"
+								? "Data Manager"
+								: openDialogUser.role === "dataQA"
+								? "Data QA"
+								: openDialogUser.role === "dataScientist"
+								? "Data Scientist"
+								: openDialogUser.role === "promptEngineer"
+								? "Prompt Engineer"
+								: null}
+						</Label>
 						<Select>
 							<SelectTrigger>
 								<SelectValue placeholder="Set user role" />
