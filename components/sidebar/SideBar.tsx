@@ -15,7 +15,7 @@ import { FcOpenedFolder } from "react-icons/fc";
 import { BsListTask } from "react-icons/bs";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { PiSignOutBold } from "react-icons/pi";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, updateDoc } from "firebase/firestore";
 import { SideBarProps } from "@/lib/types/sideBarProps";
 import { getDownloadURL, listAll, ref } from "firebase/storage";
 import Modal from "../modal/Modal";
@@ -146,13 +146,17 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 			console.log("File available at:", downloadUrl);
 
 			if (taskTitle && dueDateInput) {
-				await addDoc(collection(db, "raw"), {
+				const docRef = await addDoc(collection(db, "raw"), {
 					title: taskTitle,
 					createdAt: new Date(),
 					createdBy: userName,
 					dueDate: new Date(dueDateInput),
 					fileUpload: [{ folder: "raw", filePath: downloadUrl }],
 				});
+
+				const documentId = docRef.id;
+
+				await updateDoc(docRef, { id: documentId });
 
 				alert("Task added successfully!");
 				onAddTask(taskTitle);
