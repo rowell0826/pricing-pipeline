@@ -2,6 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogHeader } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectItem, SelectLabel } from "@/components/ui/select";
 import {
 	Table,
 	TableBody,
@@ -12,6 +15,8 @@ import {
 } from "@/components/ui/table";
 import { useAuth } from "@/lib/context/AuthContext";
 import { db } from "@/lib/utils/firebase/firebase";
+import { DialogContent, DialogOverlay, DialogTitle } from "@radix-ui/react-dialog";
+import { SelectContent, SelectGroup, SelectTrigger, SelectValue } from "@radix-ui/react-select";
 import { collection, getDocs, query, Timestamp } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 
@@ -24,6 +29,7 @@ interface FirestoreUser {
 
 const Admin: React.FC = () => {
 	const [userList, setUserList] = useState<FirestoreUser[]>([]);
+	const [openDialogUser, setOpenDialogUser] = useState<FirestoreUser | null>(null);
 	const { role, loading, isAuthenticated } = useAuth();
 
 	useEffect(() => {
@@ -65,7 +71,7 @@ const Admin: React.FC = () => {
 	}
 
 	return (
-		<div className="flex justify-center items-center">
+		<div className="flex flex-col justify-center items-center">
 			<Card className="w-[80%] h-[80%] overflow-y-scroll custom-scrollbar mt-[5%]">
 				<Table>
 					<TableHeader>
@@ -84,15 +90,46 @@ const Admin: React.FC = () => {
 								<TableCell>{user.emailAddress}</TableCell>
 								<TableCell>{user.role === "admin" ? "Admin" : null}</TableCell>
 								<TableCell>{user.createdAt}</TableCell>
-								<TableCell>
-									<Button>Edit</Button>
-									<Button>Delete</Button>
+								<TableCell className="flex justify-evenly gap-2">
+									<Button size={"sm"} onClick={() => setOpenDialogUser(user)}>
+										Edit
+									</Button>
+
+									<Button size={"sm"}>Delete</Button>
 								</TableCell>
 							</TableRow>
 						))}
 					</TableBody>
 				</Table>
 			</Card>
+
+			{openDialogUser && (
+				<Dialog open={!!openDialogUser} onOpenChange={() => setOpenDialogUser(null)}>
+					<DialogOverlay />
+					<DialogContent className="flex flex-col justify-start items-center">
+						<DialogHeader>
+							<DialogTitle>{openDialogUser.displayName}</DialogTitle>
+						</DialogHeader>
+						<Label>{openDialogUser.role}</Label>
+						<Select>
+							<SelectTrigger>
+								<SelectValue placeholder="Set user role" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectGroup>
+									<SelectLabel>User Roles</SelectLabel>
+									<SelectItem value="admin">Admin</SelectItem>
+									<SelectItem value="client">Client</SelectItem>
+									<SelectItem value="dataManager">Data Manager</SelectItem>
+									<SelectItem value="dataQA">Data QA</SelectItem>
+									<SelectItem value="dataScientist">Data Scientist</SelectItem>
+									<SelectItem value="promptEngineer">Prompt Engineer</SelectItem>
+								</SelectGroup>
+							</SelectContent>
+						</Select>
+					</DialogContent>
+				</Dialog>
+			)}
 		</div>
 	);
 };
