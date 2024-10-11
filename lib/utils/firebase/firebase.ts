@@ -71,9 +71,10 @@ export const createUserDocumentFromAuth = async (userId: string, userDetails: Us
 		if (!userSnapshot.exists()) {
 			const createdAt = new Date();
 			const role = "";
+			const id = userSnapshot.id;
 
 			// Set the user details in Firestore
-			await setDoc(userDocRef, { ...userDetails, role, createdAt }, { merge: true });
+			await setDoc(userDocRef, { ...userDetails, role, createdAt, id }, { merge: true });
 
 			console.log("User details stored successfully!");
 		}

@@ -29,10 +29,12 @@ import {
 } from "@/components/ui/table";
 import { useAuth } from "@/lib/context/AuthContext";
 import { db } from "@/lib/utils/firebase/firebase";
-import { collection, getDocs, query, Timestamp } from "firebase/firestore";
+import { collection, doc, getDocs, query, Timestamp, updateDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface FirestoreUser {
+	id: string;
 	displayName: string;
 	emailAddress: string;
 	role: string;
@@ -44,6 +46,8 @@ const Admin: React.FC = () => {
 	const [openDialogUser, setOpenDialogUser] = useState<FirestoreUser | null>(null);
 	const { role, loading, isAuthenticated } = useAuth();
 
+	const router = useRouter();
+
 	useEffect(() => {
 		const fetchUserLists = async () => {
 			try {
@@ -54,6 +58,7 @@ const Admin: React.FC = () => {
 				const users: FirestoreUser[] = userListSnapshot.docs.map((doc) => {
 					const data = doc.data();
 					return {
+						id: doc.id,
 						displayName: data.displayName,
 						emailAddress: data.emailAddress,
 						role: data.role,
@@ -70,17 +75,40 @@ const Admin: React.FC = () => {
 		fetchUserLists();
 	}, []);
 
+	const returnToLogin = () => {
+		return router.push("/signin");
+	};
+
 	if (loading) {
 		return <div>Loading...</div>;
 	}
 
 	if (!isAuthenticated) {
-		return <div>Unauthorized</div>;
+		return (
+			<div>
+				<h3>Unauthorized</h3>
+				<Button onClick={returnToLogin}>Back</Button>
+			</div>
+		);
 	}
 
 	if (role !== "admin") {
+		router.push("/");
+
 		return <div>Unauthorized: You do not have permission to access this page.</div>;
 	}
+
+	const updateUserRole = async (userId: string, newRole: string) => {
+		try {
+			const userRef = doc(db, "users", userId);
+			await updateDoc(userRef, {
+				role: newRole,
+			});
+			console.log("User role updated successfully", userId, newRole);
+		} catch (error) {
+			console.error("Error updating user role:", error);
+		}
+	};
 
 	return (
 		<div className="flex flex-col justify-center items-center">
@@ -100,7 +128,21 @@ const Admin: React.FC = () => {
 							<TableRow key={idx}>
 								<TableCell>{user.displayName}</TableCell>
 								<TableCell>{user.emailAddress}</TableCell>
-								<TableCell>{user.role === "admin" ? "Admin" : null}</TableCell>
+								<TableCell>
+									{user.role === "admin"
+										? "Admin"
+										: user.role === "client"
+										? "Client"
+										: user.role === "dataManager"
+										? "Data Manager"
+										: user.role === "dataQA"
+										? "Data QA"
+										: user.role === "dataScientist"
+										? "Data Scientist"
+										: user.role === "promptEngineer"
+										? "Prompt Engineer"
+										: null}
+								</TableCell>
 								<TableCell>{user.createdAt}</TableCell>
 								<TableCell className="flex justify-evenly gap-2">
 									<Button size={"sm"} onClick={() => setOpenDialogUser(user)}>
@@ -137,7 +179,14 @@ const Admin: React.FC = () => {
 								? "Prompt Engineer"
 								: null}
 						</Label>
-						<Select>
+						<Select
+							value={openDialogUser.role}
+							onValueChange={(value) => {
+								setOpenDialogUser((prev) =>
+									prev ? { ...prev, role: value } : null
+								);
+							}}
+						>
 							<SelectTrigger>
 								<SelectValue placeholder="Set user role" />
 							</SelectTrigger>
@@ -153,6 +202,19 @@ const Admin: React.FC = () => {
 								</SelectGroup>
 							</SelectContent>
 						</Select>
+						<div className="w-full flex justify-end items-center gap-4">
+							<Button
+								onClick={() => {
+									if (openDialogUser) {
+										updateUserRole(openDialogUser.id, openDialogUser.role);
+										setOpenDialogUser(null);
+									}
+								}}
+							>
+								Save
+							</Button>
+							<Button>Cancel</Button>
+						</div>
 					</DialogContent>
 				</Dialog>
 			)}
