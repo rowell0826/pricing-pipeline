@@ -17,6 +17,7 @@ export interface AuthContextProps {
 	user: User | null;
 	loading: boolean;
 	isAuthenticated: boolean;
+	role: string | null;
 }
 
 export interface UserRole {

@@ -61,6 +61,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const [editedTitle, setEditedTitle] = useState(title);
 	const [editedDueDate, setEditedDueDate] = useState(formatDate(dueDate));
 	const [filesMarkedForDeletion, setFilesMarkedForDeletion] = useState<string[]>([]);
+	const [formattedDate, setFormattedDate] = useState("");
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -78,8 +79,14 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				setDownloadedFiles(taskData.fileUpload || []);
 			}
 		};
+
+		if (dueDate) {
+			const formatted = formatDate(dueDate);
+			setFormattedDate(formatted);
+		}
+
 		fetchTaskData();
-	}, [containerTitle, id]);
+	}, [containerTitle, id, dueDate]);
 
 	const getFilenameFromUrl = (url: string) => {
 		if (typeof url !== "string") {
@@ -150,7 +157,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			// Update Firestore document
 			await updateDoc(taskRef, {
 				title: editedTitle,
-				dueDate: editedDueDate ? new Date(editedDueDate) : editedDueDate,
+				dueDate: editedDueDate ? new Date(editedDueDate) : dueDate,
 				fileUpload: [...currentFileUpload, { folder: containerTitle, filePath: fileUrl }],
 			});
 
@@ -215,7 +222,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				<div className="">
 					<Badge className="text-[8px]">Created: {formatDate(createdAt)}</Badge>
 
-					<Badge className="text-[8px]">Due: {formatDate(dueDate)}</Badge>
+					<Badge className="text-[8px]">Due: {formattedDate || "N/A"}</Badge>
 				</div>
 				<div className="w-full flex justify-evenly items-center gap-2 pt-2">
 					<Dialog>
