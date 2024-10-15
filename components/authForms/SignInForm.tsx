@@ -168,13 +168,13 @@ export default function SignInForm() {
 							</div>
 
 							<p className="text-[12px]">
-								<Link href="/signin/passwordReset" className="text-cyan-500">
+								<Link href="/signin/passwordReset" className="text-cyan-900">
 									Forgot Password?
 								</Link>
 							</p>
 
 							<p className="text-[12px]">
-								<Link href="/signup" className="text-cyan-500">
+								<Link href="/signup" className="text-cyan-900">
 									Register here
 								</Link>{" "}
 							</p>
