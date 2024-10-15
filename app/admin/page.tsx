@@ -30,8 +30,10 @@ import {
 import { useAuth } from "@/lib/context/AuthContext";
 import { db } from "@/lib/utils/firebase/firebase";
 import { collection, doc, getDocs, query, Timestamp, updateDoc } from "firebase/firestore";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { FaArrowLeft } from "react-icons/fa";
 
 interface FirestoreUser {
 	id: string;
@@ -44,7 +46,7 @@ interface FirestoreUser {
 const Admin: React.FC = () => {
 	const [userList, setUserList] = useState<FirestoreUser[]>([]);
 	const [openDialogUser, setOpenDialogUser] = useState<FirestoreUser | null>(null);
-	const { role, loading, isAuthenticated } = useAuth();
+	const { role, loading } = useAuth();
 
 	const router = useRouter();
 
@@ -75,21 +77,8 @@ const Admin: React.FC = () => {
 		fetchUserLists();
 	}, []);
 
-	const returnToLogin = () => {
-		return router.push("/signin");
-	};
-
 	if (loading) {
 		return <div>Loading...</div>;
-	}
-
-	if (!isAuthenticated) {
-		return (
-			<div>
-				<h3>Unauthorized</h3>
-				<Button onClick={returnToLogin}>Back</Button>
-			</div>
-		);
 	}
 
 	if (role !== "admin") {
@@ -112,6 +101,12 @@ const Admin: React.FC = () => {
 
 	return (
 		<div className="flex flex-col justify-center items-center">
+			<Button className="self-start top-5 left-5 absolute">
+				<Link href="/">
+					<FaArrowLeft />
+				</Link>
+			</Button>
+
 			<Card className="w-[80%] h-[80%] overflow-y-scroll custom-scrollbar mt-[5%]">
 				<Table>
 					<TableHeader>
