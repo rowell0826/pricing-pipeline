@@ -191,7 +191,13 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	};
 
 	return (
-		<Card key={id} ref={setNodeRef} style={style} {...attributes} className="h-[190px] w-full">
+		<Card
+			key={id}
+			ref={setNodeRef}
+			style={style}
+			{...attributes}
+			className="h-[115px] w-full rounded-md"
+		>
 			<CardHeader className="h-[30%] py-2" {...listeners}>
 				<CardTitle className="text-left text-xs">{title}</CardTitle>
 				<Avatar className="mr-2 w-6 h-6">
@@ -199,7 +205,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				</Avatar>
 			</CardHeader>
 
-			<div className="p-2">
+			<div className="p-2 mt-2 rounded-md">
 				<div>
 					<Badge className="text-[8px]">Created: {formatDate(createdAt)}</Badge>
 
