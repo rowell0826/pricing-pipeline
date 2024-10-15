@@ -15,7 +15,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "../ui/dialog";
-import { FaFile } from "react-icons/fa";
 import { IoCloseSharp } from "react-icons/io5";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -62,12 +61,10 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const [editedDueDate, setEditedDueDate] = useState(formatDate(dueDate));
 	const [filesMarkedForDeletion, setFilesMarkedForDeletion] = useState<string[]>([]);
 	const [formattedDate, setFormattedDate] = useState("");
+	const [downloadedFiles, setDownloadedFiles] = useState<(string | File | FileUpload)[]>([]);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [downloadedFiles, setDownloadedFiles] = useState<(string | File | FileUpload)[]>([]);
 
 	useEffect(() => {
 		const fetchTaskData = async () => {
@@ -204,16 +201,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 			<div className="p-2">
 				<div>
-					{downloadedFiles.length > 0 ? (
-						<p className="flex items-center text-[8px]">
-							<FaFile className="mr-2" />
-							Number of Files: {downloadedFiles.length}
-						</p>
-					) : (
-						<p className="text-[8px]">No files uploaded.</p>
-					)}
-				</div>
-				<div className="">
 					<Badge className="text-[8px]">Created: {formatDate(createdAt)}</Badge>
 
 					<Badge className="text-[8px]">Due: {formattedDate || "N/A"}</Badge>

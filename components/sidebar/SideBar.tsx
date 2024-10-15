@@ -6,6 +6,7 @@ import {
 	signOutUser,
 	storage,
 } from "@/lib/utils/firebase/firebase";
+import { FiUsers } from "react-icons/fi";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { Switch } from "../ui/switch";
 import { useEffect, useState } from "react";
@@ -34,6 +35,7 @@ import {
 import { Button } from "../ui/button";
 import { AuthRole } from "@/lib/types/authTypes";
 import { FileUpload } from "@/lib/types/cardProps";
+import Link from "next/link";
 
 const folderAccessByRole: Record<AuthRole, string[]> = {
 	admin: ["raw", "filtering", "pricing", "done"],
@@ -184,7 +186,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 			</div>
 
 			{/* Mobile devices */}
-			<div className="md:hidden w-[10%] flex justify-start items-start z-10 p-1">
+			<div className="lg:hidden w-[10%] flex justify-start items-start z-10 p-1">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button size={"sm"} className="bg-background text-sidebar">
@@ -212,6 +214,11 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
+							{role === "admin" ? (
+								<Link href="/admin">
+									<DropdownMenuItem>User List</DropdownMenuItem>
+								</Link>
+							) : null}
 							<DropdownMenuItem onClick={handleViewFiles}>
 								View Files
 							</DropdownMenuItem>
@@ -224,7 +231,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 
 			{/* Medium to larger devices */}
 			<nav
-				className={`hidden h-full md:flex flex-col justify-evenly items-center bg-sidebar ${
+				className={`hidden h-full lg:flex flex-col justify-evenly items-center bg-sidebar ${
 					isOpen ? "w-[20%]" : "w-[5%]"
 				} transition-all duration-300 ease-in-out overflow-hidden`}
 			>
@@ -262,6 +269,16 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				</div>
 
 				<ul className="flex flex-col gap-4">
+					{role === "admin" ? (
+						<Link href="/admin">
+							<li className="p-4 flex justify-center items-center gap-2 cursor-pointer text-background">
+								<span className="inline-block">
+									<FiUsers />
+								</span>
+								{isOpen && "User List"}
+							</li>
+						</Link>
+					) : null}
 					<li
 						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-background"
 						onClick={handleViewFiles}
