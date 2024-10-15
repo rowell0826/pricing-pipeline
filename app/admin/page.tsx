@@ -101,11 +101,11 @@ const Admin: React.FC = () => {
 
 	return (
 		<div className="flex flex-col justify-center items-center">
-			<Button className="self-start top-5 left-5 absolute">
-				<Link href="/">
+			<Link href="/">
+				<Button className="self-start top-5 left-5 absolute">
 					<FaArrowLeft />
-				</Link>
-			</Button>
+				</Button>
+			</Link>
 
 			<Card className="w-[80%] h-[80%] overflow-y-scroll custom-scrollbar mt-[5%]">
 				<Table>
