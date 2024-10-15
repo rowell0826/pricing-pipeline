@@ -52,7 +52,7 @@ const colors: string[] = [
 	"#95A5A6", // Dark Grey
 ];
 
-const randomColor = Math.floor(Math.random() * colors.length);
+const randomColor = Math.ceil(Math.random() * colors.length);
 
 const AvatarFallback = React.forwardRef<
 	React.ElementRef<typeof AvatarPrimitive.Fallback>,
