@@ -169,7 +169,7 @@ const Admin: React.FC = () => {
 										? "Data Scientist"
 										: user.role === "promptEngineer"
 										? "Prompt Engineer"
-										: null}
+										: "No role assigned"}
 								</TableCell>
 								<TableCell>{user.createdAt}</TableCell>
 								<TableCell className="flex justify-evenly gap-2">
