@@ -87,10 +87,11 @@ const Admin: React.FC = () => {
 		return <div>Unauthorized: You do not have permission to access this page.</div>;
 	}
 
-	const updateUserRole = async (userId: string, newRole: string) => {
+	const updateUserRole = async (userId: string, newRole: string, displayName: string) => {
 		try {
 			const userRef = doc(db, "users", userId);
 			await updateDoc(userRef, {
+				displayName: displayName,
 				role: newRole,
 			});
 			console.log("User role updated successfully", userId, newRole);
@@ -172,7 +173,7 @@ const Admin: React.FC = () => {
 								? "Data Scientist"
 								: openDialogUser.role === "promptEngineer"
 								? "Prompt Engineer"
-								: null}
+								: "No Role"}
 						</Label>
 						<Select
 							value={openDialogUser.role}
@@ -197,11 +198,25 @@ const Admin: React.FC = () => {
 								</SelectGroup>
 							</SelectContent>
 						</Select>
+						<Label>Display Name:</Label>
+						<input
+							placeholder="Display name"
+							value={openDialogUser.displayName}
+							onChange={(e) =>
+								setOpenDialogUser((prev) =>
+									prev ? { ...prev, displayName: e.target.value } : null
+								)
+							}
+						/>
 						<div className="w-full flex justify-end items-center gap-4">
 							<Button
 								onClick={() => {
 									if (openDialogUser) {
-										updateUserRole(openDialogUser.id, openDialogUser.role);
+										updateUserRole(
+											openDialogUser.id,
+											openDialogUser.role,
+											openDialogUser.displayName
+										);
 										setOpenDialogUser(null);
 									}
 								}}

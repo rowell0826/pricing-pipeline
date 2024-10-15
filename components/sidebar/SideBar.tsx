@@ -249,7 +249,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 					</div>
 				</div>
 
-				<div>
+				<div className="flex flex-col items-center">
 					<h1 className={`${isOpen ? "" : "hidden"} text-background`}>Hi, {userName}</h1>
 					<p className={`${isOpen ? "" : "hidden"} text-center text-background`}>
 						{role === "admin"
