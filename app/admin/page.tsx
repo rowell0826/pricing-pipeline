@@ -50,7 +50,7 @@ interface FirestoreUser {
 	displayName: string;
 	emailAddress: string;
 	role: string;
-	createdAt: string; // Adjust the type based on your Firestore date format
+	createdAt: string;
 }
 
 const Admin: React.FC = () => {
