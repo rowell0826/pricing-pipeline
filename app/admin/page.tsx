@@ -9,6 +9,7 @@ import {
 	DialogOverlay,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -19,6 +20,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
 	Table,
 	TableBody,
@@ -29,7 +31,15 @@ import {
 } from "@/components/ui/table";
 import { useAuth } from "@/lib/context/AuthContext";
 import { db } from "@/lib/utils/firebase/firebase";
-import { collection, doc, getDocs, query, Timestamp, updateDoc } from "firebase/firestore";
+import {
+	collection,
+	deleteDoc,
+	doc,
+	getDocs,
+	query,
+	Timestamp,
+	updateDoc,
+} from "firebase/firestore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -87,6 +97,21 @@ const Admin: React.FC = () => {
 		return <div>Unauthorized: You do not have permission to access this page.</div>;
 	}
 
+	const deleteUser = async (userId: string) => {
+		try {
+			const userRef = doc(db, "users", userId);
+
+			await deleteDoc(userRef);
+
+			// Update the UI by removing the deleted user from the userList state
+			setUserList((prevList) => prevList.filter((user) => user.id !== userId));
+
+			console.log("User deleted successfully", userId);
+		} catch (error) {
+			console.error("Error deleting user:", error);
+		}
+	};
+
 	const updateUserRole = async (userId: string, newRole: string, displayName: string) => {
 		try {
 			const userRef = doc(db, "users", userId);
@@ -100,13 +125,20 @@ const Admin: React.FC = () => {
 		}
 	};
 
+	const handleCancel = () => {
+		setOpenDialogUser(null);
+	};
+
 	return (
 		<div className="flex flex-col justify-center items-center">
-			<Link href="/">
-				<Button className="self-start top-5 left-5 absolute">
-					<FaArrowLeft />
-				</Button>
-			</Link>
+			<div className="self-start top-5 w-full absolute flex justify-between items-center">
+				<Link href="/">
+					<Button className="ml-5">
+						<FaArrowLeft />
+					</Button>
+				</Link>
+				<Switch className="mr-5" />
+			</div>
 
 			<Card className="w-[80%] h-[80%] overflow-y-scroll custom-scrollbar mt-[5%]">
 				<Table>
@@ -145,7 +177,9 @@ const Admin: React.FC = () => {
 										Edit
 									</Button>
 
-									<Button size={"sm"}>Delete</Button>
+									<Button size={"sm"} onClick={() => deleteUser(user.id)}>
+										Delete
+									</Button>
 								</TableCell>
 							</TableRow>
 						))}
@@ -175,6 +209,7 @@ const Admin: React.FC = () => {
 								? "Prompt Engineer"
 								: "No Role"}
 						</Label>
+						<Label className="self-start">Role:</Label>
 						<Select
 							value={openDialogUser.role}
 							onValueChange={(value) => {
@@ -198,8 +233,8 @@ const Admin: React.FC = () => {
 								</SelectGroup>
 							</SelectContent>
 						</Select>
-						<Label>Display Name:</Label>
-						<input
+						<Label className="self-start">Display Name:</Label>
+						<Input
 							placeholder="Display name"
 							value={openDialogUser.displayName}
 							onChange={(e) =>
@@ -223,7 +258,7 @@ const Admin: React.FC = () => {
 							>
 								Save
 							</Button>
-							<Button>Cancel</Button>
+							<Button onClick={handleCancel}>Cancel</Button>
 						</div>
 					</DialogContent>
 				</Dialog>
