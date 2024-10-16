@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/lib/context/authContext/AuthContext";
 import { ThemeProvider } from "@/lib/context/themeContext/ThemeContext";
+import { CardProvider } from "@/lib/context/cardContext/CardContext";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -28,11 +29,13 @@ export default function RootLayout({
 	return (
 		<html lang="en" className="scroll-smooth light">
 			<AuthProvider>
-				<ThemeProvider>
-					<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-						{children}
-					</body>
-				</ThemeProvider>
+				<CardProvider>
+					<ThemeProvider>
+						<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+							{children}
+						</body>
+					</ThemeProvider>
+				</CardProvider>
 			</AuthProvider>
 		</html>
 	);

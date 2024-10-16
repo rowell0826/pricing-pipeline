@@ -18,6 +18,7 @@ export interface CardContextProps {
 	openFileModal: boolean;
 	rawTasks: Task[];
 	fileList: FileUpload[];
+	setDueDateInput: (event: string) => void;
 	handleViewFiles: () => Promise<void>;
 	modalHandler: () => void;
 	handleAddTask: () => void;

@@ -1,3 +1,4 @@
+"use client";
 import { CardContextProps, FileUpload, Task } from "@/lib/types/cardProps";
 import { clientFileUpload, db, storage } from "@/lib/utils/firebase/firebase";
 import { addDoc, collection, updateDoc } from "firebase/firestore";
@@ -140,6 +141,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				openFileModal,
 				rawTasks,
 				fileList,
+                setDueDateInput,
 				handleViewFiles,
 				modalHandler,
 				handleAddTask,

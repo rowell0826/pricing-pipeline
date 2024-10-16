@@ -18,6 +18,7 @@ import {
 import { IoCloseSharp } from "react-icons/io5";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
+import { useCard } from "@/lib/context/cardContext/CardContext";
 
 interface DraggableProps {
 	id: string | number;
@@ -58,11 +59,13 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 	// State handlers
 	const [editedTitle, setEditedTitle] = useState(title);
-	const [editedDueDate, setEditedDueDate] = useState(formatDate(dueDate));
+	// const [editedDueDate, setEditedDueDate] = useState(formatDate(dueDate));
 	const [filesMarkedForDeletion, setFilesMarkedForDeletion] = useState<string[]>([]);
 	const [formattedDate, setFormattedDate] = useState("");
 	const [downloadedFiles, setDownloadedFiles] = useState<(string | File | FileUpload)[]>([]);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+	const { dueDateInput, setDueDateInput } = useCard();
 
 	useEffect(() => {
 		const fetchTaskData = async () => {
@@ -148,7 +151,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			// Update Firestore document
 			await updateDoc(taskRef, {
 				title: editedTitle,
-				dueDate: editedDueDate ? new Date(editedDueDate) : dueDate,
+				dueDate: dueDateInput ? new Date(dueDateInput) : dueDate,
 				fileUpload: [...currentFileUpload, { folder: containerTitle, filePath: fileUrl }],
 			});
 
@@ -248,8 +251,8 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 									<label className="block text-sm font-medium ">Due Date</label>
 									<input
 										type="date"
-										value={editedDueDate}
-										onChange={(e) => setEditedDueDate(e.target.value)}
+										value={dueDateInput.toString()}
+										onChange={(e) => setDueDateInput(e.target.value)}
 										className="mt-1 block w-full border border-gray-300 rounded-md p-2"
 									/>
 								</div>
