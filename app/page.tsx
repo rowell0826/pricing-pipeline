@@ -50,6 +50,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { deleteObject, ref } from "firebase/storage";
 import { AuthRole } from "@/lib/types/authTypes";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
+import { useCard } from "@/lib/context/cardContext/CardContext";
 interface SortList {
 	input: string;
 	filterBy: string;
@@ -81,11 +82,20 @@ const sortCategories: SortList[] = [
 ];
 
 export default function Home() {
-	const [rawTasks, setRawTasks] = useState<Task[]>([]); // Tasks in "Raw files"
-	const [filteredTasks, setFilteredTasks] = useState<Task[]>([]); //Task in "Filtered files"
-	const [pricingTasks, setPricingTasks] = useState<Task[]>([]); // Task in "Pricing files"
-	const [done, setDone] = useState<Task[]>([]); // Task in "Done folder"
 	const [userRole, setUserRole] = useState<AuthRole | null>(null);
+
+	const { user } = useAuth();
+
+	const {
+		rawTasks,
+		setRawTasks,
+		filteredTasks,
+		setFilteredTasks,
+		pricingTasks,
+		setPricingTasks,
+		done,
+		setDone,
+	} = useCard();
 
 	const cardContainer: ContainerList[] = [
 		{ id: "raw", items: rawTasks, setter: setRawTasks },
@@ -98,8 +108,6 @@ export default function Home() {
 		key: "createdAt", // Default sort by createdAt
 		order: "asc",
 	});
-
-	const {user, role } = useAuth();
 
 	// Fetch user role and files
 	useEffect(() => {
@@ -229,34 +237,21 @@ export default function Home() {
 		};
 
 		fetchTasks();
-	}, [sortConfig.key, sortConfig.order, user]);
+	}, [
+		setDone,
+		setFilteredTasks,
+		setPricingTasks,
+		setRawTasks,
+		sortConfig.key,
+		sortConfig.order,
+		user,
+	]);
 
 	// Get user's initials
 	const getInitials = (name: string) => {
 		const nameParts = name.split(" ");
 		const initials = nameParts.map((part) => part.charAt(0).toUpperCase()).join("");
 		return initials.length > 2 ? initials.slice(0, 2) : initials; // Limit to 2 characters
-	};
-
-	// Function to add a new task to the state
-	const addTaskToClientInput = (taskTitle: string) => {
-		const createdBy = user ? user.displayName || user.uid : "Anonymous";
-
-		if (role === "admin" || role === "client") {
-			const newTask: Task = {
-				id: Date.now().toString(),
-				title: taskTitle,
-				createdBy: createdBy,
-				createdAt: new Date(),
-				dueDate: null,
-				fileUpload: [],
-				status: "raw",
-			};
-
-			setRawTasks((prevTasks) => [...prevTasks, newTask]);
-		} else {
-			alert("You do not have permission to add a task.");
-		}
 	};
 
 	const transferTaskToNextContainer = async (
@@ -529,7 +524,7 @@ export default function Home() {
 	return (
 		<PrivateRoute>
 			<div className="flex w-full h-screen items-start">
-				<SideBar onAddTask={addTaskToClientInput} />
+				<SideBar />
 
 				<main className="w-full h-[92.5%] max-h-full flex justify-start mt-10">
 					<DndContext

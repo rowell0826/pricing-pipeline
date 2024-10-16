@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface Task {
 	id: string;
 	title: string;
@@ -18,16 +20,22 @@ export interface CardContextProps {
 	openFileModal: boolean;
 	openCreateTaskModal: boolean;
 	rawTasks: Task[];
+	filteredTasks: Task[];
+	pricingTasks: Task[];
+	done: Task[];
 	fileList: FileUpload[];
 	file: File | null;
 	taskTitle: string;
-	setTaskTitle: (taskTitle: string) => void;
-	setFile: (file: File | null) => void;
-	setDueDateInput: (event: string) => void;
+	setTaskTitle: Dispatch<SetStateAction<string>>;
+	setRawTasks: Dispatch<SetStateAction<Task[]>>;
+	setFilteredTasks: Dispatch<SetStateAction<Task[]>>;
+	setPricingTasks: Dispatch<SetStateAction<Task[]>>;
+	setDone: Dispatch<SetStateAction<Task[]>>;
+	setFile: Dispatch<SetStateAction<File | null>>;
+	setDueDateInput: Dispatch<SetStateAction<string | Date>>;
 	handleViewFiles: () => Promise<void>;
 	modalHandler: () => void;
 	handleAddTask: () => void;
-	setOpenCreateTaskModal: (taskModal: boolean) => void;
+	setOpenCreateTaskModal: Dispatch<SetStateAction<boolean>>;
 }
-
 export type TaskStatus = "raw" | "filtering" | "pricing" | "done";
