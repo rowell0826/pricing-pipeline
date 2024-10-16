@@ -6,21 +6,23 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
-import { ModalProps } from "@/lib/types/modalProps";
+import { useCard } from "@/lib/context/cardContext/CardContext";
 
-const Modal: React.FC<ModalProps> = ({
-	open,
-	onOpenChange,
-	taskTitle,
-	setTaskTitle,
-	dueDateInput,
-	setDueDateInput,
-	file,
-	setFile,
-	handleAddTask,
-}) => {
+const Modal: React.FC = () => {
+	const {
+		dueDateInput,
+		setDueDateInput,
+		handleAddTask,
+		file,
+		setFile,
+		setTaskTitle,
+		taskTitle,
+		openCreateTaskModal,
+		setOpenCreateTaskModal,
+	} = useCard();
+
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open={openCreateTaskModal} onOpenChange={setOpenCreateTaskModal}>
 			<DialogOverlay />
 			<DialogContent>
 				<DialogTitle className="text-foreground">Create a New Task</DialogTitle>
@@ -55,7 +57,7 @@ const Modal: React.FC<ModalProps> = ({
 				</DialogDescription>
 				<div className="flex justify-end gap-4">
 					<Button onClick={handleAddTask}>Add Task</Button>
-					<Button onClick={() => onOpenChange(false)}>Cancel</Button>
+					<Button onClick={() => setOpenCreateTaskModal(false)}>Cancel</Button>
 				</div>
 			</DialogContent>
 		</Dialog>

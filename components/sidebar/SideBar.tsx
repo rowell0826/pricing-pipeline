@@ -1,5 +1,5 @@
 "use client";
-import { clientFileUpload, db, signOutUser, storage } from "@/lib/utils/firebase/firebase";
+import { signOutUser, storage } from "@/lib/utils/firebase/firebase";
 import { FiUsers } from "react-icons/fi";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { Switch } from "../ui/switch";
@@ -8,8 +8,6 @@ import { FcOpenedFolder } from "react-icons/fc";
 import { BsListTask } from "react-icons/bs";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { PiSignOutBold } from "react-icons/pi";
-import { addDoc, collection, updateDoc } from "firebase/firestore";
-import { SideBarProps } from "@/lib/types/sideBarProps";
 import { getDownloadURL, listAll, ref } from "firebase/storage";
 import Modal from "../modal/Modal";
 import React from "react";
@@ -30,6 +28,7 @@ import { FileUpload } from "@/lib/types/cardProps";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { useTheme } from "@/lib/context/themeContext/ThemeContext";
+import { useCard } from "@/lib/context/cardContext/CardContext";
 
 const folderAccessByRole: Record<AuthRole, string[]> = {
 	admin: ["raw", "filtering", "pricing", "done"],
@@ -40,17 +39,15 @@ const folderAccessByRole: Record<AuthRole, string[]> = {
 	promptEngineer: ["pricing", "done"],
 };
 
-export default function SideBar({ onAddTask }: SideBarProps) {
+export default function SideBar() {
 	const [isOpen, setIsOpen] = useState<boolean>(true);
-	const [openCreateTaskModal, setOpenCreateTaskModal] = useState<boolean>(false);
-	const [file, setFile] = useState<File | null>(null);
-	const [dueDateInput, setDueDateInput] = useState<string | Date>("");
-	const [taskTitle, setTaskTitle] = useState<string>("");
+
 	const [openFileModal, setOpenFileModal] = useState<boolean>(false);
 	const [fileList, setFileList] = useState<FileUpload[]>([]);
 
 	const { userName, loading, role } = useAuth();
 	const { theme, toggleTheme } = useTheme();
+	const { modalHandler } = useCard();
 
 	// Function to fetch and list files
 	const fetchFiles = async (role: AuthRole) => {
@@ -96,48 +93,6 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 
 	const sideBarToggle = () => {
 		setIsOpen(!isOpen);
-	};
-
-	const modalHandler = () => {
-		setOpenCreateTaskModal(!openCreateTaskModal);
-	};
-
-	const handleAddTask = async () => {
-		if (!file) {
-			alert("Please upload a file before adding a task.");
-			return;
-		}
-
-		const snapshot = await clientFileUpload("raw", file);
-
-		setDueDateInput(dueDateInput);
-		console.log("Due Date Input: ", dueDateInput);
-
-		if ((snapshot && role === "client") || (snapshot && role === "admin")) {
-			const downloadUrl = await getDownloadURL(snapshot.ref);
-
-			if (taskTitle && dueDateInput) {
-				const docRef = await addDoc(collection(db, "raw"), {
-					title: taskTitle,
-					createdAt: new Date(),
-					createdBy: userName,
-					dueDate: new Date(dueDateInput),
-					fileUpload: [{ folder: "raw", filePath: downloadUrl }],
-				});
-
-				const documentId = docRef.id;
-
-				await updateDoc(docRef, { id: documentId });
-
-				alert("Task added successfully!");
-				onAddTask(taskTitle);
-				setOpenCreateTaskModal(!openCreateTaskModal);
-				setTaskTitle("");
-				setFile(null);
-			}
-		} else {
-			alert("You do not have permission to add a task.");
-		}
 	};
 
 	const handleViewFiles = async () => {
@@ -283,17 +238,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				fileList={fileList}
 			/>
 
-			<Modal
-				open={openCreateTaskModal}
-				onOpenChange={setOpenCreateTaskModal}
-				taskTitle={taskTitle}
-				setTaskTitle={setTaskTitle}
-				dueDateInput={dueDateInput}
-				setDueDateInput={setDueDateInput}
-				file={file}
-				setFile={setFile}
-				handleAddTask={handleAddTask}
-			/>
+			<Modal />
 		</>
 	);
 }

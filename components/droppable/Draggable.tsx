@@ -79,12 +79,13 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		};
 
 		if (dueDate) {
-			const formatted = formatDate(dueDate);
+			const formatted = formatDate(dueDate as Date);
+			setDueDateInput(dueDate.toString());
 			setFormattedDate(formatted);
 		}
 
 		fetchTaskData();
-	}, [containerTitle, id, dueDate]);
+	}, [containerTitle, id, dueDate, setDueDateInput]);
 
 	const getFilenameFromUrl = (url: string) => {
 		if (typeof url !== "string") {

@@ -26,6 +26,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	const [taskTitle, setTaskTitle] = useState<string>("");
 	const [rawTasks, setRawTasks] = useState<Task[]>([]);
 	const [fileList, setFileList] = useState<FileUpload[]>([]);
+    
 
 	const { userName, role, user } = useAuth();
 
@@ -139,12 +140,18 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			value={{
 				dueDateInput,
 				openFileModal,
+                openCreateTaskModal,
 				rawTasks,
 				fileList,
-                setDueDateInput,
+				file,
+				taskTitle,
+				setTaskTitle,
+				setFile,
+				setDueDateInput,
 				handleViewFiles,
 				modalHandler,
 				handleAddTask,
+                setOpenCreateTaskModal
 			}}
 		>
 			{children}
