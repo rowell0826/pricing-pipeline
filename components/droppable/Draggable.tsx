@@ -194,10 +194,10 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			ref={setNodeRef}
 			style={style}
 			{...attributes}
-			className="h-[115px] w-full rounded-md"
+			className="h-[115px] w-full rounded-md bg-white"
 		>
 			<CardHeader className="h-[30%] py-2" {...listeners}>
-				<CardTitle className="text-left text-xs">{title}</CardTitle>
+				<CardTitle className="text-left text-xs text-black">{title}</CardTitle>
 				<Avatar className="mr-2 w-6 h-6">
 					<AvatarFallback className="text-xs">{getInitials(createdBy)}</AvatarFallback>
 				</Avatar>
@@ -205,9 +205,13 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 			<div className="p-2 mt-2 rounded-md">
 				<div>
-					<Badge className="text-[8px]">Created: {formatDate(createdAt)}</Badge>
+					<Badge className="text-[8px] bg-black text-white">
+						Created: {formatDate(createdAt)}
+					</Badge>
 
-					<Badge className="text-[8px]">Due: {formattedDate || "N/A"}</Badge>
+					<Badge className="text-[8px] bg-black text-white">
+						Due: {formattedDate || "N/A"}
+					</Badge>
 				</div>
 				<div className="w-full flex justify-evenly items-center gap-2 pt-2">
 					<Dialog>
@@ -217,7 +221,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 								onClick={(e) => {
 									e.stopPropagation();
 								}}
-								className="text-[8px]"
+								className="text-[8px] bg-black text-white"
 							>
 								Edit
 							</Button>
@@ -345,7 +349,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 							onRemove(task.id, containerTitle, filePaths);
 						}}
 						size={"xs"}
-						className="text-[8px]"
+						className="text-[8px] bg-black text-white"
 					>
 						Remove
 					</Button>
@@ -355,7 +359,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 							<Button
 								size={"xs"}
 								onClick={(e) => e.stopPropagation()}
-								className="text-[8px]"
+								className="text-[8px] bg-black text-white"
 							>
 								View Files
 							</Button>
