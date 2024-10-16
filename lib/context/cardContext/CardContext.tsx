@@ -24,9 +24,11 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	const [openFileModal, setOpenFileModal] = useState<boolean>(false);
 	const [openCreateTaskModal, setOpenCreateTaskModal] = useState<boolean>(false);
 	const [taskTitle, setTaskTitle] = useState<string>("");
-	const [rawTasks, setRawTasks] = useState<Task[]>([]);
+	const [rawTasks, setRawTasks] = useState<Task[]>([]); //Task in "Raw folder"
+	const [filteredTasks, setFilteredTasks] = useState<Task[]>([]); //Task in "Filtered folder"
+	const [pricingTasks, setPricingTasks] = useState<Task[]>([]); // Task in "Pricing folder"
+	const [done, setDone] = useState<Task[]>([]); // Task in "Done folder"
 	const [fileList, setFileList] = useState<FileUpload[]>([]);
-    
 
 	const { userName, role, user } = useAuth();
 
@@ -140,18 +142,25 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			value={{
 				dueDateInput,
 				openFileModal,
-                openCreateTaskModal,
+				openCreateTaskModal,
 				rawTasks,
+				filteredTasks,
+				pricingTasks,
+				done,
 				fileList,
 				file,
 				taskTitle,
 				setTaskTitle,
+				setRawTasks,
+				setFilteredTasks,
+				setPricingTasks,
+				setDone,
 				setFile,
 				setDueDateInput,
 				handleViewFiles,
 				modalHandler,
 				handleAddTask,
-                setOpenCreateTaskModal
+				setOpenCreateTaskModal,
 			}}
 		>
 			{children}
