@@ -110,9 +110,11 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 
 		const snapshot = await clientFileUpload("raw", file);
 
+		setDueDateInput(dueDateInput);
+		console.log("Due Date Input: ", dueDateInput);
+
 		if ((snapshot && role === "client") || (snapshot && role === "admin")) {
 			const downloadUrl = await getDownloadURL(snapshot.ref);
-			console.log("File available at:", downloadUrl);
 
 			if (taskTitle && dueDateInput) {
 				const docRef = await addDoc(collection(db, "raw"), {
@@ -131,7 +133,6 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				onAddTask(taskTitle);
 				setOpenCreateTaskModal(!openCreateTaskModal);
 				setTaskTitle("");
-				setDueDateInput("");
 				setFile(null);
 			}
 		} else {
@@ -157,7 +158,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button size={"sm"} className="bg-background text-sidebar">
-							<RxHamburgerMenu className="m-auto" />
+							<RxHamburgerMenu className="m-auto text-foreground" />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent className="w-80 ml-2">

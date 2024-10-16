@@ -2,7 +2,7 @@
 import PrivateRoute from "@/components/privateRoute/PrivateRoute";
 import SideBar from "@/components/sidebar/SideBar";
 import { FileUpload, Task, TaskStatus } from "@/lib/types/cardProps";
-import { auth, db, storage } from "@/lib/utils/firebase/firebase";
+import { db, storage } from "@/lib/utils/firebase/firebase";
 import { BiSolidSortAlt } from "react-icons/bi";
 import {
 	addDoc,
@@ -49,6 +49,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { deleteObject, ref } from "firebase/storage";
 import { AuthRole } from "@/lib/types/authTypes";
+import { useAuth } from "@/lib/context/authContext/AuthContext";
 interface SortList {
 	input: string;
 	filterBy: string;
@@ -98,13 +99,13 @@ export default function Home() {
 		order: "asc",
 	});
 
-	const currentUser = auth.currentUser;
+	const {user, role } = useAuth();
 
 	// Fetch user role and files
 	useEffect(() => {
-		if (currentUser) {
+		if (user) {
 			const fetchUserRole = async () => {
-				const userDocRef = doc(db, "users", currentUser.uid);
+				const userDocRef = doc(db, "users", user.uid);
 				const userSnapshot = await getDoc(userDocRef);
 
 				if (userSnapshot.exists()) {
@@ -228,7 +229,7 @@ export default function Home() {
 		};
 
 		fetchTasks();
-	}, [sortConfig.key, sortConfig.order, currentUser]);
+	}, [sortConfig.key, sortConfig.order, user]);
 
 	// Get user's initials
 	const getInitials = (name: string) => {
@@ -239,9 +240,9 @@ export default function Home() {
 
 	// Function to add a new task to the state
 	const addTaskToClientInput = (taskTitle: string) => {
-		const createdBy = currentUser ? currentUser.displayName || currentUser.uid : "Anonymous";
+		const createdBy = user ? user.displayName || user.uid : "Anonymous";
 
-		if (userRole === "admin" || userRole === "client") {
+		if (role === "admin" || role === "client") {
 			const newTask: Task = {
 				id: Date.now().toString(),
 				title: taskTitle,
@@ -603,9 +604,9 @@ export default function Home() {
 										// Return the dragged item component, styled or structured appropriately for both vertical and horizontal containers
 										if (draggedItem) {
 											return (
-												<Card>
+												<Card className="bg-white">
 													<CardHeader className="h-[30%] py-2">
-														<CardTitle className="text-left text-xs">
+														<CardTitle className="text-left text-xs text-black">
 															{draggedItem.title}
 														</CardTitle>
 														<Avatar className="mr-2 w-6 h-6">

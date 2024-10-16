@@ -13,4 +13,14 @@ export interface FileUpload {
 	filePath: string;
 }
 
+export interface CardContextProps {
+	dueDateInput: string | Date;
+	openFileModal: boolean;
+	rawTasks: Task[];
+	fileList: FileUpload[];
+	handleViewFiles: () => Promise<void>;
+	modalHandler: () => void;
+	handleAddTask: () => void;
+}
+
 export type TaskStatus = "raw" | "filtering" | "pricing" | "done";
