@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth, db, getUserDetails } from "@/lib/utils/firebase/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { AuthContextProps } from "../types/authTypes";
+import { AuthContextProps } from "../../types/authTypes";
 import { doc, getDoc } from "firebase/firestore";
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -59,13 +59,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	}, []);
 
 	return (
-		<AuthContext.Provider value={{
-			user,
-			userName: user?.displayName || "User",
-			loading,
-			isAuthenticated,
-			role,
-		}}>
+		<AuthContext.Provider
+			value={{
+				user,
+				userName: user?.displayName || "User",
+				loading,
+				isAuthenticated,
+				role,
+			}}
+		>
 			{children}
 		</AuthContext.Provider>
 	);

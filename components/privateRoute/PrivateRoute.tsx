@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/context/AuthContext";
+import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { useEffect } from "react";
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {

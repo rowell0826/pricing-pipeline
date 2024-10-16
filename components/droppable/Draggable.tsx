@@ -224,9 +224,9 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						</DialogTrigger>
 
 						<DialogContent>
-							<DialogHeader className="text-foreground">
+							<DialogHeader className="text-sidebartx">
 								<DialogTitle className="p-2">Edit Task</DialogTitle>
-								<DialogDescription className="text-foreground p-2">
+								<DialogDescription className="text-sidebartx p-2">
 									Modify the task details below.
 								</DialogDescription>
 							</DialogHeader>

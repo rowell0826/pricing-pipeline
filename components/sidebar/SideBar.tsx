@@ -28,7 +28,8 @@ import { Button } from "../ui/button";
 import { AuthRole } from "@/lib/types/authTypes";
 import { FileUpload } from "@/lib/types/cardProps";
 import Link from "next/link";
-import { useAuth } from "@/lib/context/AuthContext";
+import { useAuth } from "@/lib/context/authContext/AuthContext";
+import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 
 const folderAccessByRole: Record<AuthRole, string[]> = {
 	admin: ["raw", "filtering", "pricing", "done"],
@@ -49,6 +50,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 	const [fileList, setFileList] = useState<FileUpload[]>([]);
 
 	const { userName, loading, role } = useAuth();
+	const { theme, toggleTheme } = useTheme();
 
 	// Function to fetch and list files
 	const fetchFiles = async (role: AuthRole) => {
@@ -147,7 +149,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 	return (
 		<>
 			<div className="w-full flex justify-end items-center absolute p-2">
-				<Switch />
+				<Switch onCheckedChange={toggleTheme} checked={theme} />
 			</div>
 
 			{/* Mobile devices */}
@@ -215,8 +217,8 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				</div>
 
 				<div className="flex flex-col items-center">
-					<h1 className={`${isOpen ? "" : "hidden"} text-background`}>Hi, {userName}</h1>
-					<p className={`${isOpen ? "" : "hidden"} text-center text-background`}>
+					<h1 className={`${isOpen ? "" : "hidden"} text-sidebartx`}>Hi, {userName}</h1>
+					<p className={`${isOpen ? "" : "hidden"} text-center text-sidebartx`}>
 						{role === "admin"
 							? "Admin"
 							: role === "client"
@@ -236,7 +238,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				<ul className="flex flex-col gap-4">
 					{role === "admin" ? (
 						<Link href="/admin">
-							<li className="p-4 flex justify-center items-center gap-2 cursor-pointer text-background">
+							<li className="p-4 flex justify-center items-center gap-2 cursor-pointer text-sidebartx">
 								<span className="inline-block">
 									<FiUsers />
 								</span>
@@ -245,7 +247,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 						</Link>
 					) : null}
 					<li
-						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-background"
+						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-sidebartx"
 						onClick={handleViewFiles}
 					>
 						<span className="inline-block">
@@ -254,7 +256,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 						{isOpen && "View Files"}
 					</li>
 					<li
-						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-background"
+						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-sidebartx"
 						onClick={modalHandler}
 					>
 						<span className="inline-block">
@@ -264,7 +266,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 					</li>
 				</ul>
 				<p
-					className="mb-10 flex justify-center items-center cursor-pointer text-background"
+					className="mb-10 flex justify-center items-center cursor-pointer text-sidebartx"
 					onClick={handleSignOut}
 				>
 					<span className="inline-block">

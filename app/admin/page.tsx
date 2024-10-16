@@ -29,7 +29,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/lib/context/AuthContext";
+import { useAuth } from "@/lib/context/authContext/AuthContext";
+import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 import { db } from "@/lib/utils/firebase/firebase";
 import {
 	collection,
@@ -59,6 +60,7 @@ const Admin: React.FC = () => {
 	const { role, loading } = useAuth();
 
 	const router = useRouter();
+	const { theme, toggleTheme } = useTheme();
 
 	useEffect(() => {
 		const fetchUserLists = async () => {
@@ -137,7 +139,7 @@ const Admin: React.FC = () => {
 						<FaArrowLeft />
 					</Button>
 				</Link>
-				<Switch className="mr-5" />
+				<Switch className="mr-5" onCheckedChange={toggleTheme} checked={theme} />
 			</div>
 
 			<Card className="w-[80%] h-[80%] overflow-y-scroll custom-scrollbar mt-[5%]">

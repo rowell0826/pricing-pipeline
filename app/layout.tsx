@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { AuthProvider } from "@/lib/context/AuthContext";
+import { AuthProvider } from "@/lib/context/authContext/AuthContext";
+import { ThemeProvider } from "@/lib/context/themeContext/ThemeContext";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -25,11 +26,13 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className="scroll-smooth">
+		<html lang="en" className="scroll-smooth dark">
 			<AuthProvider>
-				<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-					{children}
-				</body>
+				<ThemeProvider>
+					<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+						{children}
+					</body>
+				</ThemeProvider>
 			</AuthProvider>
 		</html>
 	);

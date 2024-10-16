@@ -13,7 +13,7 @@ const config: Config = {
 			colors: {
 				background: "hsl(var(--background))",
 				foreground: "hsl(var(--foreground))",
-				sidebar: "hsla(var(--sidebar-bg),100%)",
+				sidebar: "var(--sidebar-bg)",
 				sidebartx: "hsl(var(--sidebar-tx))",
 				card: {
 					DEFAULT: "hsl(var(--card))",
