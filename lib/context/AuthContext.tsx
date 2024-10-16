@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { auth, db } from "@/lib/utils/firebase/firebase";
+import { auth, db, getUserDetails } from "@/lib/utils/firebase/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { AuthContextProps } from "../types/authTypes";
 import { doc, getDoc } from "firebase/firestore";
@@ -19,33 +19,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			setLoading(false);
 
 			if (currentUser) {
-				const userID = currentUser.uid;
+				const { uid } = currentUser;
 
 				try {
-					const userRef = doc(db, "users", userID);
+					// Fetch user details from your function
+					const userDetails = await getUserDetails(uid);
+					let role = userDetails?.role || "No Role";
+
+					// Fetch user data from Firestore
+					const userRef = doc(db, "users", uid);
 					const userSnapshot = await getDoc(userRef);
 
 					if (userSnapshot.exists()) {
 						const userData = userSnapshot.data();
 
 						if (userData.role) {
-							setRole(userData.role);
+							role = userData.role; // Override role if found in Firestore
 						}
 						setIsAuthenticated(true);
 					} else {
 						console.log("No such document!");
 					}
+
+					// Set role only once after all checks
+					setRole(role);
 				} catch (error) {
+					setRole(null);
 					console.error("Error fetching user data:", error);
 				}
+			} else {
+				// User is signed out
+				setRole(null);
+				setIsAuthenticated(false);
 			}
 		});
 
-		return () => unsubscribe(); // Cleanup subscription on unmount
+		// Cleanup the listener on unmount
+		return () => unsubscribe();
 	}, []);
 
 	return (
-		<AuthContext.Provider value={{ user, loading, isAuthenticated, role }}>
+		<AuthContext.Provider value={{
+			user,
+			userName: user?.displayName || "User",
+			loading,
+			isAuthenticated,
+			role,
+		}}>
 			{children}
 		</AuthContext.Provider>
 	);

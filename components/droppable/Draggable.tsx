@@ -62,8 +62,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const [filesMarkedForDeletion, setFilesMarkedForDeletion] = useState<string[]>([]);
 	const [formattedDate, setFormattedDate] = useState("");
 	const [downloadedFiles, setDownloadedFiles] = useState<(string | File | FileUpload)[]>([]);
-
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
 	useEffect(() => {

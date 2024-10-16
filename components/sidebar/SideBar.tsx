@@ -1,17 +1,9 @@
 "use client";
-import {
-	clientFileUpload,
-	db,
-	getUserDetails,
-	signOutUser,
-	storage,
-} from "@/lib/utils/firebase/firebase";
+import { clientFileUpload, db, signOutUser, storage } from "@/lib/utils/firebase/firebase";
 import { FiUsers } from "react-icons/fi";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { Switch } from "../ui/switch";
-import { useEffect, useState } from "react";
-import { auth } from "@/lib/utils/firebase/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { useState } from "react";
 import { FcOpenedFolder } from "react-icons/fc";
 import { BsListTask } from "react-icons/bs";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
@@ -36,6 +28,7 @@ import { Button } from "../ui/button";
 import { AuthRole } from "@/lib/types/authTypes";
 import { FileUpload } from "@/lib/types/cardProps";
 import Link from "next/link";
+import { useAuth } from "@/lib/context/AuthContext";
 
 const folderAccessByRole: Record<AuthRole, string[]> = {
 	admin: ["raw", "filtering", "pricing", "done"],
@@ -47,9 +40,6 @@ const folderAccessByRole: Record<AuthRole, string[]> = {
 };
 
 export default function SideBar({ onAddTask }: SideBarProps) {
-	const [userName, setUserName] = useState<string | null>(null);
-	const [role, setRole] = useState<string | null>(null);
-	const [loading, setLoading] = useState(true);
 	const [isOpen, setIsOpen] = useState<boolean>(true);
 	const [openCreateTaskModal, setOpenCreateTaskModal] = useState<boolean>(false);
 	const [file, setFile] = useState<File | null>(null);
@@ -57,6 +47,8 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 	const [taskTitle, setTaskTitle] = useState<string>("");
 	const [openFileModal, setOpenFileModal] = useState<boolean>(false);
 	const [fileList, setFileList] = useState<FileUpload[]>([]);
+
+	const { userName, loading, role } = useAuth();
 
 	// Function to fetch and list files
 	const fetchFiles = async (role: AuthRole) => {
@@ -79,7 +71,7 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 				const filePaths = await Promise.all(
 					folderContents.items.map(async (fileRef) => {
 						const filePath = await getDownloadURL(fileRef);
-						return { filePath, folder: folder }; // Add folder type here
+						return { filePath, folder: folder };
 					})
 				);
 
@@ -93,33 +85,6 @@ export default function SideBar({ onAddTask }: SideBarProps) {
 			console.error("Error fetching files: ", error);
 		}
 	};
-
-	// Fetch user data and role
-	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(auth, async (user) => {
-			if (user) {
-				// User is signed in, retrieve display name and uid for reference
-				const { displayName, uid } = user;
-
-				// Set display name from Firebase Auth
-				setUserName(displayName || "User");
-
-				const userDetails = await getUserDetails(uid);
-
-				if (userDetails) {
-					setRole(userDetails.role || "No Role");
-				}
-			} else {
-				setUserName(null);
-				setRole(null);
-			}
-
-			setLoading(false);
-		});
-
-		// Cleanup the listener on unmount
-		return () => unsubscribe();
-	}, []);
 
 	if (loading) {
 		return <p>Loading...</p>;
