@@ -193,7 +193,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				dueDate: dueDateInput ? new Date(dueDateInput) : dueDate,
 			};
 
-			// Append new file if available
 			if (fileUrl) {
 				updatedFields.fileUpload = [
 					...currentFileUpload,
@@ -428,17 +427,19 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 									below.
 								</DialogDescription>
 							</DialogHeader>
-							<div className="space-y-4 overflow-y-scroll">
+							<div className="space-y-4 overflow-y-scroll max-h-60">
 								{Object.keys(groupedDownloadFiles).length > 0 ? (
 									Object.keys(groupedDownloadFiles).map((folder) => (
-										<div key={folder} id={folder}>
-											<h4>{folder}</h4>
+										<div key={folder}>
+											<h4 className="font-bold">{folder}</h4>
 											{groupedDownloadFiles[folder].map((filePath, index) => (
 												<div
 													key={index}
 													className="flex items-center justify-between"
 												>
-													<p>{getFilenameFromUrl(filePath)}</p>
+													<p className="truncate">
+														{getFilenameFromUrl(filePath)}
+													</p>
 													<p
 														className="text-foreground underline cursor-pointer"
 														onClick={() => handleDownload(filePath)}
