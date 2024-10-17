@@ -555,7 +555,7 @@ export default function Home() {
 													<BiSolidSortAlt />
 												</Button>
 											</DropdownMenuTrigger>
-											<DropdownMenuContent className="bg-background">
+											<DropdownMenuContent className="bg-black">
 												<DropdownMenuGroup>
 													{sortCategories.map(
 														({ input, filterBy }, idx) => (
