@@ -255,11 +255,11 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 			<div className="p-2 mt-2 rounded-md">
 				<div>
-					<Badge className="text-[8px] bg-black text-white">
+					<Badge className="text-[8px] bg-black text-white hover:bg-gray-800">
 						Created: {formatDate(createdAt)}
 					</Badge>
 
-					<Badge className="text-[8px] bg-black text-white">
+					<Badge className="text-[8px] bg-black text-white hover:bg-gray-800">
 						Due: {formattedDate || "N/A"}
 					</Badge>
 				</div>
@@ -271,7 +271,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 								onClick={(e) => {
 									e.stopPropagation();
 								}}
-								className="text-[8px] bg-black text-white"
+								className="text-[8px] bg-black text-white hover:bg-gray-800"
 							>
 								Edit
 							</Button>
@@ -403,7 +403,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 							onRemove(task.id, containerTitle, filePaths);
 						}}
 						size={"xs"}
-						className="text-[8px] bg-black text-white"
+						className="text-[8px] bg-black  text-white hover:bg-gray-800"
 					>
 						Remove
 					</Button>
@@ -413,7 +413,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 							<Button
 								size={"xs"}
 								onClick={(e) => e.stopPropagation()}
-								className="text-[8px] bg-black text-white"
+								className="text-[8px] bg-black text-white hover:bg-gray-800"
 							>
 								View Files
 							</Button>
