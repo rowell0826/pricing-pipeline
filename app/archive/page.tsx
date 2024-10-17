@@ -1,5 +1,5 @@
 "use client";
-import { Droppable } from "@/components/droppable/Droppable";
+// import { Droppable } from "@/components/droppable/Droppable";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCard } from "@/lib/context/cardContext/CardContext";
 import { SortList } from "@/lib/types/cardProps";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+// import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import React from "react";
 import { BiSolidSortAlt } from "react-icons/bi";
 
@@ -62,25 +62,7 @@ const Archive: React.FC = () => {
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>
-				<div className="custom-scrollbar overflow-y-scroll">
-					<SortableContext
-						items={items.map((item) => item.id)}
-						strategy={verticalListSortingStrategy}
-					>
-						<Droppable id={id}>
-							{items.map((task) => (
-								<DraggableCard
-									containerTitle={id}
-									id={task.id}
-									key={task.id}
-									task={task}
-									onRemove={removeTask}
-									getInitials={getInitials}
-								/>
-							))}
-						</Droppable>
-					</SortableContext>
-				</div>
+				<div className="custom-scrollbar overflow-y-scroll"></div>
 			</div>
 		</div>
 	);
