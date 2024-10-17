@@ -33,8 +33,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 		}
 	}, []);
 
-	console.log("Theme: ", theme);
-
 	return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>;
 };
 
