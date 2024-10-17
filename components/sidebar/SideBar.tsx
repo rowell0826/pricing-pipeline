@@ -105,7 +105,12 @@ export default function SideBar() {
 	return (
 		<>
 			<div className="w-full flex justify-end items-center absolute p-2">
-				<Switch onCheckedChange={toggleTheme} checked={theme} />
+				<Switch
+					onCheckedChange={() => {
+						toggleTheme();
+					}}
+					checked={theme}
+				/>
 			</div>
 
 			{/* Mobile devices */}
@@ -154,9 +159,9 @@ export default function SideBar() {
 
 			{/* Medium to larger devices */}
 			<nav
-				className={`hidden h-full lg:flex flex-col justify-evenly items-center bg-sidebar ${
+				className={`hidden h-full lg:flex flex-col justify-evenly items-center ${
 					isOpen ? "w-[20%]" : "w-[5%]"
-				} transition-all duration-300 ease-in-out overflow-hidden`}
+				} transition-all duration-300 ease-in-out overflow-hidden sidebar`}
 			>
 				<div
 					className={`relative w-full flex justify-end items-end ${
