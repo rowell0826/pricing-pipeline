@@ -24,6 +24,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { useCard } from "@/lib/context/cardContext/CardContext";
+import { useAuth } from "@/lib/context/authContext/AuthContext";
 
 interface DraggableProps {
 	id: string | number;
@@ -70,6 +71,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const [downloadedFiles, setDownloadedFiles] = useState<(string | File | FileUpload)[]>([]);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+	const { role } = useAuth();
 	const { dueDateInput, setDueDateInput } = useCard();
 
 	useEffect(() => {
@@ -238,7 +240,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		setFilesMarkedForDeletion([]);
 	};
 
-	return (
+	return role === null ? null : (
 		<Card
 			key={id}
 			ref={setNodeRef}
@@ -376,37 +378,39 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						</DialogContent>
 					</Dialog>
 
-					<Button
-						onClick={(e) => {
-							e.stopPropagation();
+					{role === "client" || role === "admin" ? (
+						<Button
+							onClick={(e) => {
+								e.stopPropagation();
 
-							const filePaths: FileUpload[] = task.fileUpload
-								.map((file) => {
-									if (typeof file === "string") {
-										const match = file.match(/\/o\/([^?]*)/);
-										if (match) {
-											const decodedPath = decodeURIComponent(match[1]);
+								const filePaths: FileUpload[] = task.fileUpload
+									.map((file) => {
+										if (typeof file === "string") {
+											const match = file.match(/\/o\/([^?]*)/);
+											if (match) {
+												const decodedPath = decodeURIComponent(match[1]);
 
-											return {
-												folder: containerTitle,
-												filePath: decodedPath,
-											};
+												return {
+													folder: containerTitle,
+													filePath: decodedPath,
+												};
+											}
+										} else if (file instanceof File) {
+											// Create a FileUpload object
+											return { folder: containerTitle, filePath: file.name };
 										}
-									} else if (file instanceof File) {
-										// Create a FileUpload object
-										return { folder: containerTitle, filePath: file.name };
-									}
-									return undefined;
-								})
-								.filter((path): path is FileUpload => path !== undefined);
+										return undefined;
+									})
+									.filter((path): path is FileUpload => path !== undefined);
 
-							onRemove(task.id, containerTitle, filePaths);
-						}}
-						size={"xs"}
-						className="text-[8px] bg-black  text-white hover:bg-gray-800"
-					>
-						Remove
-					</Button>
+								onRemove(task.id, containerTitle, filePaths);
+							}}
+							size={"xs"}
+							className="text-[8px] bg-black  text-white hover:bg-gray-800"
+						>
+							Remove
+						</Button>
+					) : null}
 
 					<Dialog>
 						<DialogTrigger asChild>
