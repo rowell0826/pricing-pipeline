@@ -240,7 +240,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		setFilesMarkedForDeletion([]);
 	};
 
-	return role === null ? (
+	return role === null ? null : (
 		<Card
 			key={id}
 			ref={setNodeRef}
@@ -466,5 +466,5 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				</div>
 			</div>
 		</Card>
-	) : null;
+	);
 };
