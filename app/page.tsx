@@ -539,7 +539,15 @@ export default function Home() {
 									key={id}
 									className="border-2 border-zinc-800 min-w-[200px] w-[250px] min-h-[300px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-sidebartx bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden p-4"
 								>
-									<h3 className="p-4 text-sidebartx">{id}</h3>
+									<h3 className="p-4 text-sidebartx">
+										{id === "raw"
+											? "Raw Files"
+											: id === "filtering"
+											? "Filtering"
+											: id === "pricing"
+											? "Pricing"
+											: "Done"}
+									</h3>
 									<div className="w-full flex justify-end items-center p-2">
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
