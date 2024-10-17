@@ -74,6 +74,8 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		setOpenFileModal(true);
 	};
 
+	
+
 	// Function to add a new task to the state
 	const addTaskToClientInput = (taskTitle: string) => {
 		const createdBy = user ? user.displayName || user.uid : "Anonymous";
