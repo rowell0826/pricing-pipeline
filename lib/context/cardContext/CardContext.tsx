@@ -150,13 +150,11 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 	const handleAddTask = async () => {
 		try {
-			// Ensure a file is uploaded before proceeding
 			if (!file) {
 				alert("Please upload a file before adding a task.");
 				return;
 			}
 
-			// Upload the file and get the file URL
 			const fileUrl = await clientFileUpload("raw", file);
 
 			// Check if the upload succeeded
@@ -184,13 +182,10 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 					const documentId = docRef.id;
 					await updateDoc(docRef, { id: documentId });
 
-					// Notify the user of success
 					alert("Task added successfully!");
 
-					// Add the task title to the client input (if relevant)
 					addTaskToClientInput(taskTitle);
 
-					// Close the task creation modal and reset state
 					setOpenCreateTaskModal(!openCreateTaskModal);
 					setTaskTitle("");
 					setFile(null);
