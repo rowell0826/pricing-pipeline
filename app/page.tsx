@@ -1,12 +1,11 @@
 "use client";
 import PrivateRoute from "@/components/privateRoute/PrivateRoute";
 import SideBar from "@/components/sidebar/SideBar";
-import { FileUpload, Task, TaskStatus } from "@/lib/types/cardProps";
+import { ContainerList, FileUpload, SortList, Task, TaskStatus } from "@/lib/types/cardProps";
 import { db, storage } from "@/lib/utils/firebase/firebase";
 import { BiSolidSortAlt } from "react-icons/bi";
 import {
 	addDoc,
-	// addDoc,
 	collection,
 	deleteDoc,
 	doc,
@@ -51,16 +50,6 @@ import { deleteObject, ref } from "firebase/storage";
 import { AuthRole } from "@/lib/types/authTypes";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { useCard } from "@/lib/context/cardContext/CardContext";
-interface SortList {
-	input: string;
-	filterBy: string;
-}
-
-export interface ContainerList {
-	id: string;
-	items: Task[]; // Store the tasks in this container
-	setter: React.Dispatch<React.SetStateAction<Task[]>>;
-}
 
 const sortCategories: SortList[] = [
 	{
@@ -350,6 +339,10 @@ export default function Home() {
 			console.error("Error removing task: ", error);
 		}
 	};
+
+	/* const moveToArchive = () => {
+
+	} */
 
 	// Dnd context
 	const sensors = useSensors(

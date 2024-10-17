@@ -2,7 +2,12 @@ import { FileUpload, Task } from "@/lib/types/cardProps";
 import { clientFileUpload, db, deleteFileFromStorage } from "@/lib/utils/firebase/firebase";
 import { useDraggable } from "@dnd-kit/core";
 import { doc, getDoc, Timestamp, updateDoc } from "firebase/firestore";
-import { getDownloadURL, getStorage, ref, StorageReference } from "firebase/storage";
+import {
+	getDownloadURL,
+	getStorage,
+	ref,
+	//StorageReference
+} from "firebase/storage";
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
@@ -75,14 +80,14 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 			if (taskData) {
 				setDownloadedFiles(taskData.fileUpload || []);
+
+				if (dueDate) {
+					const formatted = formatDate(dueDate as Date);
+					setDueDateInput(taskData.dueDate.toDate().toISOString().substring(0, 10));
+					setFormattedDate(formatted);
+				}
 			}
 		};
-
-		if (dueDate) {
-			const formatted = formatDate(dueDate as Date);
-			setDueDateInput(dueDate.toString());
-			setFormattedDate(formatted);
-		}
 
 		fetchTaskData();
 	}, [containerTitle, id, dueDate, setDueDateInput]);
@@ -134,7 +139,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		}
 	};
 
-	const handleEditSubmit = async () => {
+	/* const handleEditSubmit = async () => {
 		try {
 			// Delete the files from Firebase that are marked for deletion
 			for (const files of filesMarkedForDeletion) {
@@ -155,6 +160,48 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				dueDate: dueDateInput ? new Date(dueDateInput) : dueDate,
 				fileUpload: [...currentFileUpload, { folder: containerTitle, filePath: fileUrl }],
 			});
+
+			console.log("Task updated: ", fileUrl);
+		} catch (error) {
+			console.error("Error updating task:", error);
+			console.log("Downloaded files: ", downloadedFiles);
+			alert("There was an error updating the task.");
+		}
+	}; */
+
+	const handleEditSubmit = async () => {
+		try {
+			// Delete the files from Firebase that are marked for deletion
+			for (const file of filesMarkedForDeletion) {
+				await deleteFileFromStorage(file);
+			}
+
+			const taskRef = doc(db, containerTitle, id);
+
+			// Check if a file has been selected for upload
+			let fileUrl = null;
+			if (selectedFile) {
+				fileUrl = await clientFileUpload(containerTitle, selectedFile as File);
+			}
+
+			const taskDoc = await getDoc(taskRef);
+			const currentFileUpload = taskDoc.data()?.fileUpload || [];
+
+			// Update Firestore document, include the new file URL only if a file was uploaded
+			const updatedFields: Partial<Task> = {
+				title: editedTitle,
+				dueDate: dueDateInput ? new Date(dueDateInput) : dueDate,
+			};
+
+			// Append new file if available
+			if (fileUrl) {
+				updatedFields.fileUpload = [
+					...currentFileUpload,
+					{ folder: containerTitle, filePath: fileUrl },
+				];
+			}
+
+			await updateDoc(taskRef, updatedFields);
 
 			console.log("Task updated: ", fileUrl);
 		} catch (error) {
@@ -245,16 +292,20 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 										type="text"
 										value={editedTitle}
 										onChange={(e) => setEditedTitle(e.target.value)}
-										className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+										className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
 									/>
 								</div>
 								<div>
 									<label className="block text-sm font-medium ">Due Date</label>
 									<input
 										type="date"
-										value={dueDateInput.toString()}
+										value={
+											dueDateInput instanceof Date
+												? dueDateInput.toISOString().substring(0, 10)
+												: dueDateInput || ""
+										}
 										onChange={(e) => setDueDateInput(e.target.value)}
-										className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+										className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
 									/>
 								</div>
 								<div>

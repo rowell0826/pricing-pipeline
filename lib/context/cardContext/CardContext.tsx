@@ -110,7 +110,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		setOpenCreateTaskModal(!openCreateTaskModal);
 	};
 
-	const handleAddTask = async () => {
+	/* const handleAddTask = async () => {
 		if (!file) {
 			alert("Please upload a file before adding a task.");
 			return;
@@ -145,6 +145,64 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			}
 		} else {
 			alert("You do not have permission to add a task.");
+		}
+	}; */
+
+	const handleAddTask = async () => {
+		try {
+			// Ensure a file is uploaded before proceeding
+			if (!file) {
+				alert("Please upload a file before adding a task.");
+				return;
+			}
+
+			// Upload the file and get the file URL
+			const fileUrl = await clientFileUpload("raw", file);
+
+			// Check if the upload succeeded
+			if (!fileUrl) {
+				alert("Error uploading file. Please try again.");
+				return;
+			}
+
+			// Ensure the user role is either 'client' or 'admin'
+			if ((fileUrl && role === "client") || (fileUrl && role === "admin")) {
+				setDueDateInput(dueDateInput);
+				console.log("Due Date Input: ", dueDateInput);
+
+				// Ensure task title and due date are provided
+				if (taskTitle && dueDateInput) {
+					const docRef = await addDoc(collection(db, "raw"), {
+						title: taskTitle,
+						createdAt: new Date(),
+						createdBy: userName,
+						dueDate: new Date(dueDateInput),
+						fileUpload: [{ folder: "raw", filePath: fileUrl }], // Use the file URL from the upload
+					});
+
+					// Update the document with its ID
+					const documentId = docRef.id;
+					await updateDoc(docRef, { id: documentId });
+
+					// Notify the user of success
+					alert("Task added successfully!");
+
+					// Add the task title to the client input (if relevant)
+					addTaskToClientInput(taskTitle);
+
+					// Close the task creation modal and reset state
+					setOpenCreateTaskModal(!openCreateTaskModal);
+					setTaskTitle("");
+					setFile(null);
+				} else {
+					alert("Please provide a task title and due date.");
+				}
+			} else {
+				alert("You do not have permission to add a task.");
+			}
+		} catch (error) {
+			console.error("Error adding task:", error);
+			alert("There was an error adding the task. Please try again.");
 		}
 	};
 

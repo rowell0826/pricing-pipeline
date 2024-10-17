@@ -10,9 +10,20 @@ export interface Task {
 	status: TaskStatus;
 }
 
+export interface ContainerList {
+	id: string;
+	items: Task[];
+	setter: React.Dispatch<React.SetStateAction<Task[]>>;
+}
+
 export interface FileUpload {
 	folder: string;
 	filePath: string;
+}
+
+export interface SortList {
+	input: string;
+	filterBy: string;
 }
 
 export interface CardContextProps {

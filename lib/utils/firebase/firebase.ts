@@ -11,11 +11,12 @@ import {
 import { doc, Firestore, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import {
 	deleteObject,
+	getDownloadURL,
 	getStorage,
 	listAll,
 	ref,
 	uploadBytesResumable,
-	UploadTaskSnapshot,
+	// UploadTaskSnapshot,
 } from "firebase/storage";
 
 // Firebase configuration
@@ -129,7 +130,7 @@ export const signOutUser = async (): Promise<void> => await signOut(auth);
 // ---------------------------------- Firestore Storage ---------------------------------
 
 // Client file uploads
-export const clientFileUpload = async (
+/* export const clientFileUpload = async (
 	container: string,
 	file: File
 ): Promise<UploadTaskSnapshot | null> => {
@@ -168,6 +169,54 @@ export const clientFileUpload = async (
 		console.log("File uploaded successfully.");
 
 		return snapshot;
+	} catch (error) {
+		console.error("Error uploading file:", error);
+
+		return null;
+	}
+}; */
+
+export const clientFileUpload = async (
+	container: string,
+	file: File
+): Promise<string | null> => {
+	if (!file) {
+		console.error("No file provided for upload.");
+		return null;
+	}
+
+	try {
+		// Create a reference for the file in Firebase Storage
+		const clientRawFileRef = ref(storage, `${container}/${file.name}`);
+
+		// Create an upload task
+		const uploadTask = uploadBytesResumable(clientRawFileRef, file);
+
+		// Return the upload snapshot once the upload completes
+		await new Promise<void>((resolve, reject) => {
+			uploadTask.on(
+				"state_changed",
+				(snapshot) => {
+					// Monitor upload progress
+					const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+					console.log(`Upload is ${progress}% done`);
+				},
+				(error) => {
+					console.error("Error uploading file:", error);
+					reject(error);
+				},
+				() => {
+					// Resolve when upload completes
+					resolve();
+				}
+			);
+		});
+
+		// Get the download URL for the uploaded file
+		const downloadURL = await getDownloadURL(clientRawFileRef);
+		console.log("File uploaded successfully. Download URL:", downloadURL);
+
+		return downloadURL;
 	} catch (error) {
 		console.error("Error uploading file:", error);
 
