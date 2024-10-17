@@ -29,6 +29,10 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	const [pricingTasks, setPricingTasks] = useState<Task[]>([]); // Task in "Pricing folder"
 	const [done, setDone] = useState<Task[]>([]); // Task in "Done folder"
 	const [fileList, setFileList] = useState<FileUpload[]>([]);
+	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
+		key: "createdAt", // Default sort by createdAt
+		order: "asc",
+	});
 
 	const { userName, role, user } = useAuth();
 
@@ -74,7 +78,12 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		setOpenFileModal(true);
 	};
 
-	
+	const sortFilter = (key: string) => {
+		setSortConfig((prevConfig) => {
+			const newOrder = prevConfig.key === key && prevConfig.order === "asc" ? "desc" : "asc";
+			return { key, order: newOrder };
+		});
+	};
 
 	// Function to add a new task to the state
 	const addTaskToClientInput = (taskTitle: string) => {
@@ -145,6 +154,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				dueDateInput,
 				openFileModal,
 				openCreateTaskModal,
+				sortConfig,
 				rawTasks,
 				filteredTasks,
 				pricingTasks,
@@ -152,6 +162,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				fileList,
 				file,
 				taskTitle,
+				setSortConfig,
 				setTaskTitle,
 				setRawTasks,
 				setFilteredTasks,
@@ -163,6 +174,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				modalHandler,
 				handleAddTask,
 				setOpenCreateTaskModal,
+				sortFilter,
 			}}
 		>
 			{children}

@@ -19,6 +19,7 @@ export interface CardContextProps {
 	dueDateInput: string | Date;
 	openFileModal: boolean;
 	openCreateTaskModal: boolean;
+	sortConfig: { key: string; order: "asc" | "desc" };
 	rawTasks: Task[];
 	filteredTasks: Task[];
 	pricingTasks: Task[];
@@ -26,6 +27,7 @@ export interface CardContextProps {
 	fileList: FileUpload[];
 	file: File | null;
 	taskTitle: string;
+	setSortConfig: Dispatch<SetStateAction<{ key: string; order: "asc" | "desc" }>>;
 	setTaskTitle: Dispatch<SetStateAction<string>>;
 	setRawTasks: Dispatch<SetStateAction<Task[]>>;
 	setFilteredTasks: Dispatch<SetStateAction<Task[]>>;
@@ -37,5 +39,7 @@ export interface CardContextProps {
 	modalHandler: () => void;
 	handleAddTask: () => void;
 	setOpenCreateTaskModal: Dispatch<SetStateAction<boolean>>;
+	sortFilter: (key: string) => void;
 }
+
 export type TaskStatus = "raw" | "filtering" | "pricing" | "done";

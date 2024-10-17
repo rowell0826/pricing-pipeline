@@ -85,6 +85,7 @@ export default function Home() {
 	const [userRole, setUserRole] = useState<AuthRole | null>(null);
 
 	const { user } = useAuth();
+	const { sortConfig, sortFilter } = useCard();
 
 	const {
 		rawTasks,
@@ -103,11 +104,6 @@ export default function Home() {
 		{ id: "pricing", items: pricingTasks, setter: setPricingTasks },
 		{ id: "done", items: done, setter: setDone },
 	];
-
-	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
-		key: "createdAt", // Default sort by createdAt
-		order: "asc",
-	});
 
 	// Fetch user role and files
 	useEffect(() => {
@@ -353,13 +349,6 @@ export default function Home() {
 		} catch (error) {
 			console.error("Error removing task: ", error);
 		}
-	};
-
-	const sortFilter = (key: string) => {
-		setSortConfig((prevConfig) => {
-			const newOrder = prevConfig.key === key && prevConfig.order === "asc" ? "desc" : "asc";
-			return { key, order: newOrder };
-		});
 	};
 
 	// Dnd context
