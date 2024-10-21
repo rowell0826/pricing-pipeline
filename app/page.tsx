@@ -252,7 +252,7 @@ export default function Home() {
 					client: [],
 					admin: ["raw", "filtering", "pricing"],
 					dataManager: ["raw", "filtering"],
-					dataQA: ["raw", "filtering"],
+					dataQA: [],
 					dataScientist: ["pricing"],
 					promptEngineer: ["pricing"],
 				};
@@ -508,7 +508,7 @@ export default function Home() {
 			<div className="flex w-full h-screen items-start bg-background">
 				<SideBar />
 
-				<main className="w-full h-[92.5%] max-h-full flex justify-start mt-10">
+				<main className="w-[90%] h-[92.5%] max-h-full flex justify-start mt-10">
 					<DndContext
 						sensors={sensors}
 						collisionDetection={closestCenter}

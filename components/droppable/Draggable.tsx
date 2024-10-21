@@ -141,36 +141,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		}
 	};
 
-	/* const handleEditSubmit = async () => {
-		try {
-			// Delete the files from Firebase that are marked for deletion
-			for (const files of filesMarkedForDeletion) {
-				await deleteFileFromStorage(files);
-			}
-
-			const taskRef = doc(db, containerTitle, id);
-
-			const fileSnapshot = await clientFileUpload(containerTitle, selectedFile as File);
-			const fileUrl = await getDownloadURL(fileSnapshot?.ref as StorageReference);
-
-			const taskDoc = await getDoc(taskRef);
-			const currentFileUpload = taskDoc.data()?.fileUpload || [];
-
-			// Update Firestore document
-			await updateDoc(taskRef, {
-				title: editedTitle,
-				dueDate: dueDateInput ? new Date(dueDateInput) : dueDate,
-				fileUpload: [...currentFileUpload, { folder: containerTitle, filePath: fileUrl }],
-			});
-
-			console.log("Task updated: ", fileUrl);
-		} catch (error) {
-			console.error("Error updating task:", error);
-			console.log("Downloaded files: ", downloadedFiles);
-			alert("There was an error updating the task.");
-		}
-	}; */
-
 	const handleEditSubmit = async () => {
 		try {
 			// Delete the files from Firebase that are marked for deletion

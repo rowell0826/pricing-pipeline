@@ -110,44 +110,6 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		setOpenCreateTaskModal(!openCreateTaskModal);
 	};
 
-	/* const handleAddTask = async () => {
-		if (!file) {
-			alert("Please upload a file before adding a task.");
-			return;
-		}
-
-		const snapshot = await clientFileUpload("raw", file);
-
-		setDueDateInput(dueDateInput);
-		console.log("Due Date Input: ", dueDateInput);
-
-		if ((snapshot && role === "client") || (snapshot && role === "admin")) {
-			const downloadUrl = await getDownloadURL(snapshot.ref);
-
-			if (taskTitle && dueDateInput) {
-				const docRef = await addDoc(collection(db, "raw"), {
-					title: taskTitle,
-					createdAt: new Date(),
-					createdBy: userName,
-					dueDate: new Date(dueDateInput),
-					fileUpload: [{ folder: "raw", filePath: downloadUrl }],
-				});
-
-				const documentId = docRef.id;
-
-				await updateDoc(docRef, { id: documentId });
-
-				alert("Task added successfully!");
-				addTaskToClientInput(taskTitle);
-				setOpenCreateTaskModal(!openCreateTaskModal);
-				setTaskTitle("");
-				setFile(null);
-			}
-		} else {
-			alert("You do not have permission to add a task.");
-		}
-	}; */
-
 	const handleAddTask = async () => {
 		try {
 			if (!file) {
