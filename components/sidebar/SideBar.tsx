@@ -1,5 +1,5 @@
 "use client";
-import { signOutUser, storage } from "@/lib/utils/firebase/firebase";
+import { signOutUser } from "@/lib/utils/firebase/firebase";
 import { FiUsers } from "react-icons/fi";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { Switch } from "../ui/switch";
@@ -8,7 +8,6 @@ import { FcOpenedFolder } from "react-icons/fc";
 import { BsListTask } from "react-icons/bs";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { PiSignOutBold } from "react-icons/pi";
-import { getDownloadURL, listAll, ref } from "firebase/storage";
 import Modal from "../modal/Modal";
 import React from "react";
 import FileListModal from "../modal/FileListModal";
@@ -23,67 +22,20 @@ import {
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { AuthRole } from "@/lib/types/authTypes";
-import { FileUpload } from "@/lib/types/cardProps";
+
 import Link from "next/link";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 import { useCard } from "@/lib/context/cardContext/CardContext";
 
-const folderAccessByRole: Record<AuthRole, string[]> = {
-	admin: ["raw", "filtering", "pricing", "done"],
-	client: ["raw", "done"],
-	dataManager: ["raw", "filtering"],
-	dataQA: ["raw", "filtering"],
-	dataScientist: ["pricing", "done"],
-	promptEngineer: ["pricing", "done"],
-};
-
 export default function SideBar() {
 	const [isOpen, setIsOpen] = useState<boolean>(true);
 
 	const [openFileModal, setOpenFileModal] = useState<boolean>(false);
-	const [fileList, setFileList] = useState<FileUpload[]>([]);
 
 	const { userName, loading, role } = useAuth();
 	const { theme, toggleTheme } = useTheme();
-	const { modalHandler } = useCard();
-
-	// Function to fetch and list files
-	const fetchFiles = async (role: AuthRole) => {
-		try {
-			// Get the accessible folders for the user's role
-			const accessibleFolders = folderAccessByRole[role];
-
-			// Variable to Store file objects with URLs and folder types
-			let fileObjects: { filePath: string; folder: string }[] = [];
-
-			// Loop through each accessible folder and fetch the files
-			for (const folder of accessibleFolders) {
-				// Create a storage reference to the folder
-				const folderRef = ref(storage, `/${folder}`);
-
-				// List all files in the folder
-				const folderContents = await listAll(folderRef);
-
-				// Fetch file URLs for the current folder and map them to the expected shape
-				const filePaths = await Promise.all(
-					folderContents.items.map(async (fileRef) => {
-						const filePath = await getDownloadURL(fileRef);
-						return { filePath, folder: folder };
-					})
-				);
-
-				// Add the file objects from this folder to the overall list
-				fileObjects = [...fileObjects, ...filePaths];
-			}
-
-			// Set the state with all fetched file objects
-			setFileList(fileObjects);
-		} catch (error) {
-			console.error("Error fetching files: ", error);
-		}
-	};
+	const { modalHandler, handleViewFiles, fileList } = useCard();
 
 	if (loading) {
 		return <p>Loading...</p>;
@@ -93,13 +45,6 @@ export default function SideBar() {
 
 	const sideBarToggle = () => {
 		setIsOpen(!isOpen);
-	};
-
-	const handleViewFiles = async () => {
-		if (role) {
-			await fetchFiles(role as AuthRole);
-		}
-		setOpenFileModal(true);
 	};
 
 	return (

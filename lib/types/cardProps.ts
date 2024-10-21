@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
+import { AuthRole } from "./authTypes";
 
 export interface Task {
 	id: string;
@@ -47,6 +48,7 @@ export interface CardContextProps {
 	setFile: Dispatch<SetStateAction<File | null>>;
 	setDueDateInput: Dispatch<SetStateAction<string | Date>>;
 	handleViewFiles: () => Promise<void>;
+	fetchFiles: (role: AuthRole) => Promise<void>;
 	modalHandler: () => void;
 	handleAddTask: () => void;
 	setOpenCreateTaskModal: Dispatch<SetStateAction<boolean>>;

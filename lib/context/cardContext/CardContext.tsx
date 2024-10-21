@@ -186,6 +186,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				setFile,
 				setDueDateInput,
 				handleViewFiles,
+				fetchFiles,
 				modalHandler,
 				handleAddTask,
 				setOpenCreateTaskModal,
