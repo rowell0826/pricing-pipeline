@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction } from "react";
-import { AuthRole } from "./authTypes";
 
 export interface Task {
 	id: string;
@@ -29,14 +28,12 @@ export interface SortList {
 
 export interface CardContextProps {
 	dueDateInput: string | Date;
-	openFileModal: boolean;
 	openCreateTaskModal: boolean;
 	sortConfig: { key: string; order: "asc" | "desc" };
 	rawTasks: Task[];
 	filteredTasks: Task[];
 	pricingTasks: Task[];
 	done: Task[];
-	fileList: FileUpload[];
 	file: File | null;
 	taskTitle: string;
 	setSortConfig: Dispatch<SetStateAction<{ key: string; order: "asc" | "desc" }>>;
@@ -47,8 +44,6 @@ export interface CardContextProps {
 	setDone: Dispatch<SetStateAction<Task[]>>;
 	setFile: Dispatch<SetStateAction<File | null>>;
 	setDueDateInput: Dispatch<SetStateAction<string | Date>>;
-	handleViewFiles: () => Promise<void>;
-	fetchFiles: (role: AuthRole) => Promise<void>;
 	modalHandler: () => void;
 	handleAddTask: () => void;
 	setOpenCreateTaskModal: Dispatch<SetStateAction<boolean>>;
