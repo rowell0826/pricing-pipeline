@@ -29,12 +29,12 @@ const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileL
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent>
+			<DialogContent className="h-[70%]">
 				<DialogHeader>
 					<DialogTitle className="text-foreground">Uploaded Files</DialogTitle>
 				</DialogHeader>
 
-				<div className="space-y-2">
+				<div className="space-y-2 overflow-y-scroll">
 					{Object.keys(groupedFiles).length > 0 ? (
 						Object.entries(groupedFiles).map(([folderType, urls]) => (
 							<div key={folderType}>

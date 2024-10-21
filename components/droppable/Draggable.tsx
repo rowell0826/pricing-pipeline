@@ -379,37 +379,64 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 					</Dialog>
 
 					{role === "client" || role === "admin" ? (
-						<Button
-							onClick={(e) => {
-								e.stopPropagation();
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button
+									size={"xs"}
+									className="text-[8px] bg-black  text-white hover:bg-gray-800"
+								>
+									Remove
+								</Button>
+							</DialogTrigger>
 
-								const filePaths: FileUpload[] = task.fileUpload
-									.map((file) => {
-										if (typeof file === "string") {
-											const match = file.match(/\/o\/([^?]*)/);
-											if (match) {
-												const decodedPath = decodeURIComponent(match[1]);
+							<DialogContent>
+								<div className="text-cn">
+									<p>Are you sure you want to remove the task?</p>
+								</div>
+								<div className="flex justify-end items-center gap-4">
+									<Button
+										size={"sm"}
+										onClick={(e) => {
+											e.stopPropagation();
 
-												return {
-													folder: containerTitle,
-													filePath: decodedPath,
-												};
-											}
-										} else if (file instanceof File) {
-											// Create a FileUpload object
-											return { folder: containerTitle, filePath: file.name };
-										}
-										return undefined;
-									})
-									.filter((path): path is FileUpload => path !== undefined);
+											const filePaths: FileUpload[] = task.fileUpload
+												.map((file) => {
+													if (typeof file === "string") {
+														const match = file.match(/\/o\/([^?]*)/);
+														if (match) {
+															const decodedPath = decodeURIComponent(
+																match[1]
+															);
 
-								onRemove(task.id, containerTitle, filePaths);
-							}}
-							size={"xs"}
-							className="text-[8px] bg-black  text-white hover:bg-gray-800"
-						>
-							Remove
-						</Button>
+															return {
+																folder: containerTitle,
+																filePath: decodedPath,
+															};
+														}
+													} else if (file instanceof File) {
+														// Create a FileUpload object
+														return {
+															folder: containerTitle,
+															filePath: file.name,
+														};
+													}
+													return undefined;
+												})
+												.filter(
+													(path): path is FileUpload => path !== undefined
+												);
+
+											onRemove(task.id, containerTitle, filePaths);
+										}}
+									>
+										Proceed
+									</Button>
+									<Button size={"sm"} asChild>
+										<DialogClose>Cancel</DialogClose>
+									</Button>
+								</div>
+							</DialogContent>
+						</Dialog>
 					) : null}
 
 					<Dialog>
