@@ -52,7 +52,11 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	};
 
 	const modalHandler = () => {
-		setOpenCreateTaskModal(!openCreateTaskModal);
+		if (role === "admin" || role === "client") {
+			setOpenCreateTaskModal(!openCreateTaskModal);
+		} else {
+			alert("You're not authorized to create task");
+		}
 	};
 
 	const handleAddTask = async () => {
@@ -72,7 +76,6 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 			// Ensure the user role is either 'client' or 'admin'
 			if ((fileUrl && role === "client") || (fileUrl && role === "admin")) {
-				setDueDateInput(dueDateInput);
 				console.log("Due Date Input: ", dueDateInput);
 
 				// Ensure task title and due date are provided
@@ -92,7 +95,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 					alert("Task added successfully!");
 
 					addTaskToClientInput(taskTitle);
-
+					setDueDateInput(dueDateInput);
 					setOpenCreateTaskModal(!openCreateTaskModal);
 					setTaskTitle("");
 					setFile(null);

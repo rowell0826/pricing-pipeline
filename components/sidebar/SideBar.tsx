@@ -48,7 +48,7 @@ export default function SideBar() {
 
 	const { userName, loading, role } = useAuth();
 	const { theme, toggleTheme } = useTheme();
-	const { modalHandler} = useCard();
+	const { modalHandler } = useCard();
 
 	const fetchFiles = async (role: AuthRole) => {
 		try {
@@ -244,11 +244,6 @@ export default function SideBar() {
 					fileList={fileList}
 				/>
 			) : null}
-			{/* <FileListModal
-				open={openFileModal}
-				onOpenChange={setOpenFileModal}
-				fileList={fileList}
-			/> */}
 
 			<Modal />
 		</>
