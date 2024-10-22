@@ -34,7 +34,7 @@ const folderAccessByRole: Record<AuthRole, string[]> = {
 	admin: ["raw", "filtering", "pricing", "done"],
 	client: ["raw", "done"],
 	dataManager: ["raw", "filtering"],
-	dataQA: ["raw", "filtering"],
+	dataQA: ["filtering"],
 	dataScientist: ["pricing", "done"],
 	promptEngineer: ["pricing", "done"],
 };
@@ -85,6 +85,13 @@ export default function SideBar() {
 		}
 	};
 
+	const handleViewFiles = async () => {
+		if (role) {
+			await fetchFiles(role as AuthRole);
+		}
+		setOpenFileModal(true);
+	};
+
 	if (loading) {
 		return <p>Loading...</p>;
 	}
@@ -93,13 +100,6 @@ export default function SideBar() {
 
 	const sideBarToggle = () => {
 		setIsOpen(!isOpen);
-	};
-
-	const handleViewFiles = async () => {
-		if (role) {
-			await fetchFiles(role as AuthRole);
-		}
-		setOpenFileModal(true);
 	};
 
 	return (
