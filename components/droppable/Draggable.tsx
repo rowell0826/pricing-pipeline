@@ -37,11 +37,11 @@ interface DraggableProps {
 
 const folderAccessByRole: Record<AuthRole, string[]> = {
 	admin: ["raw", "filtering", "pricing", "done"],
-	client: ["raw", "done"],
+	client: ["raw", "pricing", "done"],
 	dataManager: ["raw", "filtering"],
 	dataQA: ["filtering"],
-	dataScientist: ["pricing", "done"],
-	promptEngineer: ["pricing", "done"],
+	dataScientist: ["filtering", "pricing"],
+	promptEngineer: ["filtering", "pricing"],
 };
 
 export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) => {
