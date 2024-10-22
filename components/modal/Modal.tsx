@@ -11,7 +11,7 @@ import { useState } from "react";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { Task } from "@/lib/types/cardProps";
 import { clientFileUpload, db } from "@/lib/utils/firebase/firebase";
-import { addDoc, collection, updateDoc } from "firebase/firestore";
+import { addDoc, collection, getDocs, updateDoc } from "firebase/firestore";
 
 const Modal: React.FC = () => {
 	const {
@@ -25,28 +25,9 @@ const Modal: React.FC = () => {
 	} = useCard();
 
 	const [dueDateInput, setDueDateInput] = useState<string | Date>("");
-	const { user, userName, role } = useAuth();
+	const { userName, role } = useAuth();
 
 	// Function to add a new task to the state
-	const addTaskToClientInput = (taskTitle: string) => {
-		const createdBy = user ? user.displayName || user.uid : "Anonymous";
-
-		if (role === "admin" || role === "client") {
-			const newTask: Task = {
-				id: Date.now().toString(),
-				title: taskTitle,
-				createdBy: createdBy,
-				createdAt: new Date(),
-				dueDate: null,
-				fileUpload: [],
-				status: "raw",
-			};
-
-			setRawTasks((prevTasks) => [...prevTasks, newTask]);
-		} else {
-			alert("You do not have permission to add a task.");
-		}
-	};
 
 	const handleAddTask = async () => {
 		try {
@@ -69,21 +50,33 @@ const Modal: React.FC = () => {
 
 				// Ensure task title and due date are provided
 				if (taskTitle && dueDateInput) {
-					const docRef = await addDoc(collection(db, "raw"), {
+					const newTask: Omit<Task, "id"> = {
 						title: taskTitle,
 						createdAt: new Date(),
-						createdBy: userName,
+						createdBy: userName as string,
 						dueDate: new Date(dueDateInput),
 						fileUpload: [{ folder: "raw", filePath: fileUrl }],
-					});
+						status: "raw",
+					};
+
+					const docRef = await addDoc(collection(db, "raw"), newTask);
+
+					await updateDoc(docRef, { id: docRef.id });
 
 					// Update the document with its ID
-					const documentId = docRef.id;
-					await updateDoc(docRef, { id: documentId });
+					const taskDocs = await getDocs(collection(db, "raw"));
+					const updatedTasks = taskDocs.docs.map((doc) => {
+						const data = doc.data() as Omit<Task, "id">;
+						return {
+							id: doc.id,
+							...data,
+						};
+					});
+					setRawTasks(updatedTasks);
 
 					alert("Task added successfully!");
 
-					addTaskToClientInput(taskTitle);
+					// Reset the form/modal state
 					setDueDateInput(new Date());
 					setOpenCreateTaskModal(!openCreateTaskModal);
 					setTaskTitle("");
