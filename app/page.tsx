@@ -71,9 +71,9 @@ const sortCategories: SortList[] = [
 ];
 
 export default function Home() {
-	const [userRole, setUserRole] = useState<AuthRole | null>(null);
+	// const [userRole, setUserRole] = useState<AuthRole | null>(null);
 
-	const { user } = useAuth();
+	const { user, role } = useAuth();
 	const { sortConfig, sortFilter } = useCard();
 
 	const {
@@ -96,7 +96,7 @@ export default function Home() {
 
 	// Fetch user role and files
 	useEffect(() => {
-		if (user) {
+		/* if (user) {
 			const fetchUserRole = async () => {
 				const userDocRef = doc(db, "users", user.uid);
 				const userSnapshot = await getDoc(userDocRef);
@@ -108,7 +108,7 @@ export default function Home() {
 			};
 
 			fetchUserRole();
-		}
+		} */
 
 		const fetchTasks = async () => {
 			try {
@@ -258,12 +258,12 @@ export default function Home() {
 				};
 
 				// Ensure userRole is valid and check allowed containers
-				if (!userRole || !(userRole in roleAndContainerMap)) {
+				if (!role || !(role in roleAndContainerMap)) {
 					throw new Error("Invalid or undefined user role");
 				}
 
 				// Return true if the role is allowed to transfer from the previous container
-				return roleAndContainerMap[userRole]?.includes(prevContainer) ?? false;
+				return roleAndContainerMap[role as AuthRole]?.includes(prevContainer) ?? false;
 			};
 
 			// Check if the transfer is allowed based on userRole and prevContainer
