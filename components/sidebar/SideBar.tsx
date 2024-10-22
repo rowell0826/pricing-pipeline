@@ -35,7 +35,7 @@ const folderAccessByRole: Record<AuthRole, string[]> = {
 	admin: ["raw", "filtering", "pricing", "done"],
 	client: ["raw", "done"],
 	dataManager: ["raw", "filtering"],
-	dataQA: ["raw", "filtering"],
+	dataQA: ["filtering"],
 	dataScientist: ["pricing", "done"],
 	promptEngineer: ["pricing", "done"],
 };

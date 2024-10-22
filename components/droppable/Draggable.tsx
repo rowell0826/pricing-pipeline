@@ -25,6 +25,7 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { useCard } from "@/lib/context/cardContext/CardContext";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
+import { AuthRole } from "@/lib/types/authTypes";
 
 interface DraggableProps {
 	id: string | number;
@@ -33,6 +34,15 @@ interface DraggableProps {
 	getInitials: (name: string) => string;
 	onRemove: (taskID: string, container: string, fileUpload: FileUpload[]) => void;
 }
+
+const folderAccessByRole: Record<AuthRole, string[]> = {
+	admin: ["raw", "filtering", "pricing", "done"],
+	client: ["raw", "done"],
+	dataManager: ["raw", "filtering"],
+	dataQA: ["filtering"],
+	dataScientist: ["pricing", "done"],
+	promptEngineer: ["pricing", "done"],
+};
 
 export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) => {
 	const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -65,7 +75,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 	// State handlers
 	const [editedTitle, setEditedTitle] = useState(title);
-	// const [editedDueDate, setEditedDueDate] = useState(formatDate(dueDate));
 	const [filesMarkedForDeletion, setFilesMarkedForDeletion] = useState<string[]>([]);
 	const [formattedDate, setFormattedDate] = useState("");
 	const [downloadedFiles, setDownloadedFiles] = useState<(string | File | FileUpload)[]>([]);
@@ -122,6 +131,10 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	};
 
 	const groupedDownloadFiles = groupFilesByFolder(downloadedFiles as FileUpload[]);
+
+	const getAccessibleFolders = (role: AuthRole): AuthRole | string[] => {
+		return folderAccessByRole[role] || [];
+	};
 
 	const isFileUpload = (file: string | File | FileUpload): file is FileUpload => {
 		return (file as FileUpload).filePath !== undefined;
@@ -430,27 +443,35 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 							</DialogHeader>
 							<div className="space-y-4 overflow-y-scroll max-h-60">
 								{Object.keys(groupedDownloadFiles).length > 0 ? (
-									Object.keys(groupedDownloadFiles).map((folder) => (
-										<div key={folder}>
-											<h4 className="font-bold">{folder}</h4>
-											{groupedDownloadFiles[folder].map((filePath, index) => (
-												<div
-													key={index}
-													className="flex items-center justify-between"
-												>
-													<p className="truncate">
-														{getFilenameFromUrl(filePath)}
-													</p>
-													<p
-														className="text-foreground underline cursor-pointer"
-														onClick={() => handleDownload(filePath)}
-													>
-														Download
-													</p>
-												</div>
-											))}
-										</div>
-									))
+									Object.keys(groupedDownloadFiles)
+										.filter((folder) =>
+											getAccessibleFolders(role as AuthRole).includes(folder)
+										)
+										.map((folder) => (
+											<div key={folder}>
+												<h4 className="font-bold">{folder}</h4>
+												{groupedDownloadFiles[folder].map(
+													(filePath, index) => (
+														<div
+															key={index}
+															className="flex items-center justify-between"
+														>
+															<p className="truncate">
+																{getFilenameFromUrl(filePath)}
+															</p>
+															<p
+																className="text-foreground underline cursor-pointer"
+																onClick={() =>
+																	handleDownload(filePath)
+																}
+															>
+																Download
+															</p>
+														</div>
+													)
+												)}
+											</div>
+										))
 								) : (
 									<p>No files available for download.</p>
 								)}
