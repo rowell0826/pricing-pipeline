@@ -7,19 +7,98 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
 import { useCard } from "@/lib/context/cardContext/CardContext";
+import { useState } from "react";
+import { useAuth } from "@/lib/context/authContext/AuthContext";
+import { Task } from "@/lib/types/cardProps";
+import { clientFileUpload, db } from "@/lib/utils/firebase/firebase";
+import { addDoc, collection, updateDoc } from "firebase/firestore";
 
 const Modal: React.FC = () => {
 	const {
-		dueDateInput,
-		setDueDateInput,
-		handleAddTask,
 		file,
 		setFile,
 		setTaskTitle,
 		taskTitle,
 		openCreateTaskModal,
 		setOpenCreateTaskModal,
+		setRawTasks,
 	} = useCard();
+
+	const [dueDateInput, setDueDateInput] = useState<string | Date>("");
+	const { user, userName, role } = useAuth();
+
+	// Function to add a new task to the state
+	const addTaskToClientInput = (taskTitle: string) => {
+		const createdBy = user ? user.displayName || user.uid : "Anonymous";
+
+		if (role === "admin" || role === "client") {
+			const newTask: Task = {
+				id: Date.now().toString(),
+				title: taskTitle,
+				createdBy: createdBy,
+				createdAt: new Date(),
+				dueDate: null,
+				fileUpload: [],
+				status: "raw",
+			};
+
+			setRawTasks((prevTasks) => [...prevTasks, newTask]);
+		} else {
+			alert("You do not have permission to add a task.");
+		}
+	};
+
+	const handleAddTask = async () => {
+		try {
+			if (!file) {
+				alert("Please upload a file before adding a task.");
+				return;
+			}
+
+			const fileUrl = await clientFileUpload("raw", file);
+
+			// Check if the upload succeeded
+			if (!fileUrl) {
+				alert("Error uploading file. Please try again.");
+				return;
+			}
+
+			// Ensure the user role is either 'client' or 'admin'
+			if ((fileUrl && role === "client") || (fileUrl && role === "admin")) {
+				console.log("Due Date Input: ", dueDateInput);
+
+				// Ensure task title and due date are provided
+				if (taskTitle && dueDateInput) {
+					const docRef = await addDoc(collection(db, "raw"), {
+						title: taskTitle,
+						createdAt: new Date(),
+						createdBy: userName,
+						dueDate: new Date(dueDateInput),
+						fileUpload: [{ folder: "raw", filePath: fileUrl }],
+					});
+
+					// Update the document with its ID
+					const documentId = docRef.id;
+					await updateDoc(docRef, { id: documentId });
+
+					alert("Task added successfully!");
+
+					addTaskToClientInput(taskTitle);
+					setDueDateInput(new Date());
+					setOpenCreateTaskModal(!openCreateTaskModal);
+					setTaskTitle("");
+					setFile(null);
+				} else {
+					alert("Please provide a task title and due date.");
+				}
+			} else {
+				alert("You do not have permission to add a task.");
+			}
+		} catch (error) {
+			console.error("Error adding task:", error);
+			alert("There was an error adding the task. Please try again.");
+		}
+	};
 
 	return (
 		<Dialog open={openCreateTaskModal} onOpenChange={setOpenCreateTaskModal}>

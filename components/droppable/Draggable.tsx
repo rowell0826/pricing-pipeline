@@ -1,8 +1,14 @@
 import { FileUpload, Task } from "@/lib/types/cardProps";
-import { clientFileUpload, db, deleteFileFromStorage } from "@/lib/utils/firebase/firebase";
-import { useDraggable } from "@dnd-kit/core";
-import { doc, getDoc, Timestamp, updateDoc } from "firebase/firestore";
 import {
+	clientFileUpload,
+	db,
+	deleteFileFromStorage,
+	storage,
+} from "@/lib/utils/firebase/firebase";
+import { useDraggable } from "@dnd-kit/core";
+import { deleteDoc, doc, getDoc, Timestamp, updateDoc } from "firebase/firestore";
+import {
+	deleteObject,
 	getDownloadURL,
 	getStorage,
 	ref,
@@ -32,7 +38,6 @@ interface DraggableProps {
 	task: Task;
 	containerTitle: string;
 	getInitials: (name: string) => string;
-	onRemove: (taskID: string, container: string, fileUpload: FileUpload[]) => void;
 }
 
 const folderAccessByRole: Record<AuthRole, string[]> = {
@@ -49,8 +54,10 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		id: props.id,
 	});
 
-	const { task, onRemove, getInitials, containerTitle } = props;
+	const { task, getInitials, containerTitle } = props;
 	const { id, title, createdAt, createdBy, dueDate } = task;
+	const { role } = useAuth();
+	const { setRawTasks, setFilteredTasks, setPricingTasks, setDone } = useCard();
 
 	// Declare the style object and cast it as React.CSSProperties
 	const style: React.CSSProperties = {
@@ -76,12 +83,10 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	// State handlers
 	const [editedTitle, setEditedTitle] = useState(title);
 	const [filesMarkedForDeletion, setFilesMarkedForDeletion] = useState<string[]>([]);
-	const [formattedDate, setFormattedDate] = useState("");
+	const [formattedDate, setFormattedDate] = useState<Date | string>("");
+	const [localDueDateInput, setLocalDueDateInput] = useState<Date | string>("");
 	const [downloadedFiles, setDownloadedFiles] = useState<(string | File | FileUpload)[]>([]);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-	const { role } = useAuth();
-	const { dueDateInput, setDueDateInput } = useCard();
 
 	useEffect(() => {
 		const fetchTaskData = async () => {
@@ -92,16 +97,23 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			if (taskData) {
 				setDownloadedFiles(taskData.fileUpload || []);
 
-				if (dueDate) {
-					const formatted = formatDate(dueDate as Date);
-					setDueDateInput(taskData.dueDate.toDate().toISOString().substring(0, 10));
+				if (taskData.dueDate) {
+					const dueDate = taskData.dueDate.toDate();
+
+					const formatted = formatDate(dueDate);
+					setLocalDueDateInput(dueDate.toISOString().substring(0, 10));
 					setFormattedDate(formatted);
+
+					console.log("FormattedDate", formatted);
+					console.log("Due Date (ISO)", dueDate.toISOString().substring(0, 10));
+					console.log("Due Date Input: ", localDueDateInput);
+					console.log("Due Date lang: ", dueDate);
 				}
 			}
 		};
 
 		fetchTaskData();
-	}, [containerTitle, id, dueDate, setDueDateInput]);
+	}, [containerTitle, id, dueDate, localDueDateInput, setLocalDueDateInput]);
 
 	const getFilenameFromUrl = (url: string) => {
 		if (typeof url !== "string") {
@@ -116,6 +128,69 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		);
 
 		return decodedFilename;
+	};
+
+	const removeTask = async (taskID: string, container: string) => {
+		const taskDocRef = doc(db, container, taskID);
+
+		const taskSnapshot = await getDoc(taskDocRef);
+		const taskDetails = taskSnapshot.data();
+
+		const taskFileStorage = taskDetails?.fileUpload;
+
+		task.fileUpload
+			.map((file) => {
+				if (typeof file === "string") {
+					const match = file.match(/\/o\/([^?]*)/);
+					if (match) {
+						const decodedPath = decodeURIComponent(match[1]);
+
+						return {
+							folder: containerTitle,
+							filePath: decodedPath,
+						};
+					}
+				} else if (file instanceof File) {
+					// Create a FileUpload object
+					return {
+						folder: containerTitle,
+						filePath: file.name,
+					};
+				}
+				return undefined;
+			})
+			.filter((path): path is FileUpload => path !== undefined);
+
+		try {
+			await deleteDoc(taskDocRef);
+
+			await Promise.all(
+				taskFileStorage.map(async (file: FileUpload) => {
+					// Create a reference to the file in Firebase Storage
+					const fileRef = ref(storage, decodeURIComponent(file.filePath));
+					await deleteObject(fileRef); // Delete the file from firebase storage
+				})
+			);
+
+			switch (container) {
+				case "raw":
+					setRawTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
+					break;
+				case "filtering":
+					setFilteredTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
+					break;
+				case "pricing":
+					setPricingTasks((prevTask) => prevTask.filter((task) => task.id !== taskID));
+					break;
+				case "done":
+					setDone((prevTask) => prevTask.filter((task) => task.id !== taskID));
+					break;
+				default:
+					throw Error("Cannot delete ticket.");
+			}
+		} catch (error) {
+			console.error("Error removing task: ", error);
+		}
 	};
 
 	// Function to group files by folder
@@ -175,7 +250,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			// Update Firestore document, include the new file URL only if a file was uploaded
 			const updatedFields: Partial<Task> = {
 				title: editedTitle,
-				dueDate: dueDateInput ? new Date(dueDateInput) : dueDate,
+				dueDate: localDueDateInput ? new Date(localDueDateInput) : dueDate,
 			};
 
 			if (fileUrl) {
@@ -245,7 +320,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 					</Badge>
 
 					<Badge className="text-[8px] bg-black text-white hover:bg-gray-800">
-						Due: {formattedDate || "N/A"}
+						Due: {formattedDate ? formattedDate.toString() : "loading"}
 					</Badge>
 				</div>
 				<div className="w-full flex justify-evenly items-center gap-2 pt-2">
@@ -283,12 +358,8 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 									<label className="block text-sm font-medium ">Due Date</label>
 									<input
 										type="date"
-										value={
-											dueDateInput instanceof Date
-												? dueDateInput.toISOString().substring(0, 10)
-												: dueDateInput || ""
-										}
-										onChange={(e) => setDueDateInput(e.target.value)}
+										value={(localDueDateInput as string) || ""}
+										onChange={(e) => setLocalDueDateInput(e.target.value)}
 										className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
 									/>
 								</div>
@@ -382,34 +453,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 										onClick={(e) => {
 											e.stopPropagation();
 
-											const filePaths: FileUpload[] = task.fileUpload
-												.map((file) => {
-													if (typeof file === "string") {
-														const match = file.match(/\/o\/([^?]*)/);
-														if (match) {
-															const decodedPath = decodeURIComponent(
-																match[1]
-															);
-
-															return {
-																folder: containerTitle,
-																filePath: decodedPath,
-															};
-														}
-													} else if (file instanceof File) {
-														// Create a FileUpload object
-														return {
-															folder: containerTitle,
-															filePath: file.name,
-														};
-													}
-													return undefined;
-												})
-												.filter(
-													(path): path is FileUpload => path !== undefined
-												);
-
-											onRemove(task.id, containerTitle, filePaths);
+											removeTask(task.id, containerTitle);
 										}}
 									>
 										Proceed

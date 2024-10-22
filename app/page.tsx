@@ -1,8 +1,8 @@
 "use client";
 import PrivateRoute from "@/components/privateRoute/PrivateRoute";
 import SideBar from "@/components/sidebar/SideBar";
-import { ContainerList, FileUpload, SortList, Task, TaskStatus } from "@/lib/types/cardProps";
-import { db, storage } from "@/lib/utils/firebase/firebase";
+import { ContainerList, SortList, Task, TaskStatus } from "@/lib/types/cardProps";
+import { db } from "@/lib/utils/firebase/firebase";
 import { BiSolidSortAlt } from "react-icons/bi";
 import {
 	addDoc,
@@ -46,7 +46,7 @@ import {
 } from "@dnd-kit/sortable";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { deleteObject, ref } from "firebase/storage";
+
 import { AuthRole } from "@/lib/types/authTypes";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { useCard } from "@/lib/context/cardContext/CardContext";
@@ -96,20 +96,6 @@ export default function Home() {
 
 	// Fetch user role and files
 	useEffect(() => {
-		/* if (user) {
-			const fetchUserRole = async () => {
-				const userDocRef = doc(db, "users", user.uid);
-				const userSnapshot = await getDoc(userDocRef);
-
-				if (userSnapshot.exists()) {
-					const userData = userSnapshot.data();
-					setUserRole(userData.role);
-				}
-			};
-
-			fetchUserRole();
-		} */
-
 		const fetchTasks = async () => {
 			try {
 				const raw = query(collection(db, "raw"), orderBy(sortConfig.key, sortConfig.order));
@@ -278,46 +264,6 @@ export default function Home() {
 			}
 		} catch (error) {
 			console.log("Error transferring task to next container: ", error);
-		}
-	};
-
-	const removeTask = async (taskID: string, container: string) => {
-		const taskDocRef = doc(db, container, taskID);
-
-		const taskSnapshot = await getDoc(taskDocRef);
-		const taskDetails = taskSnapshot.data();
-
-		const taskFileStorage = taskDetails?.fileUpload;
-
-		try {
-			await deleteDoc(taskDocRef);
-
-			await Promise.all(
-				taskFileStorage.map(async (file: FileUpload) => {
-					// Create a reference to the file in Firebase Storage
-					const fileRef = ref(storage, decodeURIComponent(file.filePath));
-					await deleteObject(fileRef); // Delete the file from firebase storage
-				})
-			);
-
-			switch (container) {
-				case "raw":
-					setRawTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
-					break;
-				case "filtering":
-					setFilteredTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
-					break;
-				case "pricing":
-					setPricingTasks((prevTask) => prevTask.filter((task) => task.id !== taskID));
-					break;
-				case "done":
-					setDone((prevTask) => prevTask.filter((task) => task.id !== taskID));
-					break;
-				default:
-					throw Error("Cannot delete ticket.");
-			}
-		} catch (error) {
-			console.error("Error removing task: ", error);
 		}
 	};
 
@@ -566,7 +512,6 @@ export default function Home() {
 														id={task.id}
 														key={task.id}
 														task={task}
-														onRemove={removeTask}
 														getInitials={getInitials}
 													/>
 												))}

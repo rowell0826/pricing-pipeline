@@ -27,7 +27,6 @@ export interface SortList {
 }
 
 export interface CardContextProps {
-	dueDateInput: string | Date;
 	openCreateTaskModal: boolean;
 	sortConfig: { key: string; order: "asc" | "desc" };
 	rawTasks: Task[];
@@ -43,9 +42,7 @@ export interface CardContextProps {
 	setPricingTasks: Dispatch<SetStateAction<Task[]>>;
 	setDone: Dispatch<SetStateAction<Task[]>>;
 	setFile: Dispatch<SetStateAction<File | null>>;
-	setDueDateInput: Dispatch<SetStateAction<string | Date>>;
 	modalHandler: () => void;
-	handleAddTask: () => void;
 	setOpenCreateTaskModal: Dispatch<SetStateAction<boolean>>;
 	sortFilter: (key: string) => void;
 }
