@@ -108,9 +108,9 @@ export default function SignInForm() {
 	};
 
 	return (
-		<main className="w-full min-h-[50%] flex flex-col items-center justify-center">
-			<section className="w-full min-h-[50%] flex flex-col items-center justify-center p-24">
-				<div className="border border-slate-100 shadow-lg rounded-lg p-8 w-full min-w-80 max-w-md text-foreground">
+		<main className="w-full h-screen flex flex-col items-center justify-center">
+			<section className="w-[50%] h-[80%] flex justify-center my-auto">
+				<div className="border border-slate-100 shadow-lg rounded-lg p-8 w-full min-w-80 max-w-80 max-h-max text-foreground">
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(handleSubmit)}

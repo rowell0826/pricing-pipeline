@@ -104,9 +104,9 @@ export default function SignUpForm() {
 	};
 
 	return (
-		<main className="w-full h-[50%] min-h-[450px] flex flex-col items-center justify-center">
+		<main className="w-full h-screen min-h-[450px] flex flex-col items-center justify-center">
 			<section className="w-full h-[50%] min-h-[450px] flex flex-col items-center justify-center p-24">
-				<div className="border border-slate-100 shadow-lg rounded-lg p-8 w-full min-w-80 max-w-md">
+				<div className="border border-slate-100 shadow-lg rounded-lg p-8 w-full min-w-80 max-w-md max-h-max">
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(handleSubmit)}
