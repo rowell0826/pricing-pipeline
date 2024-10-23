@@ -47,7 +47,7 @@ const Modal: React.FC = () => {
 
 			// Ensure the user role is either 'client' or 'admin'
 			if ((fileUrl && role === "client") || (fileUrl && role === "admin")) {
-				console.log("Due Date Input: ", dueDateInput);
+				
 
 				// Ensure task title and due date are provided
 				if (taskTitle && dueDateInput) {
