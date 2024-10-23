@@ -11,18 +11,22 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 	const [backgroundColor, setBackgroundColor] = useState<string>("");
 	const [textColor, setTextColor] = useState<string>("");
 
+	const updateColors = () => {
+		const bgColor = getComputedStyle(document.documentElement)
+			.getPropertyValue("--background")
+			.trim();
+		const fgColor = getComputedStyle(document.documentElement)
+			.getPropertyValue("--foreground")
+			.trim();
+
+		setBackgroundColor(bgColor);
+		setTextColor(fgColor);
+	};
+
 	useEffect(() => {
 		// Ensure this code runs only on the client-side
 		if (typeof window !== "undefined") {
-			const backgroundColor = getComputedStyle(document.documentElement)
-				.getPropertyValue("--background")
-				.trim();
-			const textColor = getComputedStyle(document.documentElement)
-				.getPropertyValue("--foreground")
-				.trim();
-
-			setBackgroundColor(backgroundColor);
-			setTextColor(textColor);
+			updateColors();
 		}
 	}, []);
 
@@ -52,6 +56,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 			document.documentElement.classList.remove("dark");
 			localStorage.removeItem("theme");
 		}
+
+		updateColors();
 	};
 
 	useEffect(() => {
