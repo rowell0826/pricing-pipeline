@@ -334,14 +334,14 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 							</Button>
 						</DialogTrigger>
 
-						<DialogContent>
+						<DialogContent className="max-h-[95%]">
 							<DialogHeader className="text-sidebartx">
 								<DialogTitle className="p-2">Edit Task</DialogTitle>
 								<DialogDescription className="text-sidebartx p-2">
 									Modify the task details below.
 								</DialogDescription>
 							</DialogHeader>
-							<div className="space-y-4 h-full p-2">
+							<div className="space-y-4 p-2">
 								<div>
 									<label className="block text-sm font-medium ">Title</label>
 									<input
@@ -365,7 +365,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 										Uploaded Files
 									</label>
 									{downloadedFiles.length > 0 ? (
-										<ul className="mt-2 space-y-2 bg-white px-2 py-1">
+										<ul className="mt-2 space-y-2 bg-white px-2 py-1 h-[50px] overflow-y-scroll">
 											{downloadedFiles.map((fileUrl, index) => (
 												<li
 													key={index}
@@ -389,7 +389,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 																		fileUrl.filePath
 																	)
 																}
-																className="cursor-pointer"
+																className="cursor-pointer text-black mr-1"
 															/>
 														</>
 													) : (
@@ -417,12 +417,12 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 									/>
 								</div>
 							</div>
-							<div className="flex justify-end mt-4 gap-4">
-								<Button onClick={handleEditSubmit}>
+							<div className="flex justify-end gap-4">
+								<Button onClick={handleEditSubmit} size={"xs"}>
 									<DialogClose>Save</DialogClose>
 								</Button>
 
-								<Button onClick={handleCancelEdit}>
+								<Button onClick={handleCancelEdit} size={"xs"}>
 									<DialogClose>Cancel</DialogClose>
 								</Button>
 							</div>
