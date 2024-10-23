@@ -84,6 +84,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 	// State handlers
 	const [editedTitle, setEditedTitle] = useState(title);
+	const [editLink, setEditLink] = useState<string>("");
 	const [filesMarkedForDeletion, setFilesMarkedForDeletion] = useState<string[]>([]);
 	const [formattedDate, setFormattedDate] = useState<Date | string>("");
 	const [localDueDateInput, setLocalDueDateInput] = useState<Date | string>("");
@@ -247,6 +248,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			// Update Firestore document, include the new file URL only if a file was uploaded
 			const updatedFields: Partial<Task> = {
 				title: editedTitle,
+				link: editLink,
 				dueDate: localDueDateInput ? new Date(localDueDateInput) : dueDate,
 			};
 
@@ -360,62 +362,78 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 										className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
 									/>
 								</div>
-								<div>
-									<label className="block text-sm font-medium ">
-										Uploaded Files
-									</label>
-									{downloadedFiles.length > 0 ? (
-										<ul className="mt-2 space-y-2 bg-white px-2 py-1 h-[50px] overflow-y-scroll">
-											{downloadedFiles.map((fileUrl, index) => (
-												<li
-													key={index}
-													className="flex justify-between items-center"
-												>
-													{isFileUpload(fileUrl) ? (
-														<>
-															<a
-																href={fileUrl.filePath}
-																target="_blank"
-																rel="noopener noreferrer"
-																className="text-cyan-800 hover:underline"
-															>
-																{getFilenameFromUrl(
-																	fileUrl.filePath
-																)}
-															</a>
-															<IoCloseSharp
-																onClick={() =>
-																	handleFileDelete(
-																		fileUrl.filePath
-																	)
-																}
-																className="cursor-pointer text-black mr-1"
-															/>
-														</>
-													) : (
-														<span className="text-gray-500">
-															Invalid file type
-														</span>
-													)}
-												</li>
-											))}
-										</ul>
-									) : (
-										<p className="text-sm text-gray-500">
-											No files uploaded yet.
-										</p>
-									)}
-								</div>
-								<div className="p-1">
-									<label className="block text-sm font-medium ">
-										Upload File
-									</label>
-									<input
-										type="file"
-										onChange={handleFileChange}
-										className="mt-1 block w-full "
-									/>
-								</div>
+								{task.status === "pricing" || task.status === "done" ? (
+									<div>
+										<label className="block text-sm font-medium ">
+											Pricing Link
+										</label>
+										<input
+											type="text"
+											value={editLink}
+											onChange={(e) => setEditLink(e.target.value)}
+											className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
+										/>
+									</div>
+								) : (
+									<>
+										<div>
+											<label className="block text-sm font-medium ">
+												Uploaded Files
+											</label>
+											{downloadedFiles.length > 0 ? (
+												<ul className="mt-2 space-y-2 bg-white px-2 py-1 h-[50px] overflow-y-scroll">
+													{downloadedFiles.map((fileUrl, index) => (
+														<li
+															key={index}
+															className="flex justify-between items-center"
+														>
+															{isFileUpload(fileUrl) ? (
+																<>
+																	<a
+																		href={fileUrl.filePath}
+																		target="_blank"
+																		rel="noopener noreferrer"
+																		className="text-cyan-800 hover:underline"
+																	>
+																		{getFilenameFromUrl(
+																			fileUrl.filePath
+																		)}
+																	</a>
+																	<IoCloseSharp
+																		onClick={() =>
+																			handleFileDelete(
+																				fileUrl.filePath
+																			)
+																		}
+																		className="cursor-pointer text-black mr-1"
+																	/>
+																</>
+															) : (
+																<span className="text-gray-500">
+																	Invalid file type
+																</span>
+															)}
+														</li>
+													))}
+												</ul>
+											) : (
+												<p className="text-sm text-gray-500">
+													No files uploaded yet.
+												</p>
+											)}
+										</div>
+										<div className="p-1">
+											<label className="block text-sm font-medium ">
+												Upload File
+											</label>
+											<input
+												type="file"
+												onChange={handleFileChange}
+												className="mt-1 block w-full "
+											/>
+										</div>
+									</>
+								)}
 							</div>
 							<div className="flex justify-end gap-4">
 								<Button onClick={handleEditSubmit} size={"xs"}>

@@ -47,11 +47,9 @@ const Modal: React.FC = () => {
 
 			// Ensure the user role is either 'client' or 'admin'
 			if ((fileUrl && role === "client") || (fileUrl && role === "admin")) {
-				
-
 				// Ensure task title and due date are provided
 				if (taskTitle && dueDateInput) {
-					const newTask: Omit<Task, "id"> = {
+					const newTask: Omit<Task, "id" | "link"> = {
 						title: taskTitle,
 						createdAt: new Date(),
 						createdBy: userName as string,

@@ -7,6 +7,7 @@ export interface Task {
 	createdAt: Date | null;
 	dueDate: Date | null;
 	fileUpload: (string | File | FileUpload)[];
+	link?: string;
 	status: TaskStatus;
 }
 
