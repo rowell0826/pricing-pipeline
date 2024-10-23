@@ -13,6 +13,7 @@ import {
 } from "@/lib/utils/firebase/firebase";
 import { updateProfile } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 
 const formSchema = z
 	.object({
@@ -68,6 +69,8 @@ const defaultFormFields: DefaultFormFields = {
 export default function SignUpForm() {
 	const router = useRouter();
 
+	const { showAlert } = useTheme();
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: defaultFormFields,
@@ -95,7 +98,7 @@ export default function SignUpForm() {
 			// Store user details in Firestore
 			await createUserDocumentFromAuth(user.uid, { displayName, emailAddress, role });
 
-			alert("User signed up successfully");
+			showAlert("success", "User signed up successfully");
 		} catch (error) {
 			console.error("Error signing up: ", error);
 		} finally {

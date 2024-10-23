@@ -50,6 +50,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AuthRole } from "@/lib/types/authTypes";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { useCard } from "@/lib/context/cardContext/CardContext";
+import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 
 const sortCategories: SortList[] = [
 	{
@@ -75,6 +76,7 @@ export default function Home() {
 
 	const { user, role } = useAuth();
 	const { sortConfig, sortFilter } = useCard();
+	const { showAlert } = useTheme();
 
 	const {
 		rawTasks,
@@ -256,7 +258,10 @@ export default function Home() {
 			if (isTransferAllowed()) {
 				await addDoc(nextCollectionRef, task);
 			} else {
-				alert("You're restricted from moving this item to the next container.");
+				showAlert(
+					"warning",
+					"You're restricted from moving this item to the next container."
+				);
 				const currCollectionRef = collection(db, prevContainer);
 
 				// Add back to the previous container as a fallback

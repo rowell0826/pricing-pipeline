@@ -32,6 +32,7 @@ import { Badge } from "../ui/badge";
 import { useCard } from "@/lib/context/cardContext/CardContext";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { AuthRole } from "@/lib/types/authTypes";
+import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 
 interface DraggableProps {
 	id: string | number;
@@ -58,6 +59,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const { id, title, createdAt, createdBy, dueDate } = task;
 	const { role } = useAuth();
 	const { setRawTasks, setFilteredTasks, setPricingTasks, setDone } = useCard();
+	const { showAlert } = useTheme();
 
 	// Declare the style object and cast it as React.CSSProperties
 	const style: React.CSSProperties = {
@@ -225,7 +227,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			window.open(downloadUrl, "_blank");
 		} catch (error) {
 			console.error("Error downloading file:", error);
-			alert("There was an error downloading the file.");
+			showAlert("error", "There was an error downloading the file.");
 		}
 	};
 
@@ -265,8 +267,8 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			console.log("Task updated: ", fileUrl);
 		} catch (error) {
 			console.error("Error updating task:", error);
-			console.log("Downloaded files: ", downloadedFiles);
-			alert("There was an error updating the task.");
+
+			showAlert("info", "There was an error updating the task.");
 		}
 	};
 

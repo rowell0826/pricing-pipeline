@@ -15,6 +15,7 @@ import {
 } from "@/lib/utils/firebase/firebase";
 import { FirebaseError } from "firebase/app";
 import { useRouter } from "next/navigation";
+import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 
 const formSchema = z.object({
 	emailAddress: z.string().email({ message: "Please enter a valid email address" }),
@@ -38,6 +39,8 @@ const formItemLabels: FormItems[] = [
 
 export default function SignInForm() {
 	const router = useRouter();
+
+	const { showAlert } = useTheme();
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -65,10 +68,10 @@ export default function SignInForm() {
 			if (error instanceof FirebaseError) {
 				switch (error.code) {
 					case "auth/wrong-password":
-						alert("Incorrect password for email");
+						showAlert("warning", "Incorrect password for email");
 						break;
 					case "auth/user-not-found":
-						alert("No user associated with this email");
+						showAlert("error", "No user associated with this email");
 						break;
 					default:
 						console.error("Sign-in error:", error.message);
@@ -94,8 +97,6 @@ export default function SignInForm() {
 
 			// Create or update user document in Firestore
 			await createUserDocumentFromAuth(user.uid, userDetails);
-
-			console.log("User signed in with Google");
 
 			router.push("/");
 		} catch (error) {
