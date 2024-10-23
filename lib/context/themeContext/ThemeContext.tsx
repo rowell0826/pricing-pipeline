@@ -2,11 +2,45 @@
 
 import { ThemeContextProps } from "@/lib/types/themeTypes";
 import { createContext, useContext, useEffect, useState } from "react";
+import Swal from "sweetalert2";
 
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const [theme, setTheme] = useState<boolean>(false);
+	const [backgroundColor, setBackgroundColor] = useState<string>("");
+	const [textColor, setTextColor] = useState<string>("");
+
+	useEffect(() => {
+		// Ensure this code runs only on the client-side
+		if (typeof window !== "undefined") {
+			const backgroundColor = getComputedStyle(document.documentElement)
+				.getPropertyValue("--background")
+				.trim();
+			const textColor = getComputedStyle(document.documentElement)
+				.getPropertyValue("--foreground")
+				.trim();
+
+			setBackgroundColor(backgroundColor);
+			setTextColor(textColor);
+		}
+	}, []);
+
+	const showAlert = (
+		iconImg: "success" | "error" | "warning" | "info" | "question",
+		htmlTxt: string
+	) => {
+		Swal.fire({
+			position: "top",
+			icon: iconImg,
+			html: htmlTxt,
+			timer: 1500,
+			showConfirmButton: false,
+			toast: true,
+			background: `hsl(${backgroundColor})`,
+			color: `hsl(${textColor})`,
+		});
+	};
 
 	const toggleTheme = () => {
 		setTheme(!theme);
@@ -33,7 +67,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 		}
 	}, []);
 
-	return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>;
+	return (
+		<ThemeContext.Provider value={{ theme, toggleTheme, showAlert }}>
+			{children}
+		</ThemeContext.Provider>
+	);
 };
 
 export const useTheme = (): ThemeContextProps => {

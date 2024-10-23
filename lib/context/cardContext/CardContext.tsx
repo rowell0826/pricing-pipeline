@@ -3,6 +3,8 @@ import { CardContextProps, Task } from "@/lib/types/cardProps";
 import { createContext, useContext, useState } from "react";
 import { useAuth } from "../authContext/AuthContext";
 
+import { useTheme } from "../themeContext/ThemeContext";
+
 const CardContext = createContext<CardContextProps | undefined>(undefined);
 
 export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -19,6 +21,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	});
 
 	const { role } = useAuth();
+	const { showAlert } = useTheme();
 
 	const sortFilter = (key: string) => {
 		setSortConfig((prevConfig) => {
@@ -31,7 +34,17 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		if (role === "admin" || role === "client") {
 			setOpenCreateTaskModal(!openCreateTaskModal);
 		} else {
-			alert("You're not authorized to create task");
+			/* Swal.fire({
+				position: "top",
+				icon: "warning",
+				background: `hsl(${backgroundColor})`,
+				color: `hsl(${textColor})`,
+				html: "You're not authorized to create task",
+				timer: 1500,
+				showConfirmButton: false,
+				toast: true,
+			}); */
+			showAlert("warning", "You're not authorized to create task");
 		}
 	};
 

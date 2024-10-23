@@ -12,6 +12,8 @@ import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { Task } from "@/lib/types/cardProps";
 import { clientFileUpload, db } from "@/lib/utils/firebase/firebase";
 import { addDoc, collection, getDocs, updateDoc } from "firebase/firestore";
+import Swal from "sweetalert2";
+import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 
 const Modal: React.FC = () => {
 	const {
@@ -26,13 +28,13 @@ const Modal: React.FC = () => {
 
 	const [dueDateInput, setDueDateInput] = useState<string | Date>("");
 	const { userName, role } = useAuth();
+	const { showAlert } = useTheme();
 
 	// Function to add a new task to the state
-
 	const handleAddTask = async () => {
 		try {
 			if (!file) {
-				alert("Please upload a file before adding a task.");
+				showAlert("info", "Please upload a file before adding a task.");
 				return;
 			}
 
@@ -40,7 +42,7 @@ const Modal: React.FC = () => {
 
 			// Check if the upload succeeded
 			if (!fileUrl) {
-				alert("Error uploading file. Please try again.");
+				showAlert("error", "Error uploading file. Please try again.");
 				return;
 			}
 
@@ -74,7 +76,7 @@ const Modal: React.FC = () => {
 					});
 					setRawTasks(updatedTasks);
 
-					alert("Task added successfully!");
+					showAlert("success", "Task added successfully!");
 
 					// Reset the form/modal state
 					setDueDateInput(new Date());
@@ -82,14 +84,15 @@ const Modal: React.FC = () => {
 					setTaskTitle("");
 					setFile(null);
 				} else {
-					alert("Please provide a task title and due date.");
+					showAlert("info", "Please provide a task title and due date.");
 				}
 			} else {
-				alert("You do not have permission to add a task.");
+				showAlert("error", "You do not have permission to add a task.");
 			}
 		} catch (error) {
 			console.error("Error adding task:", error);
-			alert("There was an error adding the task. Please try again.");
+
+			showAlert("error", "There was an error adding the task. Please try again.");
 		}
 	};
 
