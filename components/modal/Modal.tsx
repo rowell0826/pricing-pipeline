@@ -12,7 +12,6 @@ import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { Task } from "@/lib/types/cardProps";
 import { clientFileUpload, db } from "@/lib/utils/firebase/firebase";
 import { addDoc, collection, getDocs, updateDoc } from "firebase/firestore";
-import Swal from "sweetalert2";
 import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 
 const Modal: React.FC = () => {
