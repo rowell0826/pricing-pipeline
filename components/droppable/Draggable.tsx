@@ -105,11 +105,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 					const formatted = formatDate(dueDate);
 					setLocalDueDateInput(dueDate.toISOString().substring(0, 10));
 					setFormattedDate(formatted);
-
-					console.log("FormattedDate", formatted);
-					console.log("Due Date (ISO)", dueDate.toISOString().substring(0, 10));
-					console.log("Due Date Input: ", localDueDateInput);
-					console.log("Due Date lang: ", dueDate);
 				}
 			}
 		};
