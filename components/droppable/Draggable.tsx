@@ -33,6 +33,7 @@ import { useCard } from "@/lib/context/cardContext/CardContext";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { AuthRole } from "@/lib/types/authTypes";
 import { useTheme } from "@/lib/context/themeContext/ThemeContext";
+import Link from "next/link";
 
 interface DraggableProps {
 	id: string | number;
@@ -56,7 +57,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	});
 
 	const { task, getInitials, containerTitle } = props;
-	const { id, title, createdAt, createdBy, dueDate } = task;
+	const { id, title, createdAt, createdBy, dueDate, link, status } = task;
 	const { role } = useAuth();
 	const { setRawTasks, setFilteredTasks, setPricingTasks, setDone } = useCard();
 	const { showAlert } = useTheme();
@@ -297,6 +298,8 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		setFilesMarkedForDeletion([]);
 	};
 
+	console.log("Link: ", task);
+
 	return role === null ? null : (
 		<Card
 			key={id}
@@ -323,131 +326,142 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 					</Badge>
 				</div>
 				<div className="w-full flex justify-evenly items-center gap-2 pt-2">
-					<Dialog>
-						<DialogTrigger asChild>
-							<Button
-								size={"xs"}
-								onClick={(e) => {
-									e.stopPropagation();
-								}}
-								className="text-[8px] bg-black text-white hover:bg-gray-800"
-							>
-								Edit
-							</Button>
-						</DialogTrigger>
+					{status === "done" ? null : (
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button
+									size={"xs"}
+									onClick={(e) => {
+										e.stopPropagation();
+									}}
+									className="text-[8px] bg-black text-white hover:bg-gray-800"
+								>
+									Edit
+								</Button>
+							</DialogTrigger>
 
-						<DialogContent className="max-h-[95%]">
-							<DialogHeader className="text-sidebartx">
-								<DialogTitle className="p-2">Edit Task</DialogTitle>
-								<DialogDescription className="text-sidebartx p-2">
-									Modify the task details below.
-								</DialogDescription>
-							</DialogHeader>
-							<div className="space-y-4 p-2">
-								<div>
-									<label className="block text-sm font-medium ">Title</label>
-									<input
-										type="text"
-										value={editedTitle}
-										onChange={(e) => setEditedTitle(e.target.value)}
-										className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
-									/>
-								</div>
-								<div>
-									<label className="block text-sm font-medium ">Due Date</label>
-									<input
-										type="date"
-										value={(localDueDateInput as string) || ""}
-										onChange={(e) => setLocalDueDateInput(e.target.value)}
-										className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
-									/>
-								</div>
-								{task.status === "pricing" || task.status === "done" ? (
+							<DialogContent className="max-h-[95%]">
+								<DialogHeader className="text-sidebartx">
+									<DialogTitle className="p-2">Edit Task</DialogTitle>
+									<DialogDescription className="text-sidebartx p-2">
+										Modify the task details below.
+									</DialogDescription>
+								</DialogHeader>
+								<div className="space-y-4 p-2">
 									<div>
-										<label className="block text-sm font-medium ">
-											Pricing Link
-										</label>
+										<label className="block text-sm font-medium ">Title</label>
 										<input
 											type="text"
-											value={editLink}
-											onChange={(e) => setEditLink(e.target.value)}
+											value={editedTitle}
+											onChange={(e) => setEditedTitle(e.target.value)}
 											className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
 										/>
 									</div>
-								) : (
-									<>
+									<div>
+										<label className="block text-sm font-medium ">
+											Due Date
+										</label>
+										<input
+											type="date"
+											value={(localDueDateInput as string) || ""}
+											onChange={(e) => setLocalDueDateInput(e.target.value)}
+											className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
+										/>
+									</div>
+									{status === "pricing" ? (
 										<div>
 											<label className="block text-sm font-medium ">
-												Uploaded Files
-											</label>
-											{downloadedFiles.length > 0 ? (
-												<ul className="mt-2 space-y-2 bg-white px-2 py-1 h-[50px] overflow-y-scroll">
-													{downloadedFiles.map((fileUrl, index) => (
-														<li
-															key={index}
-															className="flex justify-between items-center"
-														>
-															{isFileUpload(fileUrl) ? (
-																<>
-																	<a
-																		href={fileUrl.filePath}
-																		target="_blank"
-																		rel="noopener noreferrer"
-																		className="text-cyan-800 hover:underline"
-																	>
-																		{getFilenameFromUrl(
-																			fileUrl.filePath
-																		)}
-																	</a>
-																	<IoCloseSharp
-																		onClick={() =>
-																			handleFileDelete(
-																				fileUrl.filePath
-																			)
-																		}
-																		className="cursor-pointer text-black mr-1"
-																	/>
-																</>
-															) : (
-																<span className="text-gray-500">
-																	Invalid file type
-																</span>
-															)}
-														</li>
-													))}
-												</ul>
-											) : (
-												<p className="text-sm text-gray-500">
-													No files uploaded yet.
-												</p>
-											)}
-										</div>
-										<div className="p-1">
-											<label className="block text-sm font-medium ">
-												Upload File
+												Pricing Link
 											</label>
 											<input
-												type="file"
-												onChange={handleFileChange}
-												className="mt-1 block w-full "
+												type="text"
+												value={editLink}
+												onChange={(e) => setEditLink(e.target.value)}
+												className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
 											/>
 										</div>
-									</>
-								)}
-							</div>
-							<div className="flex justify-end gap-4">
-								<Button onClick={handleEditSubmit} size={"xs"}>
-									<DialogClose>Save</DialogClose>
-								</Button>
+									) : (
+										<>
+											<div>
+												<label className="block text-sm font-medium ">
+													Uploaded Files
+												</label>
+												{downloadedFiles.length > 0 ? (
+													<ul className="mt-2 space-y-2 bg-white px-2 py-1 h-[50px] overflow-y-scroll">
+														{downloadedFiles.map((fileUrl, index) => (
+															<li
+																key={index}
+																className="flex justify-between items-center"
+															>
+																{isFileUpload(fileUrl) ? (
+																	<>
+																		<a
+																			href={fileUrl.filePath}
+																			target="_blank"
+																			rel="noopener noreferrer"
+																			className="text-cyan-800 hover:underline"
+																		>
+																			{getFilenameFromUrl(
+																				fileUrl.filePath
+																			)}
+																		</a>
+																		<IoCloseSharp
+																			onClick={() =>
+																				handleFileDelete(
+																					fileUrl.filePath
+																				)
+																			}
+																			className="cursor-pointer text-black mr-1"
+																		/>
+																	</>
+																) : (
+																	<span className="text-gray-500">
+																		Invalid file type
+																	</span>
+																)}
+															</li>
+														))}
+													</ul>
+												) : (
+													<p className="text-sm text-gray-500">
+														No files uploaded yet.
+													</p>
+												)}
+											</div>
+											<div className="p-1">
+												<label className="block text-sm font-medium ">
+													Upload File
+												</label>
+												<input
+													type="file"
+													onChange={handleFileChange}
+													className="mt-1 block w-full "
+												/>
+											</div>
+										</>
+									)}
+								</div>
+								<div className="flex justify-end gap-4">
+									<Button onClick={handleEditSubmit} size={"xs"}>
+										<DialogClose>Save</DialogClose>
+									</Button>
 
-								<Button onClick={handleCancelEdit} size={"xs"}>
-									<DialogClose>Cancel</DialogClose>
-								</Button>
-							</div>
-						</DialogContent>
-					</Dialog>
+									<Button onClick={handleCancelEdit} size={"xs"}>
+										<DialogClose>Cancel</DialogClose>
+									</Button>
+								</div>
+							</DialogContent>
+						</Dialog>
+					)}
 
-					{role === "client" || role === "admin" ? (
+					{status === "done" ? (
+						<Button
+							size={"xs"}
+							className="text-[8px] bg-black  text-white hover:bg-gray-800"
+						>
+							Archive
+						</Button>
+					) : role === "client" || role === "admin" ? (
 						<Dialog>
 							<DialogTrigger asChild>
 								<Button
@@ -481,7 +495,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						</Dialog>
 					) : null}
 
-					{task.status === "done" || task.status === "pricing" ? (
+					{status === "done" || status === "pricing" ? (
 						<Dialog>
 							<DialogTrigger asChild>
 								<Button
@@ -500,7 +514,14 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 										Here&apos;s the link for the CSV file.
 									</DialogDescription>
 								</DialogHeader>
-								<div>{}</div>
+								{link ? (
+									<div>
+										<Link href={link as string} target="_blank">
+											{link}
+										</Link>
+									</div>
+								) : null}
+
 								<DialogClose asChild>
 									<Button>Close</Button>
 								</DialogClose>

@@ -166,6 +166,7 @@ export default function Home() {
 					const dueDate = data.dueDate;
 					const fileUpload = data.fileUpload;
 					const title = data.title;
+					const link = data.link;
 					const status = data.status;
 
 					return {
@@ -174,6 +175,7 @@ export default function Home() {
 						createdAt,
 						createdBy,
 						fileUpload,
+						link,
 						dueDate,
 						status,
 					} as Task;
@@ -185,6 +187,7 @@ export default function Home() {
 					const createdBy = data.createdBy;
 					const dueDate = data.dueDate;
 					const fileUpload = data.fileUpload;
+					const link = data.link;
 					const title = data.title;
 					const status = data.status;
 
@@ -194,6 +197,7 @@ export default function Home() {
 						createdAt,
 						createdBy,
 						fileUpload,
+						link,
 						dueDate,
 						status,
 					} as Task;
