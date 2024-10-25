@@ -170,15 +170,26 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			);
 
 			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
-			showAlert("success","Ticket deleted.")
+			showAlert("success", "Ticket deleted.");
 		} catch (error) {
 			console.error("Error removing task: ", error);
 		}
 	};
 
 	// Function to group files by folder
-	const groupFilesByFolder = (files: FileUpload[]) => {
+	/* const groupFilesByFolder = (files: FileUpload[]) => {
 		return files.reduce((acc, file) => {
+			if (acc[file.folder]) {
+				acc[file.folder].push(file.filePath);
+			} else {
+				acc[file.folder] = [file.filePath];
+			}
+			return acc;
+		}, {} as Record<string, string[]>);
+	}; */
+
+	const groupFilesByFolder = (files: { fileUpload: FileUpload[] }) => {
+		return files.fileUpload.reduce((acc, file) => {
 			if (acc[file.folder]) {
 				acc[file.folder].push(file.filePath);
 			} else {
@@ -188,7 +199,9 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		}, {} as Record<string, string[]>);
 	};
 
-	const groupedDownloadFiles = groupFilesByFolder(downloadedFiles as FileUpload[]);
+	const groupedDownloadFiles = groupFilesByFolder({
+		fileUpload: downloadedFiles as FileUpload[],
+	});
 
 	const getAccessibleFolders = (role: AuthRole): AuthRole | string[] => {
 		return folderAccessByRole[role] || [];
@@ -219,7 +232,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				await deleteFileFromStorage(file);
 			}
 
-			const taskRef = doc(db, containerTitle, id);
+			const taskRef = doc(db, "tasks", id);
 
 			// Check if a file has been selected for upload
 			let fileUrl = null;
