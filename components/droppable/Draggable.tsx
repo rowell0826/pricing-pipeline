@@ -495,7 +495,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						</Dialog>
 					) : null}
 
-					{status === "done" || status === "pricing" ? (
+					{status === "done" ? (
 						<Dialog>
 							<DialogTrigger asChild>
 								<Button
