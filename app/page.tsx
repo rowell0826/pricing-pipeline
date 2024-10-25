@@ -72,7 +72,7 @@ const sortCategories: SortList[] = [
 ];
 
 export default function Home() {
-	// const [userRole, setUserRole] = useState<AuthRole | null>(null);
+	const [refresh, setRefresh] = useState(false);
 
 	const { user, role } = useAuth();
 	const { sortConfig, sortFilter } = useCard();
@@ -361,8 +361,6 @@ export default function Home() {
 						case "filtering":
 							transferTaskToNextContainer(newItem, activeContainer, overContainer);
 							setFilteredTasks((prev) => {
-								console.log("Task transferred to filtering");
-
 								return [...prev, newItem];
 							});
 
@@ -370,8 +368,6 @@ export default function Home() {
 						case "pricing":
 							transferTaskToNextContainer(newItem, activeContainer, overContainer);
 							setPricingTasks((prev) => {
-								console.log("Task transferred to pricing");
-
 								return [...prev, newItem];
 							});
 
@@ -379,8 +375,6 @@ export default function Home() {
 						case "done":
 							transferTaskToNextContainer(newItem, activeContainer, overContainer);
 							setDone((prev) => {
-								console.log("Task transferred to done");
-
 								return [...prev, newItem];
 							});
 
@@ -454,6 +448,9 @@ export default function Home() {
 				}
 			}
 
+			// Toggle the refresh state to re-render component
+			setRefresh((prev) => !prev);
+
 			setActiveId(null);
 		}
 	};
@@ -463,7 +460,10 @@ export default function Home() {
 			<div className="flex w-full h-screen items-start bg-background">
 				<SideBar />
 
-				<main className="w-[90%] h-[92.5%] max-h-full flex justify-start mt-10">
+				<main
+					key={refresh ? 1 : 0}
+					className="w-[90%] h-[92.5%] max-h-full flex justify-start mt-10"
+				>
 					<DndContext
 						sensors={sensors}
 						collisionDetection={closestCenter}
