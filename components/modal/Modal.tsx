@@ -58,12 +58,12 @@ const Modal: React.FC = () => {
 						status: "raw",
 					};
 
-					const docRef = await addDoc(collection(db, "raw"), newTask);
+					const docRef = await addDoc(collection(db, "task"), newTask);
 
 					await updateDoc(docRef, { id: docRef.id });
 
 					// Update the document with its ID
-					const taskDocs = await getDocs(collection(db, "raw"));
+					const taskDocs = await getDocs(collection(db, "task"));
 					const updatedTasks = taskDocs.docs.map((doc) => {
 						const data = doc.data() as Omit<Task, "id">;
 						return {
