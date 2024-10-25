@@ -59,8 +59,6 @@ const sortCategories: SortList[] = [
 ];
 
 export default function Home() {
-	const [status, setStatus] = useState<string>("");
-
 	const { sortConfig, sortFilter } = useCard();
 	// const { showAlert } = useTheme();
 
