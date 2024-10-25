@@ -28,10 +28,12 @@ export default function RootLayout({
 }>) {
 	return (
 		<ThemeProvider>
-			<html lang="en" className="scroll-smooth">
+			<html lang="en" className="scroll-smooth dark">
 				<AuthProvider>
 					<CardProvider>
-						<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+						<body
+							className={`${geistSans.variable} ${geistMono.variable} antialiased `}
+						>
 							{children}
 						</body>
 					</CardProvider>

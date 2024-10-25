@@ -481,65 +481,94 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						</Dialog>
 					) : null}
 
-					<Dialog>
-						<DialogTrigger asChild>
-							<Button
-								size={"xs"}
-								onClick={(e) => e.stopPropagation()}
-								className="text-[8px] bg-black text-white hover:bg-gray-800"
-							>
-								View Files
-							</Button>
-						</DialogTrigger>
+					{task.status === "done" || task.status === "pricing" ? (
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button
+									size={"xs"}
+									onClick={(e) => e.stopPropagation()}
+									className="text-[8px] bg-black text-white hover:bg-gray-800"
+								>
+									View Link
+								</Button>
+							</DialogTrigger>
 
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>Attached Files</DialogTitle>
-								<DialogDescription>
-									Here are the files attached to this task. You can download them
-									below.
-								</DialogDescription>
-							</DialogHeader>
-							<div className="space-y-4 overflow-y-scroll max-h-60">
-								{Object.keys(groupedDownloadFiles).length > 0 ? (
-									Object.keys(groupedDownloadFiles)
-										.filter((folder) =>
-											getAccessibleFolders(role as AuthRole).includes(folder)
-										)
-										.map((folder) => (
-											<div key={folder}>
-												<h4 className="font-bold">{folder}</h4>
-												{groupedDownloadFiles[folder].map(
-													(filePath, index) => (
-														<div
-															key={index}
-															className="flex items-center justify-between"
-														>
-															<p className="truncate">
-																{getFilenameFromUrl(filePath)}
-															</p>
-															<p
-																className="text-foreground underline cursor-pointer"
-																onClick={() =>
-																	handleDownload(filePath)
-																}
+							<DialogContent>
+								<DialogHeader>
+									<DialogTitle>File Link</DialogTitle>
+									<DialogDescription>
+										Here&apos;s the link for the CSV file.
+									</DialogDescription>
+								</DialogHeader>
+								<div>{}</div>
+								<DialogClose asChild>
+									<Button>Close</Button>
+								</DialogClose>
+							</DialogContent>
+						</Dialog>
+					) : (
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button
+									size={"xs"}
+									onClick={(e) => e.stopPropagation()}
+									className="text-[8px] bg-black text-white hover:bg-gray-800"
+								>
+									View Files
+								</Button>
+							</DialogTrigger>
+
+							<DialogContent>
+								<DialogHeader>
+									<DialogTitle>Attached Files</DialogTitle>
+									<DialogDescription>
+										Here are the files attached to this task. You can download
+										them below.
+									</DialogDescription>
+								</DialogHeader>
+								<div className="space-y-4 overflow-y-scroll max-h-60">
+									{Object.keys(groupedDownloadFiles).length > 0 ? (
+										Object.keys(groupedDownloadFiles)
+											.filter((folder) =>
+												getAccessibleFolders(role as AuthRole).includes(
+													folder
+												)
+											)
+											.map((folder) => (
+												<div key={folder}>
+													<h4 className="font-bold">{folder}</h4>
+													{groupedDownloadFiles[folder].map(
+														(filePath, index) => (
+															<div
+																key={index}
+																className="flex items-center justify-between"
 															>
-																Download
-															</p>
-														</div>
-													)
-												)}
-											</div>
-										))
-								) : (
-									<p>No files available for download.</p>
-								)}
-							</div>
-							<Button className="mt-4" asChild>
-								<DialogClose>Close</DialogClose>
-							</Button>
-						</DialogContent>
-					</Dialog>
+																<p className="truncate">
+																	{getFilenameFromUrl(filePath)}
+																</p>
+																<p
+																	className="text-foreground underline cursor-pointer"
+																	onClick={() =>
+																		handleDownload(filePath)
+																	}
+																>
+																	Download
+																</p>
+															</div>
+														)
+													)}
+												</div>
+											))
+									) : (
+										<p>No files available for download.</p>
+									)}
+								</div>
+								<DialogClose asChild>
+									<Button className="mt-4">Close</Button>
+								</DialogClose>
+							</DialogContent>
+						</Dialog>
+					)}
 				</div>
 			</div>
 		</Card>

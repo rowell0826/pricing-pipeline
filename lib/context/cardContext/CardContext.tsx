@@ -34,16 +34,6 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		if (role === "admin" || role === "client") {
 			setOpenCreateTaskModal(!openCreateTaskModal);
 		} else {
-			/* Swal.fire({
-				position: "top",
-				icon: "warning",
-				background: `hsl(${backgroundColor})`,
-				color: `hsl(${textColor})`,
-				html: "You're not authorized to create task",
-				timer: 1500,
-				showConfirmButton: false,
-				toast: true,
-			}); */
 			showAlert("warning", "You're not authorized to create task");
 		}
 	};
