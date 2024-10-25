@@ -14,7 +14,6 @@ export interface Task {
 export interface ContainerList {
 	id: string;
 	items: Task[];
-	setter: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 
 export interface FileUpload {
@@ -30,18 +29,12 @@ export interface SortList {
 export interface CardContextProps {
 	openCreateTaskModal: boolean;
 	sortConfig: { key: string; order: "asc" | "desc" };
-	rawTasks: Task[];
-	filteredTasks: Task[];
-	pricingTasks: Task[];
-	done: Task[];
+	tasks: Task[];
 	file: File | null;
 	taskTitle: string;
 	setSortConfig: Dispatch<SetStateAction<{ key: string; order: "asc" | "desc" }>>;
 	setTaskTitle: Dispatch<SetStateAction<string>>;
-	setRawTasks: Dispatch<SetStateAction<Task[]>>;
-	setFilteredTasks: Dispatch<SetStateAction<Task[]>>;
-	setPricingTasks: Dispatch<SetStateAction<Task[]>>;
-	setDone: Dispatch<SetStateAction<Task[]>>;
+	setTasks: Dispatch<SetStateAction<Task[]>>;
 	setFile: Dispatch<SetStateAction<File | null>>;
 	modalHandler: () => void;
 	setOpenCreateTaskModal: Dispatch<SetStateAction<boolean>>;

@@ -11,10 +11,8 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	const [file, setFile] = useState<File | null>(null);
 	const [openCreateTaskModal, setOpenCreateTaskModal] = useState<boolean>(false);
 	const [taskTitle, setTaskTitle] = useState<string>("");
-	const [rawTasks, setRawTasks] = useState<Task[]>([]); //Task in "Raw folder"
-	const [filteredTasks, setFilteredTasks] = useState<Task[]>([]); //Task in "Filtered folder"
-	const [pricingTasks, setPricingTasks] = useState<Task[]>([]); // Task in "Pricing folder"
-	const [done, setDone] = useState<Task[]>([]); // Task in "Done folder"
+	const [tasks, setTasks] = useState<Task[]>([]); //Task in "Raw folder"
+
 	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
 		key: "createdAt", // Default sort by createdAt
 		order: "asc",
@@ -43,18 +41,12 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			value={{
 				openCreateTaskModal,
 				sortConfig,
-				rawTasks,
-				filteredTasks,
-				pricingTasks,
-				done,
+				tasks,
 				file,
 				taskTitle,
 				setSortConfig,
 				setTaskTitle,
-				setRawTasks,
-				setFilteredTasks,
-				setPricingTasks,
-				setDone,
+				setTasks,
 				setFile,
 				modalHandler,
 				setOpenCreateTaskModal,

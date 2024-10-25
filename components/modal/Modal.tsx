@@ -22,7 +22,7 @@ const Modal: React.FC = () => {
 		taskTitle,
 		openCreateTaskModal,
 		setOpenCreateTaskModal,
-		setRawTasks,
+		setTasks,
 	} = useCard();
 
 	const [dueDateInput, setDueDateInput] = useState<string | Date>("");
@@ -58,12 +58,12 @@ const Modal: React.FC = () => {
 						status: "raw",
 					};
 
-					const docRef = await addDoc(collection(db, "task"), newTask);
+					const docRef = await addDoc(collection(db, "tasks"), newTask);
 
 					await updateDoc(docRef, { id: docRef.id });
 
 					// Update the document with its ID
-					const taskDocs = await getDocs(collection(db, "task"));
+					const taskDocs = await getDocs(collection(db, "tasks"));
 					const updatedTasks = taskDocs.docs.map((doc) => {
 						const data = doc.data() as Omit<Task, "id">;
 						return {
@@ -71,7 +71,7 @@ const Modal: React.FC = () => {
 							...data,
 						};
 					});
-					setRawTasks(updatedTasks);
+					setTasks(updatedTasks);
 
 					showAlert("success", "Task added successfully!");
 

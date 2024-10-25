@@ -59,7 +59,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const { task, getInitials, containerTitle } = props;
 	const { id, title, createdAt, createdBy, dueDate, link, status } = task;
 	const { role } = useAuth();
-	const { setRawTasks, setFilteredTasks, setPricingTasks, setDone } = useCard();
+	const { setTasks } = useCard();
 	const { showAlert } = useTheme();
 
 	// Declare the style object and cast it as React.CSSProperties
@@ -94,25 +94,21 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 	useEffect(() => {
 		const fetchTaskData = async () => {
-			const taskRef = doc(db, containerTitle, id);
+			const taskRef = doc(db, "tasks", id); // Updated to use a static folder name
 			const taskSnapshot = await getDoc(taskRef);
 			const taskData = taskSnapshot.data();
 
 			if (taskData) {
 				setDownloadedFiles(taskData.fileUpload || []);
-
 				if (taskData.dueDate) {
 					const dueDate = taskData.dueDate.toDate();
-
-					const formatted = formatDate(dueDate);
-					setLocalDueDateInput(dueDate.toISOString().substring(0, 10));
-					setFormattedDate(formatted);
+					setFormattedDate(dueDate.toLocaleDateString());
 				}
 			}
 		};
 
 		fetchTaskData();
-	}, [containerTitle, id, dueDate, localDueDateInput, setLocalDueDateInput]);
+	}, [id]);
 
 	const getFilenameFromUrl = (url: string) => {
 		if (typeof url !== "string") {
@@ -129,11 +125,13 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		return decodedFilename;
 	};
 
-	const removeTask = async (taskID: string, container: string) => {
-		const taskDocRef = doc(db, container, taskID);
+	const removeTask = async (taskID: string) => {
+		const taskDocRef = doc(db, "tasks", taskID);
 
 		const taskSnapshot = await getDoc(taskDocRef);
 		const taskDetails = taskSnapshot.data();
+
+		console.log("Tasks Details: ", taskDetails);
 
 		const taskFileStorage = taskDetails?.fileUpload;
 
@@ -171,22 +169,8 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				})
 			);
 
-			switch (container) {
-				case "raw":
-					setRawTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
-					break;
-				case "filtering":
-					setFilteredTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
-					break;
-				case "pricing":
-					setPricingTasks((prevTask) => prevTask.filter((task) => task.id !== taskID));
-					break;
-				case "done":
-					setDone((prevTask) => prevTask.filter((task) => task.id !== taskID));
-					break;
-				default:
-					throw Error("Cannot delete ticket.");
-			}
+			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
+			showAlert("success","Ticket deleted.")
 		} catch (error) {
 			console.error("Error removing task: ", error);
 		}
@@ -297,8 +281,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		// Clear the markedForDeletionFiles array
 		setFilesMarkedForDeletion([]);
 	};
-
-	console.log("Link: ", task);
 
 	return role === null ? null : (
 		<Card
@@ -482,7 +464,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 										onClick={(e) => {
 											e.stopPropagation();
 
-											removeTask(task.id, containerTitle);
+											removeTask(task.id);
 										}}
 									>
 										Proceed
