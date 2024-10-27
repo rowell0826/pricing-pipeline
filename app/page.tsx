@@ -265,10 +265,7 @@ export default function Home() {
 									</div>
 									<div className="custom-scrollbar overflow-y-scroll">
 										<SortableContext
-											items={items.map((item) => {
-												console.log("Item id: ", item.id);
-												return item.id;
-											})}
+											items={items.map((item) => item.id)}
 											strategy={verticalListSortingStrategy}
 										>
 											<Droppable id={id}>
