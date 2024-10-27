@@ -60,7 +60,6 @@ const sortCategories: SortList[] = [
 
 export default function Home() {
 	const { sortConfig, sortFilter } = useCard();
-	// const { showAlert } = useTheme();
 
 	const { tasks, setTasks } = useCard();
 
@@ -128,10 +127,6 @@ export default function Home() {
 			console.error("Error updating task status:", error);
 		}
 	};
-
-	/* const moveToArchive = () => {
-
-	} */
 
 	// Dnd context
 	const sensors = useSensors(
@@ -276,34 +271,3 @@ export default function Home() {
 		</PrivateRoute>
 	);
 }
-
-/* const handleDragEnd = async (event: DragEndEvent) => {
-		const { active, over } = event;
-
-		if (over) {
-			const newStatus = over.id as TaskStatus;
-
-			const activeTaskIndex = tasks.findIndex((task) => task.id === active.id);
-
-			if (activeTaskIndex !== -1) {
-				try {
-					// Update status in Firebase
-					await updateTaskStatus(active.id as string, newStatus);
-
-					// Update local state with new status
-					setTasks((prevTasks) => {
-						const updatedTasks = [...prevTasks];
-						updatedTasks[activeTaskIndex] = {
-							...updatedTasks[activeTaskIndex],
-							status: newStatus,
-						};
-						return updatedTasks;
-					});
-				} catch (error) {
-					console.error("Failed to update task status:", error);
-				}
-			}
-		}
-
-		setActiveId(null); // Reset activeId to remove the drag overlay
-	}; */

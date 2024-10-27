@@ -6,7 +6,15 @@ import {
 	storage,
 } from "@/lib/utils/firebase/firebase";
 import { useDraggable } from "@dnd-kit/core";
-import { deleteDoc, doc, getDoc, Timestamp, updateDoc } from "firebase/firestore";
+import {
+	addDoc,
+	collection,
+	deleteDoc,
+	doc,
+	getDoc,
+	Timestamp,
+	updateDoc,
+} from "firebase/firestore";
 import {
 	deleteObject,
 	getDownloadURL,
@@ -125,8 +133,8 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		return decodedFilename;
 	};
 
-	const removeTask = async (taskID: string) => {
-		const taskDocRef = doc(db, "tasks", taskID);
+	const removeTask = async (taskId: string) => {
+		const taskDocRef = doc(db, "tasks", taskId);
 
 		const taskSnapshot = await getDoc(taskDocRef);
 		const taskDetails = taskSnapshot.data();
@@ -169,10 +177,34 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				})
 			);
 
-			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskID));
+			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
 			showAlert("success", "Ticket deleted.");
 		} catch (error) {
 			console.error("Error removing task: ", error);
+		}
+	};
+
+	const moveToArchive = async (taskId: string) => {
+		const taskRef = doc(db, "tasks", taskId);
+
+		try {
+			const taskSnapshot = await getDoc(taskRef);
+
+			if (!taskSnapshot.exists()) {
+				throw new Error("Task does not exist.");
+			}
+			const taskData = taskSnapshot.data();
+
+			await addDoc(collection(db, "archive"), taskData);
+
+			await deleteDoc(taskRef);
+
+			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+
+			showAlert("success", "Task has been archived.");
+		} catch (error) {
+			console.error("Unable to move to archive.", error);
+			showAlert("error", "Failed to archive the task.");
 		}
 	};
 
@@ -445,6 +477,10 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 						<Button
 							size={"xs"}
 							className="text-[8px] bg-black  text-white hover:bg-gray-800"
+							onClick={(e) => {
+								e.stopPropagation();
+								moveToArchive(task.id);
+							}}
 						>
 							Archive
 						</Button>
