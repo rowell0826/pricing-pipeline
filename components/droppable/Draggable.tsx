@@ -176,18 +176,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		}
 	};
 
-	// Function to group files by folder
-	/* const groupFilesByFolder = (files: FileUpload[]) => {
-		return files.reduce((acc, file) => {
-			if (acc[file.folder]) {
-				acc[file.folder].push(file.filePath);
-			} else {
-				acc[file.folder] = [file.filePath];
-			}
-			return acc;
-		}, {} as Record<string, string[]>);
-	}; */
-
 	const groupFilesByFolder = (files: { fileUpload: FileUpload[] }) => {
 		return files.fileUpload.reduce((acc, file) => {
 			if (acc[file.folder]) {
@@ -294,6 +282,10 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		// Clear the markedForDeletionFiles array
 		setFilesMarkedForDeletion([]);
 	};
+
+	if (isDragging) {
+		return <></>;
+	}
 
 	return role === null ? null : (
 		<Card
