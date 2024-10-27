@@ -263,19 +263,20 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			const taskDoc = await getDoc(taskRef);
 			const currentFileUpload = taskDoc.data()?.fileUpload || [];
 
+			const updatedFileUpload = currentFileUpload.filter(
+				(file: FileUpload) => !filesMarkedForDeletion.includes(file.filePath)
+			);
+
+			if (fileUrl) {
+				updatedFileUpload.push({ folder: containerTitle, filePath: fileUrl });
+			}
+
 			// Update Firestore document, include the new file URL only if a file was uploaded
 			const updatedFields: Partial<Task> = {
 				title: editedTitle,
 				link: editLink,
 				dueDate: localDueDateInput ? new Date(localDueDateInput) : dueDate,
 			};
-
-			if (fileUrl) {
-				updatedFields.fileUpload = [
-					...currentFileUpload,
-					{ folder: containerTitle, filePath: fileUrl },
-				];
-			}
 
 			await updateDoc(taskRef, updatedFields);
 
