@@ -38,6 +38,8 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 import { useCard } from "@/lib/context/cardContext/CardContext";
+import { useTheme } from "@/lib/context/themeContext/ThemeContext";
+import { useAuth } from "@/lib/context/authContext/AuthContext";
 
 const sortCategories: SortList[] = [
 	{
@@ -62,6 +64,8 @@ export default function Home() {
 	const { sortConfig, sortFilter } = useCard();
 
 	const { tasks, setTasks } = useCard();
+	const { showAlert } = useTheme();
+	const { role } = useAuth();
 
 	const cardContainer: ContainerList[] = [
 		{ id: "raw", items: tasks.filter((task) => task.status === "raw") },
@@ -159,17 +163,51 @@ export default function Home() {
 		// If item is dragged within the same container, no change needed
 		if (activeId === overId) return;
 
-		const updatedTasks = tasks.map((task) => {
-			// Only update task if it's the active one
-			if (task.id === activeId) {
-				const newStatus = overId as TaskStatus;
-				updateTaskStatus(activeId, newStatus); // Update in Firestore
-				return { ...task, status: newStatus }; // Update locally
-			}
-			return task;
-		});
+		// Get the current task being dragged
+		const task = tasks.find((task) => task.id === activeId);
+		if (!task) return; // Early exit if the task is not found
 
-		setTasks(updatedTasks); // Update state to re-render
+		const currentStatus = task.status;
+
+		// Check role and allowed movements
+		if (role === "admin") {
+			// Admin can move tasks between any containers
+			updateTaskStatus(activeId as string, overId as TaskStatus);
+			const updatedTasks = tasks.map((t) =>
+				t.id === activeId ? { ...t, status: overId as TaskStatus } : t
+			);
+			setTasks(updatedTasks); // Update state to re-render
+		} else if (role === "dataManager") {
+			// dataMgr can only move tasks from "raw" to "filtering" or "filtering" to "pricing"
+			if (
+				(currentStatus === "raw" && overId === "filtering") ||
+				(currentStatus === "filtering" && overId === "pricing")
+			) {
+				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
+				const updatedTasks = tasks.map((t) =>
+					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
+				);
+				setTasks(updatedTasks); // Update state to re-render
+			} else {
+				showAlert("error", "You do not have permission to move this task.");
+			}
+		} else if (role === "dataScientist" || role === "promptEngineer") {
+			// dataScientist and promptEngineer can only move tasks from "filtering" to "pricing" or "pricing" to "done"
+			if (
+				(currentStatus === "filtering" && overId === "pricing") ||
+				(currentStatus === "pricing" && overId === "done")
+			) {
+				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
+				const updatedTasks = tasks.map((t) =>
+					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
+				);
+				setTasks(updatedTasks); // Update state to re-render
+			} else {
+				showAlert("error", "You do not have permission to move this task.");
+			}
+		} else {
+			showAlert("error", "You do not have permission to move this task.");
+		}
 	};
 
 	const activeTask = tasks.find((task) => task.id === activeId);
