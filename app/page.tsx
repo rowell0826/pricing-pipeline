@@ -151,35 +151,30 @@ export default function Home() {
 		setActiveId(String(active.id));
 	};
 
-	const handleDragEnd = async (event: DragEndEvent) => {
+	const handleDragEnd = (event: DragEndEvent) => {
+		setActiveId(null);
+
 		const { active, over } = event;
 
-		if (over) {
-			const newStatus = over.id as TaskStatus;
+		if (!over) return;
 
-			const activeTaskIndex = tasks.findIndex((task) => task.id === active.id);
+		const activeId = active.id;
+		const overId = over.id;
 
-			if (activeTaskIndex !== -1) {
-				try {
-					// Update status in Firebase
-					await updateTaskStatus(active.id as string, newStatus);
+		// If item is dragged within the same container, no change needed
+		if (activeId === overId) return;
 
-					// Update local state with new status
-					setTasks((prevTasks) => {
-						const updatedTasks = [...prevTasks];
-						updatedTasks[activeTaskIndex] = {
-							...updatedTasks[activeTaskIndex],
-							status: newStatus,
-						};
-						return updatedTasks;
-					});
-				} catch (error) {
-					console.error("Failed to update task status:", error);
-				}
+		const updatedTasks = tasks.map((task) => {
+			// Only update task if it's the active one
+			if (task.id === activeId) {
+				const newStatus = overId as TaskStatus;
+				updateTaskStatus(activeId, newStatus); // Update in Firestore
+				return { ...task, status: newStatus }; // Update locally
 			}
-		}
+			return task;
+		});
 
-		setActiveId(null); // Reset activeId to remove the drag overlay
+		setTasks(updatedTasks); // Update state to re-render
 	};
 
 	const activeTask = tasks.find((task) => task.id === activeId);
@@ -281,3 +276,34 @@ export default function Home() {
 		</PrivateRoute>
 	);
 }
+
+/* const handleDragEnd = async (event: DragEndEvent) => {
+		const { active, over } = event;
+
+		if (over) {
+			const newStatus = over.id as TaskStatus;
+
+			const activeTaskIndex = tasks.findIndex((task) => task.id === active.id);
+
+			if (activeTaskIndex !== -1) {
+				try {
+					// Update status in Firebase
+					await updateTaskStatus(active.id as string, newStatus);
+
+					// Update local state with new status
+					setTasks((prevTasks) => {
+						const updatedTasks = [...prevTasks];
+						updatedTasks[activeTaskIndex] = {
+							...updatedTasks[activeTaskIndex],
+							status: newStatus,
+						};
+						return updatedTasks;
+					});
+				} catch (error) {
+					console.error("Failed to update task status:", error);
+				}
+			}
+		}
+
+		setActiveId(null); // Reset activeId to remove the drag overlay
+	}; */

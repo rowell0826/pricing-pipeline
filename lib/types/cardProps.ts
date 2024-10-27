@@ -1,5 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 
+export type Id = string | number;
+
 export interface Task {
 	id: string;
 	title: string;

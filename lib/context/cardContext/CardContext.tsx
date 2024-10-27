@@ -11,7 +11,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	const [file, setFile] = useState<File | null>(null);
 	const [openCreateTaskModal, setOpenCreateTaskModal] = useState<boolean>(false);
 	const [taskTitle, setTaskTitle] = useState<string>("");
-	const [tasks, setTasks] = useState<Task[]>([]); //Task in "Raw folder"
+	const [tasks, setTasks] = useState<Task[]>([]);
 
 	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
 		key: "createdAt", // Default sort by createdAt
