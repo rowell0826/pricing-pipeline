@@ -173,7 +173,12 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				taskFileStorage.map(async (file: FileUpload) => {
 					// Create a reference to the file in Firebase Storage
 					const fileRef = ref(storage, decodeURIComponent(file.filePath));
-					await deleteObject(fileRef); // Delete the file from firebase storage
+
+					if (fileRef != null) {
+						await deleteObject(fileRef); // Delete the file from firebase storage
+					} else {
+						return; // 10/28/2024
+					}
 				})
 			);
 
