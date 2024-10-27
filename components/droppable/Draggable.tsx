@@ -276,6 +276,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				title: editedTitle,
 				link: editLink,
 				dueDate: localDueDateInput ? new Date(localDueDateInput) : dueDate,
+				fileUpload: updatedFileUpload,
 			};
 
 			await updateDoc(taskRef, updatedFields);
