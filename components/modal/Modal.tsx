@@ -26,14 +26,20 @@ const Modal: React.FC = () => {
 	} = useCard();
 
 	const [dueDateInput, setDueDateInput] = useState<string | Date>("");
+	const [isAddingTask, setIsAddingTask] = useState<boolean>(false);
 	const { userName, role } = useAuth();
 	const { showAlert } = useTheme();
 
 	// Function to add a new task to the state
 	const handleAddTask = async () => {
 		try {
+			if (isAddingTask) return;
+
+			setIsAddingTask(true);
+
 			if (!file) {
 				showAlert("info", "Please upload a file before adding a task.");
+				setIsAddingTask(false);
 				return;
 			}
 
@@ -42,6 +48,7 @@ const Modal: React.FC = () => {
 			// Check if the upload succeeded
 			if (!fileUrl) {
 				showAlert("error", "Error uploading file. Please try again.");
+				setIsAddingTask(false);
 				return;
 			}
 
@@ -82,14 +89,22 @@ const Modal: React.FC = () => {
 					setFile(null);
 				} else {
 					showAlert("info", "Please provide a task title and due date.");
+					setIsAddingTask(false);
+					return;
 				}
 			} else {
 				showAlert("error", "You do not have permission to add a task.");
+				setIsAddingTask(false);
+				return;
 			}
 		} catch (error) {
 			console.error("Error adding task:", error);
 
+			setIsAddingTask(false);
+
 			showAlert("error", "There was an error adding the task. Please try again.");
+		} finally {
+			setIsAddingTask(false);
 		}
 	};
 
@@ -128,7 +143,9 @@ const Modal: React.FC = () => {
 					{file && <p>Selected File: {file.name}</p>}
 				</DialogDescription>
 				<div className="flex justify-end gap-4">
-					<Button onClick={handleAddTask}>Add Task</Button>
+					<Button onClick={handleAddTask} disabled={isAddingTask}>
+						Add Task
+					</Button>
 					<Button onClick={() => setOpenCreateTaskModal(false)}>Cancel</Button>
 				</div>
 			</DialogContent>
