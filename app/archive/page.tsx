@@ -40,11 +40,6 @@ import React, { useEffect, useState } from "react";
 import { BiSolidSortAlt } from "react-icons/bi";
 import { IoIosArrowBack } from "react-icons/io";
 
-type ArchiveTaskProps = {
-	task: Task;
-	getInitials: (name: string) => string;
-};
-
 const sortCategories: SortList[] = [
 	{
 		input: "Sort by Task",
@@ -64,7 +59,7 @@ const sortCategories: SortList[] = [
 	},
 ];
 
-const Archive: React.FC<ArchiveTaskProps> = () => {
+const Archive: React.FC = () => {
 	const { sortConfig, sortFilter } = useCard();
 	const [archiveTasks, setArchiveTasks] = useState<Task[]>([]);
 
