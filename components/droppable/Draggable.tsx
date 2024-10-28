@@ -70,6 +70,8 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const { setTasks } = useCard();
 	const { showAlert } = useTheme();
 
+	const today = new Date().toISOString().split("T")[0];
+
 	// Declare the style object and cast it as React.CSSProperties
 	const style: React.CSSProperties = {
 		transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
@@ -390,6 +392,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 										<input
 											type="date"
 											value={(localDueDateInput as string) || ""}
+											min={today}
 											onChange={(e) => setLocalDueDateInput(e.target.value)}
 											className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
 										/>

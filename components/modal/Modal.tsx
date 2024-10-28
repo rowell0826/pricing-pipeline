@@ -30,6 +30,8 @@ const Modal: React.FC = () => {
 	const { userName, role } = useAuth();
 	const { showAlert } = useTheme();
 
+	const today = new Date().toISOString().split("T")[0];
+
 	// Function to add a new task to the state
 	const handleAddTask = async () => {
 		try {
@@ -128,6 +130,7 @@ const Modal: React.FC = () => {
 						<input
 							type="date"
 							value={dueDateInput.toString()}
+							min={today}
 							onChange={(e) => setDueDateInput(e.target.value)}
 							className="mt-1 border rounded px-2 py-1 !text-black"
 						/>
