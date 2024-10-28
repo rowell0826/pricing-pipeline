@@ -110,62 +110,6 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 		return decodedFilename;
 	};
 
-	/* const removeTask = async (taskId: string) => {
-		const taskDocRef = doc(db, "archive", taskId);
-
-		const taskSnapshot = await getDoc(taskDocRef);
-		const taskDetails = taskSnapshot.data();
-
-		console.log("Tasks Details: ", taskDetails);
-
-		const taskFileStorage = taskDetails?.fileUpload;
-
-		task.fileUpload
-			.map((file) => {
-				if (typeof file === "string") {
-					const match = file.match(/\/o\/([^?]*)/);
-					if (match) {
-						const decodedPath = decodeURIComponent(match[1]);
-
-						return {
-							folder: containerTitle,
-							filePath: decodedPath,
-						};
-					}
-				} else if (file instanceof File) {
-					// Create a FileUpload object
-					return {
-						folder: containerTitle,
-						filePath: file.name,
-					};
-				}
-				return undefined;
-			})
-			.filter((path): path is FileUpload => path !== undefined);
-
-		try {
-			await deleteDoc(taskDocRef);
-
-			await Promise.all(
-				taskFileStorage.map(async (file: FileUpload) => {
-					// Create a reference to the file in Firebase Storage
-					const fileRef = ref(storage, decodeURIComponent(file.filePath));
-
-					if (fileRef != null) {
-						await deleteObject(fileRef); // Delete the file from firebase storage
-					} else {
-						return; // 10/28/2024
-					}
-				})
-			);
-
-			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-			showAlert("success", "Ticket deleted.");
-		} catch (error) {
-			console.error("Error removing task: ", error);
-		}
-	}; */
-
 	const removeTask = async (taskId: string) => {
 		const taskDocRef = doc(db, "archive", taskId);
 
@@ -275,7 +219,7 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 			</CardHeader>
 
 			<div className="p-2 mt-2 rounded-md">
-				<div>
+				<div className="flex justify-evenly items-center">
 					<Badge className="text-[8px] bg-black text-white hover:bg-gray-800">
 						Created: {formatDate(createdAt)}
 					</Badge>
