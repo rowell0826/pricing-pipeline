@@ -251,7 +251,7 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 						</DialogTrigger>
 
 						<DialogContent>
-							<div className="text-cn">
+							<div className="text-center">
 								<p>Are you sure you want to remove the task?</p>
 							</div>
 							<div className="flex justify-end items-center gap-4">
