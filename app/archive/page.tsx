@@ -35,10 +35,9 @@ import {
 import { collection, doc, getDocs, orderBy, query, writeBatch } from "firebase/firestore";
 import Link from "next/link";
 
-// import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import React, { useEffect, useState } from "react";
 import { BiSolidSortAlt } from "react-icons/bi";
-import { IoIosArrowBack } from "react-icons/io";
+import { FaArrowLeft } from "react-icons/fa";
 
 const sortCategories: SortList[] = [
 	{
@@ -165,7 +164,9 @@ const Archive: React.FC = () => {
 				<div className="w-full flex flex-col">
 					<div className="w-6 h-6 bg-gray-600 p-2 rounded-md flex justify-center items-center">
 						<Link href="/">
-							<IoIosArrowBack />
+							<Button className="ml-5">
+								<FaArrowLeft />
+							</Button>
 						</Link>
 					</div>
 					<h3 className="p-4 text-sidebartx">Archive</h3>
