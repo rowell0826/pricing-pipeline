@@ -33,10 +33,12 @@ import {
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { collection, doc, getDocs, orderBy, query, writeBatch } from "firebase/firestore";
+import Link from "next/link";
 
 // import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import React, { useEffect, useState } from "react";
 import { BiSolidSortAlt } from "react-icons/bi";
+import { IoIosArrowBack } from "react-icons/io";
 
 type ArchiveTaskProps = {
 	task: Task;
@@ -165,7 +167,14 @@ const Archive: React.FC<ArchiveTaskProps> = () => {
 	return (
 		<div className="w-screen flex justify-center items-center">
 			<div className="w-screen h-screen border-2 border-zinc-800 text-center flex flex-col gap-y-4 justify-center items-center rounded-md text-sidebartx bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden p-4">
-				<h3 className="p-4 text-sidebartx">Archive</h3>
+				<div className="w-full flex flex-col">
+					<div className="w-6 h-6 bg-gray-600 p-2 rounded-md flex justify-center items-center">
+						<Link href="/">
+							<IoIosArrowBack />
+						</Link>
+					</div>
+					<h3 className="p-4 text-sidebartx">Archive</h3>
+				</div>
 				<div className="w-full flex justify-end items-center p-2">
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
