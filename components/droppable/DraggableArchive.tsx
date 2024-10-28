@@ -209,11 +209,11 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 			ref={setNodeRef}
 			style={style}
 			{...attributes}
-			className="h-[115px] w-full rounded-md bg-white"
+			className="h-[120px] w-full rounded-md bg-white"
 		>
-			<CardHeader className="h-[30%] py-2" {...listeners}>
+			<CardHeader className="h-[35%] py-2" {...listeners}>
 				<CardTitle className="text-left text-xs text-black">{title}</CardTitle>
-				<Avatar className="mr-2 w-6 h-6">
+				<Avatar className="mr-2 w-6 h-6 -top-1">
 					<AvatarFallback className="text-xs">{getInitials(createdBy)}</AvatarFallback>
 				</Avatar>
 			</CardHeader>
