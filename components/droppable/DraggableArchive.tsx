@@ -209,7 +209,7 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 			ref={setNodeRef}
 			style={style}
 			{...attributes}
-			className="h-[120px] w-full rounded-md bg-white"
+			className="h-[120px] min-w-[250px] max-w-[300px] rounded-md bg-white"
 		>
 			<CardHeader className="h-[35%] py-2" {...listeners}>
 				<CardTitle className="text-left text-xs text-black">{title}</CardTitle>
