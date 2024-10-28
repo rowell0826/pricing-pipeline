@@ -224,7 +224,7 @@ export default function Home() {
 						onDragStart={handleDragStart}
 						onDragEnd={handleDragEnd}
 					>
-						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-h-full w-full gap-4 p-4 justify-items-center overflow-y-scroll">
+						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-h-full w-full gap-4 p-4 justify-items-center overflow-y-scroll custom-scrollbar">
 							{cardContainer.map(({ id, items }) => (
 								<div
 									key={id}
