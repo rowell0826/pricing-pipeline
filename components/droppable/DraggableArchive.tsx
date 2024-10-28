@@ -153,7 +153,7 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 			}
 			const taskData = taskSnapshot.data();
 
-			await addDoc(collection(db, "tasks collection"), taskData);
+			await addDoc(collection(db, "tasks"), taskData);
 
 			await deleteDoc(taskRef);
 
