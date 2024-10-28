@@ -2,7 +2,6 @@ import { FileListModalProps } from "@/lib/types/modalProps";
 import { Dialog } from "@radix-ui/react-dialog";
 import { DialogClose, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
-// import { useEffect } from "react";
 
 const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileList }) => {
 	const getFilenameFromUrl = (url: string, removeSegment?: string) => {

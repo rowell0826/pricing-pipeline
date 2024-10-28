@@ -66,8 +66,6 @@ export default function SideBar() {
 				// List all files in the folder
 				const folderContents = await listAll(folderRef);
 
-				console.log(`Fetched items from folder: ${folder}`, folderContents.items);
-
 				// Fetch file URLs for the current folder and map them to the expected shape
 				const filePaths = await Promise.all(
 					folderContents.items.map(async (fileRef) => {
@@ -82,8 +80,6 @@ export default function SideBar() {
 
 			// Set the state with all fetched file objects
 			setFileList(fileObjects);
-
-			console.log("FileListModal fileList prop:", fileList);
 		} catch (error) {
 			console.error("Error fetching files: ", error);
 		}
