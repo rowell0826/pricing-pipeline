@@ -2,6 +2,7 @@
 import { signOutUser, storage } from "@/lib/utils/firebase/firebase";
 import { FiUsers } from "react-icons/fi";
 import { RxHamburgerMenu } from "react-icons/rx";
+import { VscArchive } from "react-icons/vsc";
 import { Switch } from "../ui/switch";
 import { useState } from "react";
 import { FcOpenedFolder } from "react-icons/fc";
@@ -143,13 +144,18 @@ export default function SideBar() {
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
 							{role === "admin" ? (
-								<Link href="/admin">
-									<DropdownMenuItem>User List</DropdownMenuItem>
-								</Link>
+								<>
+									<Link href="/admin">
+										<DropdownMenuItem>User List</DropdownMenuItem>
+									</Link>
+									<DropdownMenuItem onClick={handleViewFiles}>
+										View Files
+									</DropdownMenuItem>
+									<Link href="/archive">
+										<DropdownMenuItem>Archive</DropdownMenuItem>
+									</Link>
+								</>
 							) : null}
-							<DropdownMenuItem onClick={handleViewFiles}>
-								View Files
-							</DropdownMenuItem>
 							<DropdownMenuItem onClick={modalHandler}>Create Task</DropdownMenuItem>
 							<DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
 						</DropdownMenuGroup>
@@ -199,8 +205,8 @@ export default function SideBar() {
 				<ul className="flex flex-col gap-4">
 					{role === "admin" ? (
 						<Link href="/admin">
-							<li className="p-4 flex justify-center items-center gap-2 cursor-pointer text-sidebartx">
-								<span className="inline-block">
+							<li className="p-4 flex justify-evenly items-center gap-2 cursor-pointer text-sidebartx">
+								<span className={`inline-block ${isOpen ? "mr-6" : ""}`}>
 									<FiUsers />
 								</span>
 								{isOpen && "User List"}
@@ -208,16 +214,24 @@ export default function SideBar() {
 						</Link>
 					) : null}
 					<li
-						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-sidebartx"
+						className="p-4 flex justify-evenly items-center gap-2 cursor-pointer text-sidebartx"
 						onClick={handleViewFiles}
 					>
-						<span className="inline-block">
+						<span className={`inline-block ${isOpen ? "mr-4" : ""}`}>
 							<FcOpenedFolder />
 						</span>
 						{isOpen && "View Files"}
 					</li>
+					<Link href={"/archive"}>
+						<li className="p-4 flex justify-evenly items-center gap-2 cursor-pointer text-sidebartx">
+							<span className={`inline-block ${isOpen ? "mr-7" : ""}`}>
+								<VscArchive />
+							</span>
+							{isOpen && "Archive"}
+						</li>
+					</Link>
 					<li
-						className="p-4 flex justify-center items-center gap-2 cursor-pointer text-sidebartx"
+						className="p-4 flex justify-evenly items-center gap-2 cursor-pointer text-sidebartx"
 						onClick={modalHandler}
 					>
 						<span className="inline-block">
@@ -227,7 +241,7 @@ export default function SideBar() {
 					</li>
 				</ul>
 				<p
-					className="mb-10 flex justify-center items-center cursor-pointer text-sidebartx"
+					className="mb-10 flex justify-evenly items-center cursor-pointer text-sidebartx"
 					onClick={handleSignOut}
 				>
 					<span className="inline-block">
