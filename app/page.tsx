@@ -4,7 +4,7 @@ import SideBar from "@/components/sidebar/SideBar";
 import { ContainerList, SortList, Task, TaskStatus } from "@/lib/types/cardProps";
 import { db } from "@/lib/utils/firebase/firebase";
 import { BiSolidSortAlt } from "react-icons/bi";
-import { collection, doc, getDocs, orderBy, query, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, orderBy, query, updateDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import {
 	DropdownMenuItem,
@@ -63,7 +63,7 @@ const sortCategories: SortList[] = [
 ];
 
 export default function Home() {
-	const { tasks, setTasks, sortFilter, sortConfig, editLink } = useCard();
+	const { tasks, setTasks, sortFilter, sortConfig } = useCard();
 	const { showAlert } = useTheme();
 	const { role, userName } = useAuth();
 
@@ -74,40 +74,22 @@ export default function Home() {
 		{ id: "done", items: tasks.filter((task) => task.status === "done") },
 	];
 
-	const webHookMessageDone = async (title: string, message: string) => {
-		try {
-			const res = await fetch(NEXT_PUBLIC_DISCORD_WEBHOOK as string, {
-				method: "POST",
-				headers: {
-					"Content-type": "application/json",
-				},
-				body: JSON.stringify({
-					content: message,
-					embeds: [
-						{
-							title: title,
-							description: "Below is the link for the CSV file.",
-							color: 3447003,
-							fields: [
-								{
-									name: editLink,
-									inline: true,
-								},
-							],
-						},
-					],
-				}),
-			});
-
-			if (!res.ok) {
-				throw new Error("Failed to send message to Discord");
-			}
-		} catch (error) {
-			console.log("Error sending discord: ", error);
+	const fetchTaskLink = async (taskId: string) => {
+		const taskDoc = await getDoc(doc(db, "tasks", taskId));
+		if (taskDoc.exists()) {
+			return taskDoc.data().link;
+		} else {
+			console.log("No such document!");
+			return null;
 		}
 	};
 
-	const webHookMessage = async (title: string, message: string) => {
+	// function overloading
+	function webHookMessage(title: string, message: string): Promise<void>;
+
+	function webHookMessage(title: string, message: string, link: string): Promise<void>;
+
+	async function webHookMessage(title: string, message: string, link?: string): Promise<void> {
 		try {
 			const res = await fetch(NEXT_PUBLIC_DISCORD_WEBHOOK as string, {
 				method: "POST",
@@ -119,12 +101,16 @@ export default function Home() {
 					embeds: [
 						{
 							title: title,
-							description: "Please go to the link provided below.",
+							description: link
+								? "Below is the link for the CSV file."
+								: "Please go to the link provided below.",
 							color: 3447003,
 							fields: [
 								{
 									name: "Barker Pricing Pipeline",
-									value: "https://pricing-pipeline-alpha.vercel.app/",
+									value: link
+										? link
+										: "https://pricing-pipeline-alpha.vercel.app/",
 									inline: true,
 								},
 							],
@@ -139,7 +125,7 @@ export default function Home() {
 		} catch (error) {
 			console.log("Error sending discord: ", error);
 		}
-	};
+	}
 
 	// Fetch user role and files
 	useEffect(() => {
@@ -220,7 +206,7 @@ export default function Home() {
 		setActiveId(String(active.id));
 	};
 
-	const handleDragEnd = (event: DragEndEvent) => {
+	const handleDragEnd = async (event: DragEndEvent) => {
 		setActiveId(null);
 
 		const { active, over } = event;
@@ -276,10 +262,17 @@ export default function Home() {
 			showAlert("error", "You do not have permission to move this task.");
 		}
 
-		if (overId === "done") {
-			webHookMessageDone(task.title, `Task has been priced by ${userName} see link below.`);
-		} else if (overId === "filtering") {
-			webHookMessage(task.title, `Task is now being filtered.`);
+		if (overId === "filtering" && task.id !== overId) {
+			webHookMessage(task.title, `**Task is now being filtered.**`);
+		} else if (overId === "done" && task.id !== overId) {
+			const link = await fetchTaskLink(String(activeId));
+			webHookMessage(
+				task.title,
+				`**Task has been priced by ${userName} see link below.**`,
+				link
+			);
+		} else if (overId === "pricing" && task.id !== overId) {
+			webHookMessage(task.title, `**Task is now being priced.**`);
 		}
 	};
 
