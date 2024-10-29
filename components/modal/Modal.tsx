@@ -120,7 +120,7 @@ const Modal: React.FC = () => {
 
 					showAlert("success", "Task added successfully!");
 
-					webHookMessageTaskCreation(taskTitle, `Task has been created by ${userName}`);
+					webHookMessageTaskCreation(taskTitle, `**Task has been created by ${userName}.**`);
 
 					// Reset the form/modal state
 					setDueDateInput(new Date());
