@@ -232,48 +232,51 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 					</Badge>
 				</div>
 				<div className="w-full flex justify-evenly items-center gap-2 pt-2">
-					<Button
-						size={"xs"}
-						className="text-[8px] bg-black  text-white hover:bg-gray-800"
-						onClick={(e) => {
-							e.stopPropagation();
-							moveToTaskCollection(task.id);
-						}}
-					>
-						Unarchive
-					</Button>
-
-					<Dialog>
-						<DialogTrigger asChild>
+					{role === "admin" ? (
+						<>
 							<Button
 								size={"xs"}
 								className="text-[8px] bg-black  text-white hover:bg-gray-800"
+								onClick={(e) => {
+									e.stopPropagation();
+									moveToTaskCollection(task.id);
+								}}
 							>
-								Remove
+								Unarchive
 							</Button>
-						</DialogTrigger>
+							<Dialog>
+								<DialogTrigger asChild>
+									<Button
+										size={"xs"}
+										className="text-[8px] bg-black  text-white hover:bg-gray-800"
+									>
+										Remove
+									</Button>
+								</DialogTrigger>
 
-						<DialogContent>
-							<div className="text-center">
-								<p>Are you sure you want to remove the task?</p>
-							</div>
-							<div className="flex justify-end items-center gap-4">
-								<Button
-									size={"sm"}
-									onClick={(e) => {
-										e.stopPropagation();
+								<DialogContent>
+									<div className="text-center">
+										<p>Are you sure you want to remove the task?</p>
+									</div>
+									<div className="flex justify-end items-center gap-4">
+										<Button
+											size={"sm"}
+											onClick={(e) => {
+												e.stopPropagation();
 
-										removeTask(task.id);
-									}}
-								>
-									<DialogClose>Proceed</DialogClose>
-								</Button>
-								<Button size={"sm"} asChild>
-									<DialogClose>Cancel</DialogClose>
-								</Button>
-							</div>
-						</DialogContent>
-					</Dialog>
+												removeTask(task.id);
+											}}
+										>
+											<DialogClose>Proceed</DialogClose>
+										</Button>
+										<Button size={"sm"} asChild>
+											<DialogClose>Cancel</DialogClose>
+										</Button>
+									</div>
+								</DialogContent>
+							</Dialog>
+						</>
+					) : null}
 
 					<Dialog>
 						<DialogTrigger asChild>
