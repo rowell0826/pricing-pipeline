@@ -185,6 +185,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			);
 
 			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+
 			showAlert("success", "Ticket deleted.");
 		} catch (error) {
 			console.error("Error removing task: ", error);

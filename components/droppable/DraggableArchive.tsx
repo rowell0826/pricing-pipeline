@@ -135,6 +135,7 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 
 			// Update the task state to remove the deleted task from the UI
 			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+			
 			showAlert("success", "Ticket deleted.");
 		} catch (error) {
 			console.error("Error removing task: ", error);
