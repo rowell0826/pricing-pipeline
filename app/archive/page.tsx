@@ -100,7 +100,7 @@ const Archive: React.FC = () => {
 		};
 
 		fetchArchiveTasks();
-	}, [sortConfig.key, sortConfig.order]);
+	}, [archiveTasks, setArchiveTasks, sortConfig.key, sortConfig.order]);
 
 	const getInitials = (name: string) => {
 		const nameParts = name.split(" ");

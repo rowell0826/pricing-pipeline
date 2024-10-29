@@ -135,8 +135,10 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 
 			// Update the task state to remove the deleted task from the UI
 			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-			
+
 			showAlert("success", "Ticket deleted.");
+
+			// dialogCloseRef.current?.click();
 		} catch (error) {
 			console.error("Error removing task: ", error);
 			showAlert("error", "Failed to delete the task.");
@@ -264,7 +266,7 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 										removeTask(task.id);
 									}}
 								>
-									Proceed
+									<DialogClose>Proceed</DialogClose>
 								</Button>
 								<Button size={"sm"} asChild>
 									<DialogClose>Cancel</DialogClose>

@@ -41,6 +41,8 @@ import { useCard } from "@/lib/context/cardContext/CardContext";
 import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
 
+const NEXT_PUBLIC_WEB_HOOK = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK;
+
 const sortCategories: SortList[] = [
 	{
 		input: "Sort by Task",
@@ -65,7 +67,7 @@ export default function Home() {
 
 	const { tasks, setTasks } = useCard();
 	const { showAlert } = useTheme();
-	const { role } = useAuth();
+	const { role, userName } = useAuth();
 
 	const cardContainer: ContainerList[] = [
 		{ id: "raw", items: tasks.filter((task) => task.status === "raw") },
@@ -73,6 +75,26 @@ export default function Home() {
 		{ id: "pricing", items: tasks.filter((task) => task.status === "pricing") },
 		{ id: "done", items: tasks.filter((task) => task.status === "done") },
 	];
+
+	const webHookMessage = async (message: string) => {
+		try {
+			const res = await fetch(NEXT_PUBLIC_WEB_HOOK as string, {
+				method: "POST",
+				headers: {
+					"Content-type": "application/json",
+				},
+				body: JSON.stringify({
+					content: message,
+				}),
+			});
+
+			if (!res.ok) {
+				throw new Error("Failed to send message to Discord");
+			}
+		} catch (error) {
+			console.log("Error sending discord: ", error);
+		}
+	};
 
 	// Fetch user role and files
 	useEffect(() => {
@@ -165,7 +187,7 @@ export default function Home() {
 
 		// Get the current task being dragged
 		const task = tasks.find((task) => task.id === activeId);
-		if (!task) return; // Early exit if the task is not found
+		if (!task) return;
 
 		const currentStatus = task.status;
 
@@ -179,10 +201,7 @@ export default function Home() {
 			setTasks(updatedTasks); // Update state to re-render
 		} else if (role === "dataManager") {
 			// dataMgr can only move tasks from "raw" to "filtering" or "filtering" to "pricing"
-			if (
-				(currentStatus === "raw" && overId === "filtering") ||
-				(currentStatus === "filtering" && overId === "pricing")
-			) {
+			if (currentStatus === "raw" && overId === "filtering") {
 				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
 				const updatedTasks = tasks.map((t) =>
 					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
@@ -207,6 +226,10 @@ export default function Home() {
 			}
 		} else {
 			showAlert("error", "You do not have permission to move this task.");
+		}
+
+		if (overId === "done") {
+			webHookMessage(`Task "${task.title}" has been marked as done by ${userName}.`);
 		}
 	};
 
