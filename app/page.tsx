@@ -41,7 +41,7 @@ import { useCard } from "@/lib/context/cardContext/CardContext";
 import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
 
-const NEXT_PUBLIC_WEB_HOOK = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK;
+const NEXT_PUBLIC_DISCORD_WEBHOOK = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK;
 
 const sortCategories: SortList[] = [
 	{
@@ -63,9 +63,7 @@ const sortCategories: SortList[] = [
 ];
 
 export default function Home() {
-	const { sortConfig, sortFilter } = useCard();
-
-	const { tasks, setTasks } = useCard();
+	const { tasks, setTasks, sortFilter, sortConfig, editLink } = useCard();
 	const { showAlert } = useTheme();
 	const { role, userName } = useAuth();
 
@@ -76,15 +74,62 @@ export default function Home() {
 		{ id: "done", items: tasks.filter((task) => task.status === "done") },
 	];
 
-	const webHookMessage = async (message: string) => {
+	const webHookMessageDone = async (title: string, message: string) => {
 		try {
-			const res = await fetch(NEXT_PUBLIC_WEB_HOOK as string, {
+			const res = await fetch(NEXT_PUBLIC_DISCORD_WEBHOOK as string, {
 				method: "POST",
 				headers: {
 					"Content-type": "application/json",
 				},
 				body: JSON.stringify({
 					content: message,
+					embeds: [
+						{
+							title: title,
+							description: "Below is the link for the CSV file.",
+							color: 3447003,
+							fields: [
+								{
+									name: editLink,
+									inline: true,
+								},
+							],
+						},
+					],
+				}),
+			});
+
+			if (!res.ok) {
+				throw new Error("Failed to send message to Discord");
+			}
+		} catch (error) {
+			console.log("Error sending discord: ", error);
+		}
+	};
+
+	const webHookMessage = async (title: string, message: string) => {
+		try {
+			const res = await fetch(NEXT_PUBLIC_DISCORD_WEBHOOK as string, {
+				method: "POST",
+				headers: {
+					"Content-type": "application/json",
+				},
+				body: JSON.stringify({
+					content: message,
+					embeds: [
+						{
+							title: title,
+							description: "Please go to the link provided below.",
+							color: 3447003,
+							fields: [
+								{
+									name: "Barker Pricing Pipeline",
+									value: "https://pricing-pipeline-alpha.vercel.app/",
+									inline: true,
+								},
+							],
+						},
+					],
 				}),
 			});
 
@@ -109,12 +154,14 @@ export default function Home() {
 
 				const fetchedTasks = tasksSnapshot.docs.map((doc) => {
 					const data = doc.data();
+
 					const createdAt = data.createdAt?.toDate();
 					const createdBy = data.createdBy;
 					const dueDate = data.dueDate;
 					const fileUpload = data.fileUpload;
 					const title = data.title;
 					const status = data.status;
+					const link = data.link;
 
 					return {
 						id: doc.id,
@@ -124,6 +171,7 @@ export default function Home() {
 						fileUpload,
 						dueDate,
 						status,
+						link,
 					} as Task;
 				});
 
@@ -229,7 +277,9 @@ export default function Home() {
 		}
 
 		if (overId === "done") {
-			webHookMessage(`Task "${task.title}" has been marked as done by ${userName}.`);
+			webHookMessageDone(task.title, `Task has been priced by ${userName} see link below.`);
+		} else if (overId === "filtering") {
+			webHookMessage(task.title, `Task is now being filtered.`);
 		}
 	};
 

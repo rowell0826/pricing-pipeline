@@ -9,7 +9,7 @@ export interface Task {
 	createdAt: Date | null;
 	dueDate: Date | null;
 	fileUpload: (string | File | FileUpload)[];
-	link?: string;
+	link: string;
 	status: TaskStatus;
 }
 
@@ -34,6 +34,8 @@ export interface CardContextProps {
 	tasks: Task[];
 	file: File | null;
 	taskTitle: string;
+	editLink: string;
+	setEditLink: Dispatch<SetStateAction<string>>;
 	setSortConfig: Dispatch<SetStateAction<{ key: string; order: "asc" | "desc" }>>;
 	setTaskTitle: Dispatch<SetStateAction<string>>;
 	setTasks: Dispatch<SetStateAction<Task[]>>;

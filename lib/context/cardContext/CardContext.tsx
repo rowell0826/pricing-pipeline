@@ -12,6 +12,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	const [openCreateTaskModal, setOpenCreateTaskModal] = useState<boolean>(false);
 	const [taskTitle, setTaskTitle] = useState<string>("");
 	const [tasks, setTasks] = useState<Task[]>([]);
+	const [editLink, setEditLink] = useState<string>("");
 
 	const [sortConfig, setSortConfig] = useState<{ key: string; order: "asc" | "desc" }>({
 		key: "createdAt", // Default sort by createdAt
@@ -44,6 +45,8 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				tasks,
 				file,
 				taskTitle,
+				editLink,
+				setEditLink,
 				setSortConfig,
 				setTaskTitle,
 				setTasks,

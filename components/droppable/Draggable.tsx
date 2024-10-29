@@ -67,7 +67,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const { task, getInitials, containerTitle } = props;
 	const { id, title, createdAt, createdBy, dueDate, link, status } = task;
 	const { role } = useAuth();
-	const { setTasks } = useCard();
+	const { setTasks, editLink, setEditLink } = useCard();
 	const { showAlert } = useTheme();
 
 	const today = new Date().toISOString().split("T")[0];
@@ -95,7 +95,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 	// State handlers
 	const [editedTitle, setEditedTitle] = useState(title);
-	const [editLink, setEditLink] = useState<string>("");
+	// const [editLink, setEditLink] = useState<string>("");
 	const [filesMarkedForDeletion, setFilesMarkedForDeletion] = useState<string[]>([]);
 	const [formattedDate, setFormattedDate] = useState<Date | string>("");
 	const [localDueDateInput, setLocalDueDateInput] = useState<Date | string>("");
@@ -253,6 +253,13 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		}
 	};
 
+	const ensureHttps = (url: string): string => {
+		if (!/^https?:\/\//i.test(url)) {
+			return `https://${url}`;
+		}
+		return url;
+	};
+
 	const handleEditSubmit = async () => {
 		try {
 			// Delete the files from Firebase that are marked for deletion
@@ -279,17 +286,19 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 				updatedFileUpload.push({ folder: containerTitle, filePath: fileUrl });
 			}
 
+			const sanitizedLink = ensureHttps(editLink);
+
 			// Update Firestore document, include the new file URL only if a file was uploaded
 			const updatedFields: Partial<Task> = {
 				title: editedTitle,
-				link: editLink,
+				link: sanitizedLink,
 				dueDate: localDueDateInput ? new Date(localDueDateInput) : dueDate,
 				fileUpload: updatedFileUpload,
 			};
 
-			await updateDoc(taskRef, updatedFields);
+			setEditLink(sanitizedLink);
 
-			console.log("Task updated: ", fileUrl);
+			await updateDoc(taskRef, updatedFields);
 		} catch (error) {
 			console.error("Error updating task:", error);
 
@@ -404,7 +413,8 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 												Pricing Link
 											</label>
 											<input
-												type="text"
+												type="url"
+												placeholder="Enter url link"
 												value={editLink}
 												onChange={(e) => setEditLink(e.target.value)}
 												className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
@@ -519,7 +529,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 											removeTask(task.id);
 										}}
 									>
-										Proceed
+										<DialogClose>Proceed</DialogClose>
 									</Button>
 									<Button size={"sm"} asChild>
 										<DialogClose>Cancel</DialogClose>
