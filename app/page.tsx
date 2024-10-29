@@ -262,17 +262,19 @@ export default function Home() {
 			showAlert("error", "You do not have permission to move this task.");
 		}
 
-		if (overId === "filtering" && task.id !== overId) {
-			webHookMessage(task.title, `**Task is now being filtered.**`);
-		} else if (overId === "done" && task.id !== overId) {
-			const link = await fetchTaskLink(String(activeId));
-			webHookMessage(
-				task.title,
-				`**Task has been priced by ${userName} see link below.**`,
-				link
-			);
-		} else if (overId === "pricing" && task.id !== overId) {
-			webHookMessage(task.title, `**Task is now being priced.**`);
+		if (overId !== task.status) {
+			if (overId === "filtering") {
+				webHookMessage(task.title, `**Task is now being filtered.**`);
+			} else if (overId === "done") {
+				const link = await fetchTaskLink(String(activeId));
+				webHookMessage(
+					task.title,
+					`**Task has been priced by ${userName}. See link below.**`,
+					link
+				);
+			} else if (overId === "pricing") {
+				webHookMessage(task.title, `**Task is now being priced.**`);
+			}
 		}
 	};
 
