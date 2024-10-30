@@ -200,6 +200,8 @@ export default function Home() {
 					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
 				);
 				setTasks(updatedTasks); // Update state to re-render
+
+				webHookMessage({ title: task.title, message: `**Task is now being filtered.**` });
 			} else {
 				showAlert("error", "You do not have permission to move this task.");
 			}
@@ -211,6 +213,13 @@ export default function Home() {
 					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
 				);
 				setTasks(updatedTasks); // Update state to re-render
+
+				const urllink = await fetchTaskLink(String(activeId));
+				webHookMessage({
+					title: task.title,
+					message: `**Task has been priced by ${userName}. See link below.**`,
+					link: urllink,
+				});
 			} else {
 				showAlert("error", "You do not have permission to move this task.");
 			}
@@ -218,7 +227,7 @@ export default function Home() {
 			showAlert("error", "You do not have permission to move this task.");
 		}
 
-		if (overId !== task.status) {
+		/* if (overId !== task.status) {
 			if (overId === "filtering") {
 				webHookMessage({ title: task.title, message: `**Task is now being filtered.**` });
 			} else if (overId === "done") {
@@ -231,7 +240,7 @@ export default function Home() {
 			} else if (overId === "pricing") {
 				webHookMessage({ title: task.title, message: `**Task is now being priced.**` });
 			}
-		}
+		} */
 	};
 
 	const activeTask = tasks.find((task) => task.id === activeId);
