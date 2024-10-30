@@ -40,8 +40,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useCard } from "@/lib/context/cardContext/CardContext";
 import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
-
-const NEXT_PUBLIC_DISCORD_WEBHOOK = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK;
+import { webHookMessage } from "@/lib/utils/discord/discordWebhook";
 
 const sortCategories: SortList[] = [
 	{
@@ -83,49 +82,6 @@ export default function Home() {
 			return null;
 		}
 	};
-
-	// function overloading
-	function webHookMessage(title: string, message: string): Promise<void>;
-
-	function webHookMessage(title: string, message: string, link: string): Promise<void>;
-
-	async function webHookMessage(title: string, message: string, link?: string): Promise<void> {
-		try {
-			const res = await fetch(NEXT_PUBLIC_DISCORD_WEBHOOK as string, {
-				method: "POST",
-				headers: {
-					"Content-type": "application/json",
-				},
-				body: JSON.stringify({
-					content: message,
-					embeds: [
-						{
-							title: title,
-							description: link
-								? "Below is the link for the CSV file."
-								: "Please go to the link provided below.",
-							color: 3447003,
-							fields: [
-								{
-									name: "Barker Pricing Pipeline",
-									value: link
-										? link
-										: "https://pricing-pipeline-alpha.vercel.app/",
-									inline: true,
-								},
-							],
-						},
-					],
-				}),
-			});
-
-			if (!res.ok) {
-				throw new Error("Failed to send message to Discord");
-			}
-		} catch (error) {
-			console.log("Error sending discord: ", error);
-		}
-	}
 
 	// Fetch user role and files
 	useEffect(() => {
@@ -235,7 +191,10 @@ export default function Home() {
 			setTasks(updatedTasks); // Update state to re-render
 		} else if (role === "dataManager") {
 			// dataMgr can only move tasks from "raw" to "filtering" or "filtering" to "pricing"
-			if (currentStatus === "raw" && overId === "filtering") {
+			if (
+				(currentStatus === "raw" && overId === "filtering") ||
+				(currentStatus === "filtering" && overId === "pricing")
+			) {
 				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
 				const updatedTasks = tasks.map((t) =>
 					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
@@ -246,10 +205,7 @@ export default function Home() {
 			}
 		} else if (role === "dataScientist" || role === "promptEngineer") {
 			// dataScientist and promptEngineer can only move tasks from "filtering" to "pricing" or "pricing" to "done"
-			if (
-				(currentStatus === "filtering" && overId === "pricing") ||
-				(currentStatus === "pricing" && overId === "done")
-			) {
+			if (currentStatus === "pricing" && overId === "done") {
 				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
 				const updatedTasks = tasks.map((t) =>
 					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
@@ -264,16 +220,16 @@ export default function Home() {
 
 		if (overId !== task.status) {
 			if (overId === "filtering") {
-				webHookMessage(task.title, `**Task is now being filtered.**`);
+				webHookMessage({ title: task.title, message: `**Task is now being filtered.**` });
 			} else if (overId === "done") {
-				const link = await fetchTaskLink(String(activeId));
-				webHookMessage(
-					task.title,
-					`**Task has been priced by ${userName}. See link below.**`,
-					link
-				);
+				const urllink = await fetchTaskLink(String(activeId));
+				webHookMessage({
+					title: task.title,
+					message: `**Task has been priced by ${userName}. See link below.**`,
+					link: urllink,
+				});
 			} else if (overId === "pricing") {
-				webHookMessage(task.title, `**Task is now being priced.**`);
+				webHookMessage({ title: task.title, message: `**Task is now being priced.**` });
 			}
 		}
 	};
@@ -300,7 +256,7 @@ export default function Home() {
 							{cardContainer.map(({ id, items }) => (
 								<div
 									key={id}
-									className="border-1 border-zinc-50 min-w-[200px] w-[250px] min-h-[300px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-sidebartx bg-sidebar backdrop-blur-sm shadow-lg overflow-hidden p-4"
+									className="border-t border-r border-zinc-500 min-w-[200px] w-[250px] min-h-[300px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-sidebartx bg-sidebar backdrop-blur-sm shadow-lg overflow-hidden p-4"
 								>
 									<h3 className="p-4 text-sidebartx">
 										{id === "raw"
