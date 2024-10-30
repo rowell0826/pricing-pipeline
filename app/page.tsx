@@ -282,7 +282,7 @@ export default function Home() {
 
 	return (
 		<PrivateRoute>
-			<div className="flex w-full h-screen items-start bg-background bg-custom-pattern bg-top bg-large bg-no-repeat">
+			<div className="flex w-full h-screen items-start bg-background bg-custom-pattern bg-center md:bg-top bg-large bg-no-repeat">
 				<SideBar />
 
 				<main className="w-[90%] h-[92.5%] max-h-full flex justify-start mt-10">
