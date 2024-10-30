@@ -241,7 +241,7 @@ export default function Home() {
 			<div
 				className={`flex w-full h-screen items-start bg-background ${
 					theme === true ? "bg-custom-pattern" : "bg-custom-pattern2"
-				} bg-custom-pattern bg-center md:bg-top bg-large bg-no-repeat`}
+				} bg-custom-pattern bg-center md:bg-[top_-18%_center] bg-large bg-no-repeat`}
 			>
 				<SideBar />
 
