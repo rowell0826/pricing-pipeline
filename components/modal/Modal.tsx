@@ -11,9 +11,10 @@ import { useState } from "react";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { Task } from "@/lib/types/cardProps";
 import { clientFileUpload, db } from "@/lib/utils/firebase/firebase";
-import { addDoc, collection, getDocs, updateDoc } from "firebase/firestore";
+import { addDoc, collection, updateDoc } from "firebase/firestore";
 import { useTheme } from "@/lib/context/themeContext/ThemeContext";
-import { webHookMessage } from "@/lib/utils/discord/discordWebhook";
+
+const NEXT_PUBLIC_DISCORD_WEBHOOK = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK;
 
 const Modal: React.FC = () => {
 	const {
@@ -32,6 +33,71 @@ const Modal: React.FC = () => {
 	const { showAlert } = useTheme();
 
 	const today = new Date().toISOString().split("T")[0];
+
+	const webHookMessageTaskCreation = async (title: string, message: string) => {
+		try {
+			const res = await fetch(NEXT_PUBLIC_DISCORD_WEBHOOK as string, {
+				method: "POST",
+				headers: {
+					"Content-type": "application/json",
+				},
+				body: JSON.stringify({
+					content: message,
+					embeds: [
+						{
+							title: title,
+							description: "Please go to the link provided below.",
+							color: 3447003,
+							fields: [
+								{
+									name: "Barker Pricing Pipeline",
+									value: "https://pricing-pipeline-alpha.vercel.app/",
+									inline: true,
+								},
+							],
+						},
+					],
+				}),
+			});
+
+			if (!res.ok) {
+				throw new Error("Failed to send message to Discord");
+			}
+		} catch (error) {
+			console.log("Error sending discord: ", error);
+		}
+	};
+
+	const generateUniqueId = (length = 5) => {
+		const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+		const numbers = "0123456789";
+
+		if (length < 5) {
+			throw new Error("Length must be at least 5 to accommodate 2 letters and 3 numbers.");
+		}
+
+		// Generate the first two letters
+		let result = "";
+		for (let i = 0; i < 2; i++) {
+			result += letters.charAt(Math.floor(Math.random() * letters.length));
+		}
+
+		// Generate the remaining three numbers
+		for (let i = 0; i < length - 2; i++) {
+			result += numbers.charAt(Math.floor(Math.random() * numbers.length));
+		}
+
+		// Shuffle the result to randomize letter and number positions
+		return shuffleString(result);
+	};
+
+	// Helper function to shuffle a string
+	const shuffleString = (str: string) => {
+		return str
+			.split("")
+			.sort(() => 0.5 - Math.random())
+			.join("");
+	};
 
 	// Function to add a new task to the state
 	const handleAddTask = async () => {
@@ -55,40 +121,39 @@ const Modal: React.FC = () => {
 				return;
 			}
 
+			const taskId = generateUniqueId();
+
 			// Ensure the user role is either 'client' or 'admin'
 			if ((fileUrl && role === "client") || (fileUrl && role === "admin")) {
 				// Ensure task title and due date are provided
 				if (taskTitle && dueDateInput) {
-					const newTask: Omit<Task, "id" | "link"> = {
+					const dueDate = new Date(dueDateInput);
+
+					const newTask: Omit<Task, "link"> = {
+						id: taskId,
 						title: taskTitle,
 						createdAt: new Date(),
 						createdBy: userName as string,
-						dueDate: new Date(dueDateInput),
+						dueDate: dueDate, // Set dueDate immediately here
 						fileUpload: [{ folder: "raw", filePath: fileUrl }],
 						status: "raw",
 					};
 
+					// Add the task to Firestore
 					const docRef = await addDoc(collection(db, "tasks"), newTask);
 
-					await updateDoc(docRef, { id: docRef.id });
-
 					// Update the document with its ID
-					const taskDocs = await getDocs(collection(db, "tasks"));
-					const updatedTasks = taskDocs.docs.map((doc) => {
-						const data = doc.data() as Omit<Task, "id">;
-						return {
-							id: doc.id,
-							...data,
-						};
-					});
-					setTasks(updatedTasks);
+					await updateDoc(docRef, { id: taskId }); // Add the ID if required
+
+					// Update local state immediately
+					setTasks((prevTasks) => [...prevTasks, { ...newTask, id: docRef.id } as Task]);
 
 					showAlert("success", "Task added successfully!");
 
-					webHookMessage({
-						title: taskTitle,
-						message: `**Task has been created by ${userName}.**`,
-					});
+					webHookMessageTaskCreation(
+						taskTitle,
+						`**Task has been created by ${userName}.**`
+					);
 
 					// Reset the form/modal state
 					setDueDateInput(new Date());
