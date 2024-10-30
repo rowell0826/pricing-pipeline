@@ -2,7 +2,6 @@
 import { DraggableArchiveCard } from "@/components/droppable/DraggableArchive";
 import { DroppableArchive } from "@/components/droppable/DroppableArchive";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-// import { Droppable } from "@/components/droppable/Droppable";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import {
