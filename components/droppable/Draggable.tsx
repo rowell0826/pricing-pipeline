@@ -87,7 +87,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 	// State handlers
 	const [editedTitle, setEditedTitle] = useState(title);
-	// const [editLink, setEditLink] = useState<string>("");
+	const [taskId, setTaskId] = useState<string>("");
 	const [filesMarkedForDeletion, setFilesMarkedForDeletion] = useState<string[]>([]);
 	const [formattedDate, setFormattedDate] = useState<Date | string>("");
 	const [localDueDateInput, setLocalDueDateInput] = useState<Date | string>("");
@@ -102,6 +102,8 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 			if (taskData) {
 				setDownloadedFiles(taskData.fileUpload || []);
+				setTaskId(taskData.id);
+
 				if (taskData.dueDate) {
 					const dueDate = taskData.dueDate.toDate();
 					setFormattedDate(dueDate.toLocaleDateString());
@@ -132,8 +134,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 		const taskSnapshot = await getDoc(taskDocRef);
 		const taskDetails = taskSnapshot.data();
-
-		console.log("Tasks Details: ", taskDetails);
 
 		const taskFileStorage = taskDetails?.fileUpload;
 
@@ -344,7 +344,10 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			className="h-[115px] w-full rounded-md bg-white"
 		>
 			<CardHeader className="h-[30%] py-2" {...listeners}>
-				<CardTitle className="text-left text-xs text-black">{title}</CardTitle>
+				<CardTitle className="flex justify-between text-xs text-black">
+					{title}
+					<span className="text-gray-500 text-[0.6rem]">{taskId}</span>
+				</CardTitle>
 				<Avatar className="mr-2 w-6 h-6">
 					<AvatarFallback className="text-xs">{getInitials(createdBy)}</AvatarFallback>
 				</Avatar>
