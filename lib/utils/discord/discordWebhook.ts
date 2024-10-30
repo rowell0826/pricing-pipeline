@@ -19,7 +19,7 @@ export async function webHookMessage(options: WebhookMessageOptions): Promise<vo
 					{
 						title: title,
 						description: link
-							? "Below is the link for the CSV file."
+							? "Below is the link for the internal pricing template."
 							: "Please go to the link provided below.",
 						color: 3447003,
 						fields: [
