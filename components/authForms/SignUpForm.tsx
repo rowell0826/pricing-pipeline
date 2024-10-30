@@ -104,7 +104,9 @@ export default function SignUpForm() {
 
 			showAlert("success", "User signed up successfully");
 		} catch (error) {
+
 			console.error("Error signing up: ", error);
+			
 		} finally {
 			router.push("/");
 		}
