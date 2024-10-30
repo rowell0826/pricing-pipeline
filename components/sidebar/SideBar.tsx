@@ -167,7 +167,7 @@ export default function SideBar() {
 			<nav
 				className={`hidden h-full lg:flex flex-col justify-evenly items-center ${
 					isOpen ? "w-[20%]" : "w-[5%]"
-				} transition-all duration-300 ease-in-out overflow-hidden sidebar`}
+				} transition-all duration-300 ease-in-out overflow-hidden sidebar backdrop-blur-sm`}
 			>
 				<div
 					className={`relative w-full flex justify-end items-end ${

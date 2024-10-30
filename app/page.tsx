@@ -282,7 +282,7 @@ export default function Home() {
 
 	return (
 		<PrivateRoute>
-			<div className="flex w-full h-screen items-start bg-background">
+			<div className="flex w-full h-screen items-start bg-background bg-custom-pattern bg-top bg-large bg-no-repeat">
 				<SideBar />
 
 				<main className="w-[90%] h-[92.5%] max-h-full flex justify-start mt-10">
@@ -292,11 +292,11 @@ export default function Home() {
 						onDragStart={handleDragStart}
 						onDragEnd={handleDragEnd}
 					>
-						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-h-full w-full gap-4 p-4 justify-items-center overflow-y-scroll custom-scrollbar">
+						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-h-full w-full gap-4 p-4 justify-items-center overflow-y-scroll custom-scrollbar my-auto">
 							{cardContainer.map(({ id, items }) => (
 								<div
 									key={id}
-									className="border-2 border-zinc-800 min-w-[200px] w-[250px] min-h-[300px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-sidebartx bg-sidebar backdrop-blur-lg shadow-lg overflow-hidden p-4"
+									className="border-1 border-zinc-50 min-w-[200px] w-[250px] min-h-[300px] max-h-[70%] text-center flex flex-col justify-start items-center rounded-md text-sidebartx bg-sidebar backdrop-blur-sm shadow-lg overflow-hidden p-4"
 								>
 									<h3 className="p-4 text-sidebartx">
 										{id === "raw"

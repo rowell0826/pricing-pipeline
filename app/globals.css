@@ -87,6 +87,7 @@
 	}
 
 	.sidebar {
+
 		@apply bg-sidebar;
 	}
 

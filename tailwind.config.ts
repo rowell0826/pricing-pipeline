@@ -10,6 +10,12 @@ const config: Config = {
 	],
 	theme: {
 		extend: {
+			backgroundImage: { "custom-pattern": "url(../public/barkerNoBg.svg)" },
+			backgroundSize: {
+				small: "25%",
+				medium: "50%",
+				large: "75%",
+			},
 			colors: {
 				background: "hsl(var(--background))",
 				foreground: "hsl(var(--foreground))",
