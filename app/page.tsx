@@ -184,17 +184,7 @@ export default function Home() {
 		// Check role and allowed movements
 		if (role === "admin") {
 			// Admin can move tasks between any containers
-			updateTaskStatus(activeId as string, overId as TaskStatus);
-			const updatedTasks = tasks.map((t) =>
-				t.id === activeId ? { ...t, status: overId as TaskStatus } : t
-			);
-			setTasks(updatedTasks); // Update state to re-render
-		} else if (role === "dataManager") {
-			// dataMgr can only move tasks from "raw" to "filtering" or "filtering" to "pricing"
-			if (
-				(currentStatus === "raw" && overId === "filtering") ||
-				(currentStatus === "filtering" && overId === "pricing")
-			) {
+			if (currentStatus === "raw" && overId === "filtering") {
 				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
 				const updatedTasks = tasks.map((t) =>
 					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
@@ -202,6 +192,45 @@ export default function Home() {
 				setTasks(updatedTasks); // Update state to re-render
 
 				webHookMessage({ title: task.title, message: `**Task is now being filtered.**` });
+			} else if (currentStatus === "filtering" && overId === "pricing") {
+				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
+				const updatedTasks = tasks.map((t) =>
+					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
+				);
+				setTasks(updatedTasks); // Update state to re-render
+
+				webHookMessage({ title: task.title, message: `**Task is now being priced.**` });
+			} else if (currentStatus === "pricing" && overId === "done") {
+				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
+				const updatedTasks = tasks.map((t) =>
+					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
+				);
+				setTasks(updatedTasks); // Update state to re-render
+			} else {
+				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
+				const updatedTasks = tasks.map((t) =>
+					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
+				);
+				setTasks(updatedTasks);
+			}
+		} else if (role === "dataManager") {
+			// dataMgr can only move tasks from "raw" to "filtering" or "filtering" to "pricing"
+			if (currentStatus === "raw" && overId === "filtering") {
+				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
+				const updatedTasks = tasks.map((t) =>
+					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
+				);
+				setTasks(updatedTasks); // Update state to re-render
+
+				webHookMessage({ title: task.title, message: `**Task is now being filtered.**` });
+			} else if (currentStatus === "filtering" && overId === "pricing") {
+				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
+				const updatedTasks = tasks.map((t) =>
+					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
+				);
+				setTasks(updatedTasks);
+
+				webHookMessage({ title: task.title, message: `**Task is now being priced.**` });
 			} else {
 				showAlert("error", "You do not have permission to move this task.");
 			}
