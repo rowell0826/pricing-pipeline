@@ -96,7 +96,11 @@ export default function SignUpForm() {
 			});
 
 			// Store user details in Firestore
-			await createUserDocumentFromAuth(user.uid, { displayName, emailAddress, role });
+			await createUserDocumentFromAuth(user.uid, {
+				displayName,
+				emailAddress: emailAddress,
+				role,
+			});
 
 			showAlert("success", "User signed up successfully");
 		} catch (error) {

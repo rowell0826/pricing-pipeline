@@ -201,11 +201,20 @@ export default function Home() {
 
 				webHookMessage({ title: task.title, message: `**Task is now being priced.**` });
 			} else if (currentStatus === "pricing" && overId === "done") {
+				const urllink = await fetchTaskLink(String(activeId));
+
 				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
 				const updatedTasks = tasks.map((t) =>
 					t.id === activeId ? { ...t, status: overId as TaskStatus } : t
 				);
+
 				setTasks(updatedTasks); // Update state to re-render
+
+				webHookMessage({
+					title: task.title,
+					message: `**Task has been priced by ${userName}. See link below.**`,
+					link: urllink,
+				});
 			} else {
 				updateTaskStatus(activeId as string, overId as TaskStatus); // Update in Firestore
 				const updatedTasks = tasks.map((t) =>

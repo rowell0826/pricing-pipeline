@@ -18,6 +18,7 @@ import {
 	uploadBytesResumable,
 	// UploadTaskSnapshot,
 } from "firebase/storage";
+import Swal from "sweetalert2";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -92,9 +93,23 @@ export const createUserDocumentFromAuth = async (userId: string, userDetails: Us
 
 // Create user with Email and Password
 export const createAuthUserWithEmailAndPassword = async (email: string, password: string) => {
-	if (!email || !password) return;
+	try {
+		if (!email || !password) return;
 
-	return await createUserWithEmailAndPassword(auth, email, password);
+		return await createUserWithEmailAndPassword(auth, email, password);
+	} catch (error) {
+		console.error("Error signing up: ", error);
+		Swal.fire({
+			position: "top",
+			icon: "error",
+			html: `Signup error: ${(error as Error).message}`,
+			timer: 1500,
+			showConfirmButton: false,
+			toast: true,
+			background: `hsl(0 0% 3.9%)`,
+			color: `hsl(0 0% 98%)`,
+		});
+	}
 };
 
 // Sign-in with email and password
