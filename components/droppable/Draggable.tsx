@@ -6,15 +6,7 @@ import {
 	storage,
 } from "@/lib/utils/firebase/firebase";
 import { useDraggable } from "@dnd-kit/core";
-import {
-	addDoc,
-	collection,
-	deleteDoc,
-	doc,
-	getDoc,
-	Timestamp,
-	updateDoc,
-} from "firebase/firestore";
+import { deleteDoc, doc, getDoc, Timestamp, updateDoc } from "firebase/firestore";
 import {
 	deleteObject,
 	getDownloadURL,
@@ -201,13 +193,18 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			if (!taskSnapshot.exists()) {
 				throw new Error("Task does not exist.");
 			}
-			const taskData = taskSnapshot.data();
 
-			await addDoc(collection(db, "archive"), taskData);
+			// Update the task status to 'archive'
+			await updateDoc(taskRef, {
+				status: "archive", // Change status to 'archive'
+			});
 
-			await deleteDoc(taskRef);
-
-			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+			// Optionally, remove the task from the local state
+			setTasks((prevTasks) =>
+				prevTasks.map((task) =>
+					task.id === taskId ? { ...task, status: "archive" } : task
+				)
+			);
 
 			showAlert("success", "Task has been archived.");
 		} catch (error) {

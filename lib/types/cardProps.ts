@@ -45,4 +45,4 @@ export interface CardContextProps {
 	sortFilter: (key: string) => void;
 }
 
-export type TaskStatus = "raw" | "filtering" | "pricing" | "done";
+export type TaskStatus = "raw" | "filtering" | "pricing" | "done" | "archive";
