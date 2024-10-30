@@ -14,8 +14,7 @@ import { clientFileUpload, db } from "@/lib/utils/firebase/firebase";
 import { addDoc, collection, updateDoc } from "firebase/firestore";
 import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 import { generateUniqueId } from "@/lib/utils/helperFunc";
-
-const NEXT_PUBLIC_DISCORD_WEBHOOK = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK;
+import { webHookMessage } from "@/lib/utils/discord/discordWebhook";
 
 const Modal: React.FC = () => {
 	const {
@@ -34,40 +33,6 @@ const Modal: React.FC = () => {
 	const { showAlert } = useTheme();
 
 	const today = new Date().toISOString().split("T")[0];
-
-	const webHookMessageTaskCreation = async (title: string, message: string) => {
-		try {
-			const res = await fetch(NEXT_PUBLIC_DISCORD_WEBHOOK as string, {
-				method: "POST",
-				headers: {
-					"Content-type": "application/json",
-				},
-				body: JSON.stringify({
-					content: message,
-					embeds: [
-						{
-							title: title,
-							description: "Please go to the link provided below.",
-							color: 3447003,
-							fields: [
-								{
-									name: "Barker Pricing Pipeline",
-									value: "https://pricing-pipeline-alpha.vercel.app/",
-									inline: true,
-								},
-							],
-						},
-					],
-				}),
-			});
-
-			if (!res.ok) {
-				throw new Error("Failed to send message to Discord");
-			}
-		} catch (error) {
-			console.log("Error sending discord: ", error);
-		}
-	};
 
 	// Function to add a new task to the state
 	const handleAddTask = async () => {
@@ -120,10 +85,10 @@ const Modal: React.FC = () => {
 
 					showAlert("success", "Task added successfully!");
 
-					webHookMessageTaskCreation(
-						taskTitle,
-						`**Task has been created by ${userName}.**`
-					);
+					webHookMessage({
+						title: taskTitle,
+						message: `**Task has been created by ${userName}.**`,
+					});
 
 					// Reset the form/modal state
 					setDueDateInput(new Date());
