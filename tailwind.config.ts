@@ -10,7 +10,10 @@ const config: Config = {
 	],
 	theme: {
 		extend: {
-			backgroundImage: { "custom-pattern": "url(../public/barkerNoBg.svg)" },
+			backgroundImage: {
+				"custom-pattern": "url(../public/barkerNoBg.svg)",
+				"custom-pattern2": "url(../public/barkerNoBgBk.svg)",
+			},
 			backgroundSize: {
 				small: "25%",
 				medium: "50%",
