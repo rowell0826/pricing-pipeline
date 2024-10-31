@@ -1,5 +1,6 @@
 import { FileUpload, Task } from "@/lib/types/cardProps";
 import {
+	autoArchiveTickets,
 	clientFileUpload,
 	db,
 	deleteFileFromStorage,
@@ -111,7 +112,13 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			}
 		};
 
+		const updateTicketsStatus = async () => {
+			await autoArchiveTickets();
+		};
+
 		fetchTaskData();
+		
+		updateTicketsStatus();
 	}, [id]);
 
 	const getFilenameFromUrl = (url: string) => {
