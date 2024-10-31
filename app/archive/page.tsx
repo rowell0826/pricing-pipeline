@@ -65,7 +65,7 @@ const Archive: React.FC = () => {
 		const fetchArchiveTasks = async () => {
 			try {
 				const tasksQuery = query(
-					collection(db, "archive"),
+					collection(db, "tasks"),
 					orderBy(sortConfig.key, sortConfig.order)
 				);
 
@@ -144,7 +144,7 @@ const Archive: React.FC = () => {
 		try {
 			const batch = writeBatch(db);
 			updatedTasks.forEach((task, index) => {
-				const taskRef = doc(db, "archive", task.id);
+				const taskRef = doc(db, "tasks", task.id);
 				batch.update(taskRef, { position: index });
 			});
 			await batch.commit();
