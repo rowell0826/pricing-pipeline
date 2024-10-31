@@ -251,13 +251,11 @@ export default function SideBar() {
 				</p>
 			</nav>
 
-			{role === "admin" ? (
-				<FileListModal
-					open={openFileModal}
-					onOpenChange={setOpenFileModal}
-					fileList={fileList}
-				/>
-			) : null}
+			<FileListModal
+				open={openFileModal}
+				onOpenChange={setOpenFileModal}
+				fileList={fileList}
+			/>
 
 			<Modal />
 		</>
