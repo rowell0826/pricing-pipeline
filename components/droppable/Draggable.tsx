@@ -59,7 +59,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 	const { task, getInitials, containerTitle } = props;
 	const { id, title, createdAt, createdBy, dueDate, link, status } = task;
 	const { role } = useAuth();
-	const { setTasks, editLink, setEditLink } = useCard();
+	const { setTasks, editLink, setEditLink, ensureHttps } = useCard();
 	const { showAlert } = useTheme();
 
 	const today = new Date().toISOString().split("T")[0];
@@ -250,13 +250,6 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 		}
 	};
 
-	const ensureHttps = (url: string): string => {
-		if (!/^https?:\/\//i.test(url)) {
-			return `https://${url}`;
-		}
-		return url;
-	};
-
 	const handleEditSubmit = async () => {
 		try {
 			// Delete the files from Firebase that are marked for deletion
@@ -409,7 +402,10 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 											className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
 										/>
 									</div>
-									{status === "pricing" ? (
+									{(status === "pricing" && role === "client") ||
+									role === "admin" ||
+									role === "promptEngineer" ||
+									role === "dataScientist" ? (
 										<div>
 											<label className="block text-sm font-medium ">
 												Pricing Link

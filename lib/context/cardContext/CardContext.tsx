@@ -37,6 +37,13 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		}
 	};
 
+	const ensureHttps = (url: string): string => {
+		if (!/^https?:\/\//i.test(url)) {
+			return `https://${url}`;
+		}
+		return url;
+	};
+
 	return (
 		<CardContext.Provider
 			value={{
@@ -54,6 +61,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				modalHandler,
 				setOpenCreateTaskModal,
 				sortFilter,
+				ensureHttps
 			}}
 		>
 			{children}

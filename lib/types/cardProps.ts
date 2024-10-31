@@ -43,6 +43,7 @@ export interface CardContextProps {
 	modalHandler: () => void;
 	setOpenCreateTaskModal: Dispatch<SetStateAction<boolean>>;
 	sortFilter: (key: string) => void;
+	ensureHttps: (str: string) => string;
 }
 
 export type TaskStatus = "raw" | "filtering" | "pricing" | "done" | "archive";

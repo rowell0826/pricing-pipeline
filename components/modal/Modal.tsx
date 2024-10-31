@@ -25,6 +25,9 @@ const Modal: React.FC = () => {
 		openCreateTaskModal,
 		setOpenCreateTaskModal,
 		setTasks,
+		editLink,
+		setEditLink,
+		ensureHttps,
 	} = useCard();
 
 	const [dueDateInput, setDueDateInput] = useState<string | Date>("");
@@ -57,6 +60,7 @@ const Modal: React.FC = () => {
 			}
 
 			const taskId = generateUniqueId();
+			const sanitizedLink = ensureHttps(editLink);
 
 			// Ensure the user role is either 'client' or 'admin'
 			if ((fileUrl && role === "client") || (fileUrl && role === "admin")) {
@@ -64,16 +68,18 @@ const Modal: React.FC = () => {
 				if (taskTitle && dueDateInput) {
 					const dueDate = new Date(dueDateInput);
 
-					const newTask: Omit<Task, "link"> = {
+					const newTask: Task = {
 						id: taskId,
 						title: taskTitle,
 						createdAt: new Date(),
 						createdBy: userName as string,
-						dueDate: dueDate, // Set dueDate immediately here
+						dueDate: dueDate,
+						link: sanitizedLink,
 						fileUpload: [{ folder: "raw", filePath: fileUrl }],
 						status: "raw",
 					};
 
+					console.log("Gsheet Link: ", editLink);
 					// Add the task to Firestore
 					const docRef = await addDoc(collection(db, "tasks"), newTask);
 
@@ -88,11 +94,13 @@ const Modal: React.FC = () => {
 					webHookMessage({
 						title: taskTitle,
 						message: `**Task has been created by ${userName}.**`,
+						link: sanitizedLink,
 					});
 
 					// Reset the form/modal state
 					setDueDateInput(new Date());
 					setOpenCreateTaskModal(!openCreateTaskModal);
+					setEditLink("");
 					setTaskTitle("");
 					setFile(null);
 				} else {
@@ -142,6 +150,16 @@ const Modal: React.FC = () => {
 						/>
 					</label>
 					<label className="text-foreground">
+						Pricing spreadsheet link:{" "}
+						<input
+							type="url"
+							placeholder="Enter url link"
+							value={editLink}
+							onChange={(e) => setEditLink(e.target.value)}
+							className="mt-1 border rounded px-2 py-1 !text-black"
+						/>
+					</label>
+					<label className="text-foreground">
 						Upload File:{"  "}
 						<input
 							type="file"
@@ -149,6 +167,7 @@ const Modal: React.FC = () => {
 							className="mt-1 border rounded px-2 py-1 !text-black"
 						/>
 					</label>
+
 					{file && <p>Selected File: {file.name}</p>}
 				</DialogDescription>
 				<div className="flex justify-end gap-4">
