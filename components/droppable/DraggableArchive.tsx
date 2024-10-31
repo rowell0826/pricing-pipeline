@@ -45,6 +45,8 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 		id: props.id,
 	});
 
+	const [taskId, setTaskId] = useState<string>("");
+
 	const { task, getInitials } = props;
 	const { id, title, createdAt, createdBy, link } = task;
 	const { role } = useAuth();
@@ -85,6 +87,7 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 
 			if (taskData) {
 				setDownloadedFiles(taskData.fileUpload || []);
+				setTaskId(taskData.id);
 				if (taskData.dueDate) {
 					const dueDate = taskData.dueDate.toDate();
 					setFormattedDate(dueDate.toLocaleDateString());
@@ -223,9 +226,14 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 		>
 			<CardHeader className="h-[35%] py-2" {...listeners}>
 				<CardTitle className="text-left text-xs text-black">{title}</CardTitle>
-				<Avatar className="mr-2 w-6 h-6 -top-1">
-					<AvatarFallback className="text-xs">{getInitials(createdBy)}</AvatarFallback>
-				</Avatar>
+				<div className="flex justify-between">
+					<Avatar className="mr-2 w-6 h-6">
+						<AvatarFallback className="text-xs">
+							{getInitials(createdBy)}
+						</AvatarFallback>
+					</Avatar>
+					<span className="text-gray-500 text-[0.6rem]">{taskId}</span>
+				</div>
 			</CardHeader>
 
 			<div className="p-2 mt-2 rounded-md">

@@ -31,7 +31,7 @@ import {
 	sortableKeyboardCoordinates,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { collection, doc, getDocs, orderBy, query, writeBatch } from "firebase/firestore";
+import { collection, doc, getDocs, orderBy, query, where, writeBatch } from "firebase/firestore";
 import Link from "next/link";
 
 import React, { useEffect, useState } from "react";
@@ -62,10 +62,11 @@ const Archive: React.FC = () => {
 	const [archiveTasks, setArchiveTasks] = useState<Task[]>([]);
 
 	useEffect(() => {
-		const fetchArchiveTasks = async () => {
+		const fetchTasks = async () => {
 			try {
 				const tasksQuery = query(
 					collection(db, "tasks"),
+					where("status", "==", "archive"),
 					orderBy(sortConfig.key, sortConfig.order)
 				);
 
@@ -73,12 +74,14 @@ const Archive: React.FC = () => {
 
 				const fetchedTasks = tasksSnapshot.docs.map((doc) => {
 					const data = doc.data();
+
 					const createdAt = data.createdAt?.toDate();
 					const createdBy = data.createdBy;
 					const dueDate = data.dueDate;
 					const fileUpload = data.fileUpload;
 					const title = data.title;
 					const status = data.status;
+					const link = data.link;
 
 					return {
 						id: doc.id,
@@ -88,6 +91,7 @@ const Archive: React.FC = () => {
 						fileUpload,
 						dueDate,
 						status,
+						link,
 					} as Task;
 				});
 
@@ -98,7 +102,7 @@ const Archive: React.FC = () => {
 			}
 		};
 
-		fetchArchiveTasks();
+		fetchTasks();
 	}, [archiveTasks, setArchiveTasks, sortConfig.key, sortConfig.order]);
 
 	const getInitials = (name: string) => {
