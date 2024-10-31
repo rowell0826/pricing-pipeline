@@ -373,7 +373,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 								</Button>
 							</DialogTrigger>
 
-							<DialogContent className="max-h-[95%] overflow-y-scroll ">
+							<DialogContent className="max-h-[95%] overflow-y-scroll scrollbar-hide">
 								<DialogHeader className="text-sidebartx">
 									<DialogTitle className="p-2">Edit Task</DialogTitle>
 									<DialogDescription className="text-sidebartx p-2">
@@ -403,6 +403,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 										/>
 									</div>
 									{(status === "raw" && role === "client") ||
+									(status === "filtering" && role === "client") ||
 									(status === "pricing" && role === "admin") ||
 									(status === "pricing" && role === "promptEngineer") ||
 									(status === "pricing" && role === "dataScientist") ? (
