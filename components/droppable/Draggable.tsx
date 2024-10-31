@@ -402,7 +402,8 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 											className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
 										/>
 									</div>
-									{(status === "raw" && role === "client") ||
+									{status === "raw" ||
+									(status === "filtering" && role === "client") ||
 									(status === "pricing" && role === "admin") ||
 									(status === "pricing" && role === "promptEngineer") ||
 									(status === "pricing" && role === "dataScientist") ? (
