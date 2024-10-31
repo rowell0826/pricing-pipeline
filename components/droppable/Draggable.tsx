@@ -344,13 +344,15 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			className="h-[115px] w-full rounded-md bg-white"
 		>
 			<CardHeader className="h-[30%] py-2" {...listeners}>
-				<CardTitle className="flex justify-between text-xs text-black">
-					{title}
+				<CardTitle className="text-start text-xs text-black">{title}</CardTitle>
+				<div className="flex justify-between">
+					<Avatar className="mr-2 w-6 h-6">
+						<AvatarFallback className="text-xs">
+							{getInitials(createdBy)}
+						</AvatarFallback>
+					</Avatar>
 					<span className="text-gray-500 text-[0.6rem]">{taskId}</span>
-				</CardTitle>
-				<Avatar className="mr-2 w-6 h-6">
-					<AvatarFallback className="text-xs">{getInitials(createdBy)}</AvatarFallback>
-				</Avatar>
+				</div>
 			</CardHeader>
 
 			<div className="p-2 mt-2 rounded-md">
