@@ -8,7 +8,18 @@ import {
 	signInWithPopup,
 	signOut,
 } from "firebase/auth";
-import { doc, Firestore, getDoc, getFirestore, setDoc } from "firebase/firestore";
+import {
+	collection,
+	doc,
+	Firestore,
+	getDoc,
+	getDocs,
+	getFirestore,
+	query,
+	setDoc,
+	updateDoc,
+	where,
+} from "firebase/firestore";
 import {
 	deleteObject,
 	getDownloadURL,
@@ -18,6 +29,7 @@ import {
 	uploadBytesResumable,
 	// UploadTaskSnapshot,
 } from "firebase/storage";
+import dayjs from "dayjs";
 import Swal from "sweetalert2";
 
 // Firebase configuration
@@ -144,53 +156,7 @@ export const signOutUser = async (): Promise<void> => await signOut(auth);
 
 // ---------------------------------- Firestore Storage ---------------------------------
 
-// Client file uploads
-/* export const clientFileUpload = async (
-	container: string,
-	file: File
-): Promise<UploadTaskSnapshot | null> => {
-	if (!file) {
-		console.error("No file provided for upload.");
-		return null;
-	}
-
-	try {
-		// Create a reference for the file in Firebase Storage (adjust the path as needed)
-		const clientRawFileRef = ref(storage, `${container}/${file.name}`);
-
-		// Create an upload task to monitor the upload progress
-		const uploadTask = uploadBytesResumable(clientRawFileRef, file);
-
-		// Return the upload snapshot once the upload completes
-		const snapshot = await new Promise<UploadTaskSnapshot>((resolve, reject) => {
-			uploadTask.on(
-				"state_changed",
-				(snapshot) => {
-					// Monitor the upload progress
-					const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-					console.log(`Upload is ${progress}% done`);
-				},
-				(error) => {
-					console.error("Error uploading file:", error);
-					reject(error);
-				},
-				() => {
-					// Resolve the upload task snapshot when done
-					resolve(uploadTask.snapshot);
-				}
-			);
-		});
-
-		console.log("File uploaded successfully.");
-
-		return snapshot;
-	} catch (error) {
-		console.error("Error uploading file:", error);
-
-		return null;
-	}
-}; */
-
+// Client file upload
 export const clientFileUpload = async (container: string, file: File): Promise<string | null> => {
 	if (!file) {
 		console.error("No file provided for upload.");
@@ -285,5 +251,29 @@ export const getUserRoleFromFirestore = async (userId: string) => {
 	} catch (error) {
 		console.error("Error fetching user role:", error);
 		return null;
+	}
+};
+
+export const autoArchiveTickets = async () => {
+	const archiveThreshold = dayjs().subtract(7, "days"); // Calculate the date 7 days ago
+
+	try {
+		const tasksRef = collection(db, "tasks"); // Reference to the tasks collection
+		const outdatedTicketsQuery = query(
+			tasksRef,
+			where("status", "==", "done"), // Only select tasks that are done
+			where("dueDate", "<=", archiveThreshold.toDate()) // Select tasks older than 7 days
+		);
+
+		const querySnapshot = await getDocs(outdatedTicketsQuery); // Get the outdated tasks
+
+		const updatePromises = querySnapshot.docs.map(
+			(taskDoc) => updateDoc(doc(db, "tasks", taskDoc.id), { status: "archive" }) // Update status to archive
+		);
+
+		await Promise.all(updatePromises); // Wait for all updates to complete
+		console.log("Successfully archived outdated tasks"); // Log success
+	} catch (error) {
+		console.error("Error archiving tasks:", error); // Log any errors
 	}
 };
