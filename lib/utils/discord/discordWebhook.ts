@@ -25,7 +25,10 @@ export async function webHookMessage(options: WebhookMessageOptions): Promise<vo
 						fields: [
 							{
 								name: "Barker Pricing Pipeline",
-								value: link ? link : "https://pricing-pipeline-alpha.vercel.app/",
+								value:
+									link && link !== "https://"
+										? link
+										: "https://pricing-pipeline-alpha.vercel.app/",
 								inline: true,
 							},
 						],
