@@ -262,7 +262,7 @@ export const autoArchiveTickets = async () => {
 		const outdatedTicketsQuery = query(
 			tasksRef,
 			where("status", "==", "done"), // Only select tasks that are done
-			where("dueDate", "<=", archiveThreshold.toDate()) // Select tasks older than 7 days
+			where("dueDate", ">=", archiveThreshold.toDate()) // Select tasks older than 7 days
 		);
 
 		const querySnapshot = await getDocs(outdatedTicketsQuery); // Get the outdated tasks

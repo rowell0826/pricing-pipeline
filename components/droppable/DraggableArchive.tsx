@@ -1,7 +1,7 @@
 import { FileUpload, Task } from "@/lib/types/cardProps";
 import { db, storage } from "@/lib/utils/firebase/firebase";
 import { useDraggable } from "@dnd-kit/core";
-import { addDoc, collection, deleteDoc, doc, getDoc, Timestamp } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { deleteObject, getDownloadURL, getStorage, ref } from "firebase/storage";
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle } from "../ui/card";
@@ -79,7 +79,7 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 
 	useEffect(() => {
 		const fetchTaskData = async () => {
-			const taskRef = doc(db, "archive", id); // Updated to use a static folder name
+			const taskRef = doc(db, "tasks", id); // Updated to use a static folder name
 			const taskSnapshot = await getDoc(taskRef);
 			const taskData = taskSnapshot.data();
 
@@ -111,7 +111,7 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 	};
 
 	const removeTask = async (taskId: string) => {
-		const taskDocRef = doc(db, "archive", taskId);
+		const taskDocRef = doc(db, "tasks", taskId);
 
 		try {
 			// Retrieve task data to access fileUpload paths
@@ -146,7 +146,7 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 	};
 
 	const moveToTaskCollection = async (taskId: string) => {
-		const taskRef = doc(db, "archive", taskId);
+		const taskRef = doc(db, "tasks", taskId);
 
 		try {
 			const taskSnapshot = await getDoc(taskRef);
@@ -154,18 +154,25 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 			if (!taskSnapshot.exists()) {
 				throw new Error("Task does not exist.");
 			}
+
 			const taskData = taskSnapshot.data();
 
-			await addDoc(collection(db, "tasks"), taskData);
+			// Update the task status to "done"
+			const updatedTaskData = {
+				...taskData,
+				status: "done", // Change the status to "done"
+			};
 
-			await deleteDoc(taskRef);
+			// Update the task in the archive collection
+			await setDoc(taskRef, updatedTaskData);
 
+			// Optionally, if you want to update the local state to reflect this change
 			setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
 
-			showAlert("success", "Task has been returned to tasks collection.");
+			showAlert("success", "Task has been unarchive.");
 		} catch (error) {
-			console.error("Unable to move to tasks collection.", error);
-			showAlert("error", "Failed to move the task.");
+			console.error("Unable to unarchive the task.", error);
+			showAlert("error", "Failed to mark the task as done.");
 		}
 	};
 
