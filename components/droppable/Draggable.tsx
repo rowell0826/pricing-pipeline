@@ -373,7 +373,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 								</Button>
 							</DialogTrigger>
 
-							<DialogContent className="max-h-[95%]">
+							<DialogContent className="max-h-[95%] overflow-y-scroll ">
 								<DialogHeader className="text-sidebartx">
 									<DialogTitle className="p-2">Edit Task</DialogTitle>
 									<DialogDescription className="text-sidebartx p-2">
@@ -402,22 +402,81 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 											className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
 										/>
 									</div>
-									{(status === "pricing" && role === "client") ||
-									role === "admin" ||
-									role === "promptEngineer" ||
-									role === "dataScientist" ? (
-										<div>
-											<label className="block text-sm font-medium ">
-												Pricing Link
-											</label>
-											<input
-												type="url"
-												placeholder="Enter url link"
-												value={editLink}
-												onChange={(e) => setEditLink(e.target.value)}
-												className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
-											/>
-										</div>
+									{(status === "raw" && role === "client") ||
+									(status === "pricing" && role === "admin") ||
+									(status === "pricing" && role === "promptEngineer") ||
+									(status === "pricing" && role === "dataScientist") ? (
+										<>
+											<div>
+												<label className="block text-sm font-medium ">
+													Pricing Link
+												</label>
+												<input
+													type="url"
+													placeholder="Enter url link"
+													value={editLink}
+													onChange={(e) => setEditLink(e.target.value)}
+													className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-black"
+												/>
+											</div>
+
+											<div>
+												<label className="block text-sm font-medium ">
+													Uploaded Files
+												</label>
+												{downloadedFiles.length > 0 ? (
+													<ul className="mt-2 space-y-2 bg-white px-2 py-1 h-[50px] overflow-y-scroll">
+														{downloadedFiles.map((fileUrl, index) => (
+															<li
+																key={index}
+																className="flex justify-between items-center"
+															>
+																{isFileUpload(fileUrl) ? (
+																	<>
+																		<a
+																			href={fileUrl.filePath}
+																			target="_blank"
+																			rel="noopener noreferrer"
+																			className="text-cyan-800 hover:underline"
+																		>
+																			{getFilenameFromUrl(
+																				fileUrl.filePath
+																			)}
+																		</a>
+																		<IoCloseSharp
+																			onClick={() =>
+																				handleFileDelete(
+																					fileUrl.filePath
+																				)
+																			}
+																			className="cursor-pointer text-black mr-1"
+																		/>
+																	</>
+																) : (
+																	<span className="text-gray-500">
+																		Invalid file type
+																	</span>
+																)}
+															</li>
+														))}
+													</ul>
+												) : (
+													<p className="text-sm text-gray-500">
+														No files uploaded yet.
+													</p>
+												)}
+											</div>
+											<div className="p-1">
+												<label className="block text-sm font-medium ">
+													Upload File
+												</label>
+												<input
+													type="file"
+													onChange={handleFileChange}
+													className="mt-1 block w-full "
+												/>
+											</div>
+										</>
 									) : (
 										<>
 											<div>

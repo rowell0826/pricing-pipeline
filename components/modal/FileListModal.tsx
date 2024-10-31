@@ -2,8 +2,10 @@ import { FileListModalProps } from "@/lib/types/modalProps";
 import { Dialog } from "@radix-ui/react-dialog";
 import { DialogClose, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
+import { useAuth } from "@/lib/context/authContext/AuthContext";
 
 const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileList }) => {
+	const { role } = useAuth();
 	const getFilenameFromUrl = (url: string, removeSegment?: string) => {
 		const urlParts = url.split("/");
 		const filename =
@@ -14,13 +16,26 @@ const FileListModal: React.FC<FileListModalProps> = ({ open, onOpenChange, fileL
 		return removeSegment ? decodedFilename.replace(removeSegment, "") : decodedFilename;
 	};
 
+	const accessibleFolders =
+		role === "admin"
+			? ["raw", "filtering", "pricing", "done"]
+			: role === "client"
+			? ["raw", "pricing"]
+			: role === "dataQA" || role === "dataManager"
+			? ["raw", "filtering"]
+			: role === "promptEngineer" || role === "dataScientist"
+			? ["filtering"]
+			: null;
+
 	// Function to group files by folder type
 	const groupFilesByFolder = (files: { filePath: string; folder: string }[]) => {
 		return files.reduce((acc, { filePath, folder }) => {
-			if (!acc[folder]) {
-				acc[folder] = [];
+			if (accessibleFolders?.includes(folder)) {
+				if (!acc[folder]) {
+					acc[folder] = [];
+				}
+				acc[folder].push(filePath);
 			}
-			acc[folder].push(filePath);
 			return acc;
 		}, {} as Record<string, string[]>);
 	};
