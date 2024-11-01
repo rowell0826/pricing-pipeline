@@ -262,18 +262,18 @@ export const autoArchiveTickets = async () => {
 		const outdatedTicketsQuery = query(
 			tasksRef,
 			where("status", "==", "done"), // Only select tasks that are done
-			where("dueDate", ">=", archiveThreshold.toDate()) // Select tasks older than 7 days
+			where("dueDate", "<=", archiveThreshold.toDate()) // Select tasks older than 7 days
 		);
 
 		const querySnapshot = await getDocs(outdatedTicketsQuery); // Get the outdated tasks
 
-		const updatePromises = querySnapshot.docs.map(
-			(taskDoc) => updateDoc(doc(db, "tasks", taskDoc.id), { status: "archive" }) // Update status to archive
+		const updatePromises = querySnapshot.docs.map((taskDoc) =>
+			updateDoc(doc(db, "tasks", taskDoc.id), { status: "archive" })
 		);
 
-		await Promise.all(updatePromises); // Wait for all updates to complete
-		console.log("Successfully archived outdated tasks"); // Log success
+		await Promise.all(updatePromises);
+		console.log("Successfully archived outdated tasks");
 	} catch (error) {
-		console.error("Error archiving tasks:", error); // Log any errors
+		console.error("Error archiving tasks:", error);
 	}
 };

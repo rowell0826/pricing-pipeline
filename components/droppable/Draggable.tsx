@@ -1,6 +1,6 @@
 import { FileUpload, Task } from "@/lib/types/cardProps";
 import {
-	//autoArchiveTickets,
+	autoArchiveTickets,
 	clientFileUpload,
 	db,
 	deleteFileFromStorage,
@@ -8,13 +8,7 @@ import {
 } from "@/lib/utils/firebase/firebase";
 import { useDraggable } from "@dnd-kit/core";
 import { deleteDoc, doc, getDoc, Timestamp, updateDoc } from "firebase/firestore";
-import {
-	deleteObject,
-	getDownloadURL,
-	getStorage,
-	ref,
-	//StorageReference
-} from "firebase/storage";
+import { deleteObject, getDownloadURL, getStorage, ref } from "firebase/storage";
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
@@ -112,13 +106,13 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 			}
 		};
 
-		/* const updateTicketsStatus = async () => {
+		const updateTicketsStatus = async () => {
 			await autoArchiveTickets();
-		}; */
+		};
 
 		fetchTaskData();
 
-		/* updateTicketsStatus(); */
+		updateTicketsStatus();
 	}, [id]);
 
 	const getFilenameFromUrl = (url: string) => {
