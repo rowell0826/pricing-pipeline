@@ -28,7 +28,7 @@ import {
 	useSensors,
 } from "@dnd-kit/core";
 import { Droppable } from "@/components/droppable/Droppable";
-import { DraggableCard } from "@/components/droppable/Draggable";
+import { DraggableCard } from "@/components/draggable/Draggable";
 import {
 	SortableContext,
 	sortableKeyboardCoordinates,

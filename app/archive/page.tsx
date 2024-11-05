@@ -1,5 +1,5 @@
 "use client";
-import { DraggableArchiveCard } from "@/components/droppable/DraggableArchive";
+import { DraggableArchiveCard } from "@/components/draggable/DraggableArchive";
 import { DroppableArchive } from "@/components/droppable/DroppableArchive";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
