@@ -123,7 +123,7 @@ export default function SideBar() {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent className="w-80 ml-2">
-						<DropdownMenuLabel className="flex justify-between">
+						<DropdownMenuLabel className="flex justify-between text-base">
 							{userName}
 							<DropdownMenuShortcut>
 								{role === "admin"
