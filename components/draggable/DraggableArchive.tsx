@@ -225,7 +225,9 @@ export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggablePro
 			className="h-[120px] min-w-[250px] max-w-[300px] rounded-md bg-white"
 		>
 			<CardHeader className="h-[35%] py-2" {...listeners}>
-				<CardTitle className="text-left text-xs text-black">{title}</CardTitle>
+				<CardTitle className="text-left text-xs text-black scrollbar-hide overflow-y-scroll">
+					{title}
+				</CardTitle>
 				<div className="flex justify-between">
 					<Avatar className="mr-2 w-6 h-6">
 						<AvatarFallback className="text-xs">
