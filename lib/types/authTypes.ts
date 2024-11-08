@@ -1,4 +1,5 @@
-import { User } from "firebase/auth";
+import { User } from 'firebase/auth';
+
 
 export type DefaultFormFields = {
 	displayName: string;
