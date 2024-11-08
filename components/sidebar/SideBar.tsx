@@ -123,7 +123,7 @@ export default function SideBar() {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent className="w-80 ml-2">
-						<DropdownMenuLabel className="flex justify-between text-base">
+						<DropdownMenuLabel className="flex justify-between">
 							{userName}
 							<DropdownMenuShortcut>
 								{role === "admin"
@@ -184,7 +184,9 @@ export default function SideBar() {
 				</div>
 
 				<div className="flex flex-col items-center">
-					<h1 className={`${isOpen ? "" : "hidden"} text-sidebartx`}>Hi, {userName}</h1>
+					<h1 className={`${isOpen ? "" : "hidden"} text-sidebartx text-sm`}>
+						Hi, {userName}
+					</h1>
 					<p className={`${isOpen ? "" : "hidden"} text-center text-sidebartx`}>
 						{role === "admin"
 							? "Admin"
