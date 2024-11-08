@@ -184,7 +184,7 @@ export default function SideBar() {
 				</div>
 
 				<div className="flex flex-col items-center">
-					<h1 className={`${isOpen ? "" : "hidden"} text-sidebartx text-sm`}>
+					<h1 className={`${isOpen ? "" : "hidden"} text-sidebartx text-base`}>
 						Hi, {userName}
 					</h1>
 					<p className={`${isOpen ? "" : "hidden"} text-center text-sidebartx`}>
