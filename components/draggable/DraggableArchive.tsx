@@ -1,6 +1,7 @@
 import { FileUpload, Task } from "@/lib/types/cardProps";
 import { db, storage } from "@/lib/utils/firebase/firebase";
-import { useDraggable } from "@dnd-kit/core";
+
+import { useSortable } from "@dnd-kit/sortable";
 import { deleteDoc, doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { deleteObject, getDownloadURL, getStorage, ref } from "firebase/storage";
 import { useEffect, useState } from "react";
@@ -41,7 +42,7 @@ const folderAccessByRole: Record<AuthRole, string[]> = {
 };
 
 export const DraggableArchiveCard = (props: React.PropsWithChildren<DraggableProps>) => {
-	const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+	const { attributes, listeners, setNodeRef, transform, isDragging } = useSortable({
 		id: props.id,
 	});
 

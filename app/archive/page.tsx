@@ -26,10 +26,10 @@ import {
 	useSensors,
 } from "@dnd-kit/core";
 import {
-	horizontalListSortingStrategy,
+	arrayMove,
+	rectSortingStrategy,
 	SortableContext,
 	sortableKeyboardCoordinates,
-	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { collection, doc, getDocs, orderBy, query, where, writeBatch } from "firebase/firestore";
 import Link from "next/link";
@@ -129,7 +129,7 @@ const Archive: React.FC = () => {
 		setActiveId(String(active.id));
 	};
 
-	const handleDragEnd = async (event: DragEndEvent) => {
+	/* const handleDragEnd = async (event: DragEndEvent) => {
 		const { active, over } = event;
 
 		if (!over || active.id === over.id) {
@@ -154,6 +154,41 @@ const Archive: React.FC = () => {
 			await batch.commit();
 		} catch (error) {
 			console.error("Error saving task order:", error);
+		}
+
+		setActiveId(null);
+	};
+ */
+	const handleDragEnd = async (event: DragEndEvent) => {
+		const { active, over } = event;
+
+		if (!over || active.id === over.id) {
+			setActiveId(null);
+			return;
+		}
+
+		const oldIndex = archiveTasks.findIndex((task) => task.id === active.id);
+		const newIndex = archiveTasks.findIndex((task) => task.id === over.id);
+
+		if (oldIndex === -1 || newIndex === -1) return;
+
+		const updatedTasks = arrayMove(archiveTasks, oldIndex, newIndex);
+
+		// Optimistic update
+		setArchiveTasks(updatedTasks);
+
+		try {
+			const batch = writeBatch(db);
+			updatedTasks.forEach((task, index) => {
+				console.log(`Updating task ${task.id} to position ${index}`);
+				const taskRef = doc(db, "tasks", task.id);
+				batch.update(taskRef, { position: index });
+			});
+			await batch.commit();
+		} catch (error) {
+			console.error("Error saving task order:", error);
+
+			setArchiveTasks([...archiveTasks]);
 		}
 
 		setActiveId(null);
@@ -205,23 +240,17 @@ const Archive: React.FC = () => {
 					<div className="w-full h-full ">
 						<SortableContext
 							items={archiveTasks.map((task) => task.id)}
-							strategy={verticalListSortingStrategy}
+							strategy={rectSortingStrategy}
 						>
 							<div className="h-full custom-scrollbar overflow-y-scroll grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 border-2 border-slate-400 rounded-md">
 								{archiveTasks.map((task) => (
-									<SortableContext
-										key={task.id}
-										items={archiveTasks.map((task) => task.id)}
-										strategy={horizontalListSortingStrategy}
-									>
-										<DroppableArchive id={task.id}>
-											<DraggableArchiveCard
-												id={task.id}
-												task={task}
-												getInitials={getInitials}
-											/>
-										</DroppableArchive>
-									</SortableContext>
+									<DroppableArchive key={task.id} id={task.id}>
+										<DraggableArchiveCard
+											id={task.id}
+											task={task}
+											getInitials={getInitials}
+										/>
+									</DroppableArchive>
 								))}
 							</div>
 						</SortableContext>
