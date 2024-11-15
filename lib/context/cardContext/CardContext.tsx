@@ -38,9 +38,12 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	};
 
 	const ensureHttps = (url: string): string => {
+		if (!url) return "";
+
 		if (!/^https?:\/\//i.test(url)) {
 			return `https://${url}`;
 		}
+
 		return url;
 	};
 
@@ -61,7 +64,7 @@ export const CardProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				modalHandler,
 				setOpenCreateTaskModal,
 				sortFilter,
-				ensureHttps
+				ensureHttps,
 			}}
 		>
 			{children}
