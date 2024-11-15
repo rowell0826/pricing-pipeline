@@ -11,7 +11,7 @@ import { useState } from "react";
 import { useAuth } from "@/lib/context/authContext/AuthContext";
 import { Task } from "@/lib/types/cardProps";
 import { clientFileUpload, db } from "@/lib/utils/firebase/firebase";
-import { addDoc, collection, updateDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { useTheme } from "@/lib/context/themeContext/ThemeContext";
 import { generateUniqueId } from "@/lib/utils/helperFunc";
 import { webHookMessage } from "@/lib/utils/discord/discordWebhook";
@@ -79,15 +79,11 @@ const Modal: React.FC = () => {
 						status: "raw",
 					};
 
-					
 					// Add the task to Firestore
-					const docRef = await addDoc(collection(db, "tasks"), newTask);
-
-					// Update the document with its ID
-					await updateDoc(docRef, { id: taskId }); // Add the ID if required
+					await setDoc(doc(db, "tasks", taskId), newTask, { merge: true });
 
 					// Update local state immediately
-					setTasks((prevTasks) => [...prevTasks, { ...newTask, id: docRef.id } as Task]);
+					setTasks((prevTasks) => [...prevTasks, newTask]);
 
 					showAlert("success", "Task added successfully!");
 
