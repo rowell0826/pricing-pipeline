@@ -91,7 +91,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 
 	useEffect(() => {
 		const fetchTaskData = async () => {
-			const taskRef = doc(db, "tasks", id); // Updated to use a static folder name
+			const taskRef = doc(db, "tasks", id);
 			const taskSnapshot = await getDoc(taskRef);
 			const taskData = taskSnapshot.data();
 
@@ -172,7 +172,7 @@ export const DraggableCard = (props: React.PropsWithChildren<DraggableProps>) =>
 					if (fileRef != null) {
 						await deleteObject(fileRef); // Delete the file from firebase storage
 					} else {
-						return; // 10/28/2024
+						return; 
 					}
 				})
 			);
