@@ -79,7 +79,7 @@ const Modal: React.FC = () => {
 						status: "raw",
 					};
 
-					console.log("Gsheet Link: ", editLink);
+					
 					// Add the task to Firestore
 					const docRef = await addDoc(collection(db, "tasks"), newTask);
 
